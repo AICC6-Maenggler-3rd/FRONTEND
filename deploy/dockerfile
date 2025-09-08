@@ -1,0 +1,33 @@
+# 1️⃣ Build Stage
+FROM node:20.19-alpine AS builder
+
+WORKDIR /app
+
+# package.json + package-lock.json 복사
+COPY package*.json ./
+
+# 의존성 설치 (devDependencies 포함)
+RUN npm ci --prefer-offline --no-audit --no-fund --progress=false
+
+# 소스 코드 전체 복사
+COPY . .
+
+# Vite 빌드
+RUN npm run build
+
+# 2️⃣ Production Stage
+FROM node:20.19-alpine
+
+WORKDIR /app
+
+# production용 serve 설치 (정적 파일 서빙)
+RUN npm install -g serve
+
+# 빌드 산출물 복사
+COPY --from=builder /app/dist ./dist
+
+# 포트 설정
+EXPOSE 80
+
+# React 정적 파일 서버 실행
+CMD ["serve", "-s", "dist", "-l", "80"]

@@ -1,0 +1,255 @@
+pipeline {
+    agent any
+
+    environment {
+        NODE_ENV = "production"
+
+        // Docker Registry 설정
+        DOCKER_REGISTRY = "${env.CUSTOM_DOCKER_REGISTRY}"
+        DOCKER_CREDENTIALS = "${env.CUSTOM_DOCKER_CREDENTIALS}"
+        DOCKER_IMAGE = 'mangler/docgen-frontend'
+        CONTAINER_NAME = 'mangler-docgen-frontend'
+        DOCKERFILE_PATH = "deploy/Dockerfile"   // Dockerfile 경로
+        
+        ENV_FILE_CREDENTIALS_ID = "MANGLER_DOCGEN_FRONT_ENV_FILE"
+    }
+
+    tools {
+        nodejs 'node-v20.19.4'
+    }
+
+    stages {
+        stage('📥 Checkout') {
+            steps {
+                echo "📥 Git 저장소에서 코드 가져오기"
+                git branch: 'main', url: 'https://github.com/AICC-Mangler/docgen-frontend.git'
+            }
+        }
+
+        stage('📦 Install Dependencies') {
+            steps {
+                sh '''
+                echo "📦 React + Vite + TypeScript 의존성 설치 시작"
+
+                rm -rf node_modules
+
+                if [ -f package-lock.json ]; then
+                    echo "🔒 package-lock.json 존재 -> npm ci 사용"
+                    npm ci --include=dev --prefer-offline --no-audit --no-fund --progress=false
+                else
+                    echo "⚠️ package-lock.json 없음 -> npm install 사용"
+                    npm install --include=dev --prefer-offline --no-audit --no-fund --progress=false
+                fi
+
+                # 설치 확인
+                if [ -f node_modules/.bin/vite ]; then
+                    echo "📋 Vite 바이너리 확인 완료"
+                else
+                    echo "⚠️ Vite 바이너리 확인 실패"
+                fi
+
+                if [ -f node_modules/.bin/tsc ]; then
+                    echo "📋 TypeScript 바이너리 확인 완료"
+                else
+                    echo "⚠️ TypeScript 바이너리 확인 실패"
+                fi
+
+                echo "✅ 의존성 설치 완료"
+                '''
+            }
+        }
+
+        stage('.env file 생성'){
+            steps{
+                script{
+                    withCredentials([
+                            file(credentialsId: ENV_FILE_CREDENTIALS_ID, variable: 'ENV_FILE')
+                        ]) {
+                            sh '''
+                                echo "📄 환경 변수 파일 복사 중"
+                                cp "\$ENV_FILE" .env
+                                chmod 644 .env
+                                
+                                echo "✅ 환경 변수 파일 생성 및 정리 완료"
+                                echo "📋 환경 변수 파일 내용 확인:"
+                                cat .env | head -10
+                            '''
+                        }
+                    }
+            }
+        }
+
+        stage('🏗️ Build NestJS') {
+            steps {
+                sh '''
+                    echo "🏗️ React + Vite + TypeScript 빌드 시작"
+
+                    # 빌드 산출물 제거
+                    rm -rf dist
+
+                    # Vite 빌드
+                    npm run build
+
+                    # 빌드 확인
+                    if [ -d "dist" ]; then
+                        echo "✅ 빌드 완료: dist 폴더 생성됨"
+                        ls -la dist
+                    else
+                        echo "❌ 빌드 실패: dist 폴더가 없음"
+                        exit 1
+                    fi
+                '''
+            }
+        }
+
+        // stage('🧪 Test') {
+        //     steps {
+        //         sh '''
+        //             echo "🧪 테스트 실행"
+        //             npm run test || echo "⚠️ 테스트 실패 (무시하려면 여기서 처리)"
+        //         '''
+        //     }
+        // }
+
+        stage('🐳 Docker Build') {
+            steps {
+                script {
+                    try {
+                        echo "🐳 Docker 이미지 빌드 시작"
+
+                        def app = docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}", "-f ${DOCKERFILE_PATH} .")
+
+                        // 빌드 성공 시 환경 변수 설정
+                        env.DOCKER_BUILD_SUCCESS = 'true'
+                        env.DOCKER_IMAGE_TAG = "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+
+                        echo "✅ Docker 이미지 빌드 성공"
+                        echo "📦 이미지 태그: ${env.DOCKER_IMAGE_TAG}"
+
+                    } catch (Exception e) {
+                        env.DOCKER_BUILD_SUCCESS = 'false'
+                        error "❌ Docker 빌드 실패: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('📤 Push Docker Image') {
+            when {
+                environment name: 'DOCKER_BUILD_SUCCESS', value: 'true'
+            }
+            steps {
+                script {
+                    try {
+                        docker.withRegistry("https://${DOCKER_REGISTRY}", "${DOCKER_CREDENTIALS}") {
+                            def app = docker.image("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}")
+                            app.push("${BUILD_NUMBER}")
+
+                            // main 브랜치는 latest 태그도 푸시
+                            def currentBranch = env.GIT_BRANCH ?: 'develop'
+                            if (currentBranch.contains('main')) {
+                                app.push("latest")
+                                echo "✅ latest 태그 푸시 완료"
+                            }
+                        }
+
+                        env.DOCKER_PUSH_SUCCESS = 'true'
+                        echo "✅ Docker 이미지 푸시 성공: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    } catch (Exception e) {
+                        env.DOCKER_PUSH_SUCCESS = 'false'
+                        echo "❌ Docker Registry 인증 또는 푸시 실패: ${e.getMessage()}"
+                        echo "🔍 Docker Registry: ${DOCKER_REGISTRY}"
+                        echo "🔍 Credentials ID: ${DOCKER_CREDENTIALS}"
+                        error "Docker 푸시 실패: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+        stage('🚀 Deploy') {
+            when {
+                environment name: 'DOCKER_PUSH_SUCCESS', value: 'true'
+            }
+            steps {
+                script {
+                    def currentBranch = env.CURRENT_BRANCH ?: env.BRANCH_NAME ?: 'main'
+                    def deployEnv = currentBranch.contains('main') ? 'production' : 'development'
+                    def containerName = "${CONTAINER_NAME}-${deployEnv}"
+                    def containerPort = deployEnv == 'production' ? '8181' : '3001'
+                    def dockerNetwork = 'demo-net'
+
+                    echo "🚀 배포 시작: ${deployEnv} 환경"
+                    echo "📦 컨테이너: ${containerName}"
+                    echo "🔌 포트: ${containerPort}"
+                    echo "📦 이미지: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+
+                    try {
+                        // Docker Registry 인증 후 이미지 pull
+                        docker.withRegistry("https://${DOCKER_REGISTRY}", "${DOCKER_CREDENTIALS}") {
+                            sh "docker pull ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        }
+
+                        sh """
+                            # 기존 컨테이너 중지 및 삭제
+                            docker stop ${containerName} || true
+                            docker rm ${containerName} || true
+                            
+                            # 새 컨테이너 실행
+                            docker run -d \\
+                                --name ${containerName} \\
+                                --network ${dockerNetwork} \\
+                                --restart unless-stopped \\
+                                --label "app=nestjs-backend" \\
+                                --label "env=${deployEnv}" \\
+                                --label "version=${BUILD_NUMBER}" \\
+                                --label "branch=${currentBranch}" \\
+                                --label "commit=${env.GIT_COMMIT_SHORT}" \\
+                                --env-file .env \\
+                                -p ${containerPort}:80 \\
+                                ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}
+
+                            # 컨테이너 상태 확인
+                            sleep 5
+                            docker ps | grep ${containerName}
+                            echo "✅ 컨테이너 ${containerName} 배포 완료"
+                        """
+
+                        env.DEPLOY_SUCCESS = 'true'
+
+                    } catch (Exception e) {
+                        env.DEPLOY_SUCCESS = 'false'
+                        echo "❌ 배포 실패: ${e.getMessage()}"
+                        error "배포 실패: ${e.getMessage()}"
+                    }
+
+                    // 배포 후 헬스 체크
+                    if (env.DEPLOY_SUCCESS == 'true') {
+                        sh """
+                            echo "🔍 헬스 체크 시작"
+                            sleep 5
+                            for i in \$(seq 1 10); do
+                                if curl -f http://localhost:${containerPort} > /dev/null 2>&1; then
+                                    echo "✅ 애플리케이션이 정상적으로 실행 중입니다"
+                                    break
+                                else
+                                    echo "⏳ 대기 중... (\$i/10)"
+                                    sleep 3
+                                fi
+                            done
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    
+
+    post {
+        success {
+            echo "✅ Pipeline 성공적으로 완료"
+        }
+        failure {
+            echo "❌ Pipeline 실패"
+        }
+    }
+}
