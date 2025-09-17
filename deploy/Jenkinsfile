@@ -7,11 +7,11 @@ pipeline {
         // Docker Registry 설정
         DOCKER_REGISTRY = "${env.CUSTOM_DOCKER_REGISTRY}"
         DOCKER_CREDENTIALS = "${env.CUSTOM_DOCKER_CREDENTIALS}"
-        DOCKER_IMAGE = 'mangler/docgen-frontend'
-        CONTAINER_NAME = 'mangler-docgen-frontend'
+        DOCKER_IMAGE = 'mangler/inpick-frontend'
+        CONTAINER_NAME = 'mangler-inpick-frontend'
         DOCKERFILE_PATH = "deploy/Dockerfile"   // Dockerfile 경로
-        
-        ENV_FILE_CREDENTIALS_ID = "MANGLER_DOCGEN_FRONT_ENV_FILE"
+        APP_PORT_EXTERNAL = "8381"   // 호스트에서 접근할 포트
+        ENV_FILE_CREDENTIALS_ID = "MANGLER_INPICK_FRONT_ENV_FILE"
     }
 
     tools {
@@ -22,7 +22,7 @@ pipeline {
         stage('📥 Checkout') {
             steps {
                 echo "📥 Git 저장소에서 코드 가져오기"
-                git branch: 'main', url: 'https://github.com/AICC-Mangler/docgen-frontend.git'
+                git branch: 'main', url: 'https://github.com/AICC6-Maenggler-3rd/FRONTEND.git',credentialsId: 'Mangler-3rd-git'
             }
         }
 
@@ -174,7 +174,7 @@ pipeline {
                     def currentBranch = env.CURRENT_BRANCH ?: env.BRANCH_NAME ?: 'main'
                     def deployEnv = currentBranch.contains('main') ? 'production' : 'development'
                     def containerName = "${CONTAINER_NAME}-${deployEnv}"
-                    def containerPort = deployEnv == 'production' ? '8181' : '3001'
+                    def containerPort = deployEnv == 'production' ? ${APP_PORT_EXTERNAL} : '3001'
                     def dockerNetwork = 'demo-net'
 
                     echo "🚀 배포 시작: ${deployEnv} 환경"
