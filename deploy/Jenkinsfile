@@ -174,7 +174,7 @@ pipeline {
                     def currentBranch = env.CURRENT_BRANCH ?: env.BRANCH_NAME ?: 'main'
                     def deployEnv = currentBranch.contains('main') ? 'production' : 'development'
                     def containerName = "${CONTAINER_NAME}-${deployEnv}"
-                    def containerPort = deployEnv == 'production' ? ${env.APP_PORT_EXTERNAL} : '3001'
+                    def containerPort = deployEnv == 'production' ? "${APP_PORT_EXTERNAL}" : '3001'
                     def dockerNetwork = 'demo-net'
 
                     echo "🚀 배포 시작: ${deployEnv} 환경"
