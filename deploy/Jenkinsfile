@@ -11,7 +11,7 @@ pipeline {
         CONTAINER_NAME = 'mangler-inpick-frontend'
         DOCKERFILE_PATH = "deploy/Dockerfile"   // Dockerfile 경로
         APP_PORT_EXTERNAL = "8381"   // 호스트에서 접근할 포트
-        ENV_FILE_CREDENTIALS_ID = "MANGLER_INPICK_FRONT_ENV_FILE"
+        ENV_FILE_CREDENTIALS_ID = "MANGLER_INPICK_FRONTEND_ENV_FILE"
     }
 
     tools {
