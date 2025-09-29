@@ -20,10 +20,17 @@ const MapPage = () => {
   
 
   return (
-    <NaverMap 
-      markers={mapInfo.markers}
-      // direction={mapInfo.direction}
-    />
+    <div
+      style={{
+        width:'700px',
+        height:'700px'
+      }}
+      >
+      <NaverMap 
+        markers={mapInfo.markers}
+        direction={mapInfo.direction}
+      />
+    </div>
   );
 };
 
