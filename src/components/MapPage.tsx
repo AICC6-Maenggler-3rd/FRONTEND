@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import NaverMap, { type MapInfo } from './NaverMap';
+import KakaoMap from './KakaoMap';
 
 
 
@@ -26,9 +27,13 @@ const MapPage = () => {
         height:'700px'
       }}
       >
-      <NaverMap 
+      {/* <NaverMap 
         markers={mapInfo.markers}
         direction={mapInfo.direction}
+      /> */}
+      <KakaoMap
+          markers={mapInfo.markers}
+          direction={mapInfo.direction}
       />
     </div>
   );

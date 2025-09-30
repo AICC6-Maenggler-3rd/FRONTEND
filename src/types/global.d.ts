@@ -2,6 +2,10 @@ declare global {
   interface Window {
     naver: any;
   }
+
+  interface Window {
+    kakao: any;
+  }
 }
 
 declare namespace naver.maps {
