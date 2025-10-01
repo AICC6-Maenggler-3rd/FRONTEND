@@ -28,15 +28,20 @@ export function HeroSection() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setPreviousImageIndex((prev) => currentImageIndex);
-      setCurrentImageIndex(
-        (prevIndex) => (prevIndex + 1) % backgroundImages.length,
-      );
+      setPreviousImageIndex(currentImageIndex);
       setIsFading(true);
-      // 페이드아웃 종료 후 상태 초기화
-      const timer = setTimeout(() => setIsFading(false), 900);
-      return () => clearTimeout(timer);
-    }, 4000);
+
+      // 페이드아웃이 시작된 후 이미지 변경
+      setTimeout(() => {
+        setCurrentImageIndex(
+          (prevIndex) => (prevIndex + 1) % backgroundImages.length,
+        );
+        // 페이드인 시작
+        setTimeout(() => {
+          setIsFading(false);
+        }, 100);
+      }, 800);
+    }, 5000); // 5초로 늘려서 더 여유롭게
 
     return () => clearInterval(interval);
   }, [currentImageIndex, backgroundImages.length]);
@@ -47,7 +52,9 @@ export function HeroSection() {
       <div className="absolute inset-0 z-0">
         {/* 현재 이미지 */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed opacity-70"
+          className={`absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed transition-opacity duration-1000 ease-in-out ${
+            isFading ? 'opacity-30' : 'opacity-70'
+          }`}
           style={{
             backgroundImage: `url(${backgroundImages[currentImageIndex]})`,
             backgroundSize: 'cover',
@@ -57,7 +64,7 @@ export function HeroSection() {
         />
         {/* 이전 이미지가 위에서 서서히 사라지는 레이어 */}
         <div
-          className={`absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed opacity-60 transition-opacity duration-700 ease-in-out ${
+          className={`absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed transition-opacity duration-1000 ease-in-out ${
             isFading ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
@@ -149,7 +156,7 @@ export function TravelProcessSection() {
         {/* Travel Process */}
         <div className="max-w-7xl mx-auto mt-30">
           {/* 4-step process */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-40">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
             {/* Left side - Travel process */}
             <div className="space-y-12">
               {/* Main question */}
@@ -355,6 +362,234 @@ export function TravelProcessSection() {
             </div>
           </div>
 
+          <section className="py-32 bg-gradient-to-b from-white to-blue-50 mb-30">
+            <div className="container mx-auto px-4">
+              <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-16">
+                  <Badge variant="secondary" className="mb-4 px-4 py-2 text-sm">
+                    AI 자동 일정 생성
+                  </Badge>
+                  <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-balance">
+                    SNS 속 여행지도 이제는 손쉽게
+                  </h2>
+                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                    유명한데 어딘지 몰라서 못 가셨다고요? <br />
+                    SNS 속 그곳, 클릭 한번으로 AI가 여행 계획을 세워드려요.
+                  </p>
+                </div>
+
+                <div className="grid lg:grid-cols-2 gap-16 items-center relative">
+                  {/* 왼쪽: 인스타그램 게시물 */}
+                  <div className="relative">
+                    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200 max-w-md mx-auto">
+                      {/* 인스타그램 헤더 */}
+                      <div className="flex items-center gap-3 p-4 border-b">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                          I
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm">inpick_lover</p>
+                          <p className="text-xs text-gray-500">
+                            제주도, 대한민국
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* 인스타그램 이미지 */}
+                      <div className="aspect-square bg-gray-100">
+                        <img
+                          src="/image/성산일출봉.jpg"
+                          alt="제주도 여행"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      {/* 인스타그램 하단 */}
+                      <div className="p-4">
+                        <div className="flex gap-4 mb-3">
+                          <span className="text-lg">❤️</span>
+                          <span className="text-lg">💬</span>
+                          <span className="text-lg mb-1"> ... </span>
+                        </div>
+                        <p className="font-semibold text-sm mb-1">
+                          좋아요 1,234개
+                        </p>
+                        <p className="text-sm">
+                          <span className="font-semibold">travel_lover</span>{' '}
+                          제주도 힐링 여행 <br />
+                          🌊 성산일출봉, 우도, 카페 투어 #제주도 #제주여행 #힐링
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 중간: 점선 연결 (데스크톱에서만 표시) */}
+                  <svg
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden lg:block pointer-events-none"
+                    width="200"
+                    height="100"
+                    viewBox="0 0 200 100"
+                  >
+                    <defs>
+                      <marker
+                        id="arrowhead"
+                        markerWidth="10"
+                        markerHeight="10"
+                        refX="9"
+                        refY="3"
+                        orient="auto"
+                        fill="#3b82f6"
+                      >
+                        <polygon points="0 0, 10 3, 0 6" />
+                      </marker>
+                    </defs>
+                    <path
+                      d="M 20 50 Q 100 20, 180 50"
+                      stroke="#3b82f6"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray="8,8"
+                      markerEnd="url(#arrowhead)"
+                    >
+                      <animate
+                        attributeName="stroke-dashoffset"
+                        from="0"
+                        to="-16"
+                        dur="1s"
+                        repeatCount="indefinite"
+                      />
+                    </path>
+                  </svg>
+
+                  {/* 오른쪽: 일정표 */}
+                  <div className="relative">
+                    <div className="bg-white rounded-3xl shadow-2xl p-6 border border-gray-200 max-w-md mx-auto">
+                      {/* 일정표 헤더 */}
+                      <div className="mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-bold">
+                            제주도 힐링 여행
+                          </h3>
+                          <Badge className="bg-blue-500">AI 생성</Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          제주도의 아름다운 자연을 만끽하며 힐링하는 여행
+                        </p>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span>📅 2025.09.15 ~ 09.18</span>
+                          <span>⏱️ 3박 4일</span>
+                        </div>
+                      </div>
+
+                      {/* 일정 항목들 */}
+                      <div className="space-y-3">
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                          <div className="flex items-start gap-3">
+                            <div className="text-sm font-semibold text-gray-600 min-w-[50px]">
+                              09:00
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-semibold">성산일출봉 등반</p>
+                                <Badge variant="outline" className="text-xs">
+                                  관광
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                📍 제주특별자치도 서귀포시 성산읍
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                          <div className="flex items-start gap-3">
+                            <div className="text-sm font-semibold text-gray-600 min-w-[50px]">
+                              12:00
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-semibold">
+                                  우도 해산물 맛집
+                                </p>
+                                <Badge variant="outline" className="text-xs">
+                                  식사
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                📍 제주특별자치도 제주시 우도면
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                          <div className="flex items-start gap-3">
+                            <div className="text-sm font-semibold text-gray-600 min-w-[50px]">
+                              15:00
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-semibold">
+                                  오션뷰 카페 투어
+                                </p>
+                                <Badge variant="outline" className="text-xs">
+                                  카페
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                📍 제주특별자치도 서귀포시 안덕면
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button className="w-full mt-6 text-blue-700">
+                        전체 일정 보기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 모바일용 화살표 (세로 방향) */}
+                <div className="flex justify-center my-8 lg:hidden">
+                  <svg width="50" height="100" viewBox="0 0 50 100">
+                    <defs>
+                      <marker
+                        id="arrowhead-mobile"
+                        markerWidth="10"
+                        markerHeight="10"
+                        refX="5"
+                        refY="5"
+                        orient="auto"
+                        fill="#3b82f6"
+                      >
+                        <polygon points="0 0, 10 5, 0 10" />
+                      </marker>
+                    </defs>
+                    <path
+                      d="M 25 10 L 25 90"
+                      stroke="#3b82f6"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray="8,8"
+                      markerEnd="url(#arrowhead-mobile)"
+                    >
+                      <animate
+                        attributeName="stroke-dashoffset"
+                        from="0"
+                        to="-16"
+                        dur="1s"
+                        repeatCount="indefinite"
+                      />
+                    </path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* AI 추천 섹션 */}
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-40">
             {/* 왼쪽 - 카드 스택 (앞 카드가 오른쪽 뒤로 넘어가는 효과) */}
@@ -432,10 +667,10 @@ export function TravelProcessSection() {
 
             {/* 오른쪽 - 텍스트와 태그들 */}
             <div
-              className="animate-fade-in-up mb-40 mt-38"
+              className="animate-fade-in-up mb-10 mt-40"
               style={{ animationDelay: '1s' }}
             >
-              <h3 className="text-4xl font-bold mb-4">
+              <h3 className="text-4xl font-bold mb-1">
                 어떤 여행을 꿈꾸세요? <br />
                 AI가 현실로 만들어 드려요
               </h3>
