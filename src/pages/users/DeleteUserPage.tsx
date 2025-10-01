@@ -49,8 +49,31 @@ export default function WithdrawalPage() {
     setShowCompleteModal(true);
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = async () => {
     setShowCompleteModal(false);
+
+    try {
+      // 백엔드 로그아웃 API 호출하여 세션 삭제
+      const { logout } = await import('@/api/auth');
+      await logout();
+      console.log('탈퇴 후 백엔드 로그아웃 성공');
+    } catch (error) {
+      console.log('탈퇴 후 백엔드 로그아웃 실패:', error);
+    }
+
+    // 탈퇴 완료 후 로그인 상태 완전 초기화
+    localStorage.removeItem('userInfo');
+
+    // 브라우저 쿠키 삭제
+    document.cookie.split(';').forEach(function (c) {
+      document.cookie = c
+        .replace(/^ +/, '')
+        .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+    });
+
+    // 로그아웃 이벤트 발생시켜 header 상태 업데이트
+    window.dispatchEvent(new CustomEvent('logout'));
+
     navigate('/');
   };
 
