@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
+import { getUserInfo } from '@/api/auth';
 
 interface UserInfo {
   name: string;
@@ -20,29 +21,53 @@ export default function ProfilePage() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 사용자 정보 로딩 시뮬레이션
+  // 사용자 정보 로딩
   useEffect(() => {
-    // 실제 환경에서는 여기서 API 호출이나 Firebase 인증 확인
     const loadUserInfo = async () => {
       try {
-        // 로컬 스토리지에서 사용자 정보 확인
-        const savedUserInfo = localStorage.getItem('userInfo');
-        if (savedUserInfo) {
-          setUserInfo(JSON.parse(savedUserInfo));
+        // API를 통해 실제 사용자 정보 가져오기
+        const userData = await getUserInfo();
+        console.log('API에서 받은 사용자 정보:', userData);
+        console.log('userData.user:', userData?.user);
+
+        if (userData && userData.user) {
+          const user = userData.user;
+          console.log('매핑할 사용자 데이터:', user);
+          setUserInfo({
+            name: user.name || '사용자',
+            email: user.email || '',
+            provider: user.provider || '알 수 없음',
+            userId: user.id || '',
+          });
+          console.log('설정된 사용자 정보:', {
+            name: user.name || '사용자',
+            email: user.email || '',
+            provider: user.provider || '알 수 없음',
+            userId: user.id || '',
+          });
         } else {
-          // 더미 데이터 (실제 환경에서는 로그인 API 호출)
-          const dummyUserInfo = {
-            name: '홍길동',
-            email: 'hong@example.com',
-            provider: '구글',
-            userId: 'user123',
-          };
-          setUserInfo(dummyUserInfo);
-          localStorage.setItem('userInfo', JSON.stringify(dummyUserInfo));
+          // API에서 정보를 가져올 수 없는 경우 localStorage 확인
+          const savedUserInfo = localStorage.getItem('userInfo');
+          if (savedUserInfo) {
+            setUserInfo(JSON.parse(savedUserInfo));
+          } else {
+            setUserInfo(null);
+          }
         }
       } catch (error) {
         console.error('사용자 정보 로딩 실패:', error);
-        setUserInfo(null);
+        // API 실패 시 localStorage에서 정보 확인
+        try {
+          const savedUserInfo = localStorage.getItem('userInfo');
+          if (savedUserInfo) {
+            setUserInfo(JSON.parse(savedUserInfo));
+          } else {
+            setUserInfo(null);
+          }
+        } catch (localError) {
+          console.error('localStorage 읽기 실패:', localError);
+          setUserInfo(null);
+        }
       } finally {
         setIsLoading(false);
       }
