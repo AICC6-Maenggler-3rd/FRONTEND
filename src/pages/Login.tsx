@@ -1,16 +1,5 @@
-import React from 'react'
-import GoogleLogin from '../components/common/GoogleLogin'
-import NaverLogin from '../components/common/NaverLogin'
-import KakaoLogin from '../components/common/KakaoLogin'
+import LoginComponent from '@/components/common/Login';
 
-const Login = () => {
-  return (
-    <div>
-      <GoogleLogin/>
-      <NaverLogin/>
-      <KakaoLogin/>
-    </div>
-  )
+export default function LoginPage() {
+  return <LoginComponent />;
 }
-
-export default Login
