@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Header } from '@/layouts/header';
-import { Footer } from '@/layouts/footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -83,8 +81,6 @@ export default function WithdrawalPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
-
       <main className="flex-grow mr-10 pt-16 pb-14">
         <div className="container max-w-4xl mx-auto px-4 py-0">
           {/* Back to Profile Link */}
@@ -276,9 +272,6 @@ export default function WithdrawalPage() {
           )}
         </div>
       </main>
-
-      <Footer />
-
       {/* Completion Modal */}
       <Dialog
         open={showCompleteModal}

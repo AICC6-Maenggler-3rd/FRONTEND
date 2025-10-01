@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 // HeroSection 컴포넌트
 export function HeroSection() {
@@ -376,7 +377,7 @@ export function TravelProcessSection() {
 
                 // 애니메이션 상태에서의 이동(앞 → 오른쪽뒤, 왼쪽 → 앞, 오른쪽뒤 → 왼쪽)
                 const frontClass = isAnimating ? posRightBack : posFront;
-                const leftClass = isAnimating ? posFront : posLeft;
+                // const leftClass = isAnimating ? posFront : posLeft;
                 const rightClass = isAnimating ? posLeft : posRightBack;
 
                 const cardBase =
