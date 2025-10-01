@@ -53,6 +53,10 @@
   --sidebar-ring: #b3e5fc;
 }
 
+button:hover {
+  cursor: pointer;
+}
+
 .dark {
   --background: oklch(0.08 0.02 280);
   --foreground: oklch(0.95 0.01 85);

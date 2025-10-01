@@ -1,17 +1,9 @@
-import React from 'react';
+import { googleLoginUrl } from '@/api/auth';
 
 const GoogleLogin = () => {
-  const handleGoogleLogin = async () => {
-    // FastAPI에서 auth_url 받아오기
-    const res = await fetch('http://localhost:8000/auth/google/login');
-    const data = await res.json();
-
-    // 구글 로그인 페이지로 이동
-    window.location.href = data.auth_url;
-  };
   return (
     <button
-      onClick={handleGoogleLogin}
+      onClick={googleLoginUrl}
       className="w-full py-3 text-base font-medium bg-transparent border border-input rounded-md hover:bg-accent hover:text-accent-foreground flex items-center justify-center"
     >
       <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">

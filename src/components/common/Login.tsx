@@ -44,7 +44,7 @@ export default function LoginPage() {
 
             <div className="text-center pt-4">
               <p className="text-sm text-muted-foreground">
-                로그인하면{' '}
+                로그인화면{' '}
                 <Link to="/terms" className="text-blue-700 hover:underline">
                   이용약관
                 </Link>{' '}
