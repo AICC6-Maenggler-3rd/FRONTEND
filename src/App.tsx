@@ -1,21 +1,29 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './page';
+import Intro from './components/common/Intro';
 import LoginPage from './pages/Login';
 import MyPage from './pages/MyPage';
 import './index.css';
 import SchedulePage from './pages/Schedule';
+import Test from './pages/test/test';
 import DeletePage from './pages/users/DeleteUserPage';
+import { Header } from '@/layouts/header';
+import { Footer } from '@/layouts/footer';
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/mypage" element={<MyPage />} />
-        <Route path="/schedule/:id" element={<SchedulePage />} />
-        <Route path="/users/delete" element={<DeletePage />} />
-      </Routes>
+      <div className="min-h-screen">
+        <Header />
+        <Routes>
+          <Route path="/" element={<Intro />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/schedule/:id" element={<SchedulePage />} />
+          <Route path="/users/delete" element={<DeletePage />} />
+          <Route path="/test" element={<Test />} />
+        </Routes>
+        <Footer />
+      </div>
     </Router>
   );
 }
