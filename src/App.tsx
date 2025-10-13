@@ -6,6 +6,7 @@ import './index.css';
 import SchedulePage from './pages/Schedule';
 import Test from './pages/test/Test';
 import DeletePage from './pages/users/DeleteUserPage';
+import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
 import { Header } from '@/layouts/header';
 import { Footer } from '@/layouts/footer';
 import InstaViewer from './components/common/InataViewer';
@@ -23,6 +24,7 @@ function App() {
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/test" element={<Test />} />
+          <Route path="/stepOne" element={<CreateScheduleStepOne />} />
           <Route path="/placelist" element={<PlaceList />} />
         </Routes>
         <Footer />
