@@ -46,18 +46,18 @@ const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 p-6">
+    <div className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-center min-h-screen">
       {/* 단계별 네비게이션 목록 */}
-      <div className="space-y-6">
+      <div className="space-y-8">
         {steps.map((step) => (
           <div
             key={step.number}
-            className="flex items-center space-x-3 cursor-pointer"
+            className="flex items-center space-x-4 cursor-pointer"
             onClick={() => handleStepClick(step.number)}
           >
             {/* 단계 번호 원형 아이콘 */}
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold ${
                 step.isActive
                   ? 'bg-blue-600 text-white' // 활성화된 단계: 파란 배경, 흰 텍스트
                   : 'bg-gray-200 text-gray-600' // 비활성화된 단계: 회색 배경, 회색 텍스트
@@ -68,14 +68,14 @@ const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
             {/* 단계 정보 텍스트 */}
             <div className="flex flex-col">
               <span
-                className={`text-sm font-medium ${
+                className={`text-base font-medium ${
                   step.isActive ? 'text-blue-600' : 'text-blue-400'
                 }`}
               >
                 Step {step.number}
               </span>
               <span
-                className={`text-sm ${
+                className={`text-lg font-semibold ${
                   step.isActive ? 'text-blue-600' : 'text-blue-400'
                 }`}
               >
