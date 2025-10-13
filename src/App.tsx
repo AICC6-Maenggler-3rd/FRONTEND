@@ -4,10 +4,11 @@ import LoginPage from './pages/Login';
 import MyPage from './pages/MyPage';
 import './index.css';
 import SchedulePage from './pages/Schedule';
-import Test from './pages/test/test';
+import Test from './pages/test/Test';
 import DeletePage from './pages/users/DeleteUserPage';
 import { Header } from '@/layouts/header';
 import { Footer } from '@/layouts/footer';
+import InstaViewer from './components/common/InataViewer';
 
 function App() {
   return (
