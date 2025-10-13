@@ -21,6 +21,7 @@ function App() {
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/test" element={<Test />} />
+          <Route path="/placelist" element={<PlaceList />} />
         </Routes>
         <Footer />
       </div>
