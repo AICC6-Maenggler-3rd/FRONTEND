@@ -9,6 +9,7 @@ import DeletePage from './pages/users/DeleteUserPage';
 import { Header } from '@/layouts/header';
 import { Footer } from '@/layouts/footer';
 import InstaViewer from './components/common/InataViewer';
+import PlaceList from './pages/placelist/PlaceList';
 
 function App() {
   return (
