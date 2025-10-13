@@ -22,7 +22,7 @@ function App() {
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/test" element={<Test />} />
-          <Route path="/testInstagram" element={<InstaViewer url={"https://www.instagram.com/reel/DJa93VbvsBT/"} />} />
+          <Route path="/testInstagram" element={<InstaViewer url={"https://www.instagram.com/reel/DJa93VbvsBT/"} caption={"test"} />} />
         </Routes>
         <Footer />
       </div>
