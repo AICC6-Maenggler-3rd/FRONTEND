@@ -107,12 +107,12 @@ export function HeroSection() {
             className="animate-fade-in-up flex flex-col sm:flex-row gap-4 justify-center items-center pt-6"
             style={{ animationDelay: '0.4s' }}
           >
-            <Button
-              size="lg"
+            <Link
+              to="/stepOne"
               className="bg-gray-200 opacity-70 hover:bg-white text-primary-foreground px-8 py-6 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-100"
             >
               여행 계획 시작하기
-            </Button>
+            </Link>
           </div>
         </div>
       </div>
