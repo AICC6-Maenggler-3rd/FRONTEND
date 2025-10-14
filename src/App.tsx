@@ -10,6 +10,7 @@ import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
 import DefaultLayout from './layouts/DefaultLayout';
 import { Header } from './layouts/header';
 import CreateScheduleStepTwo from './pages/journey/step2/CreateScheduleStepTwo';
+import CreateScheduleStepThree from './pages/journey/step3/CreateScheduleStepThree';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/stepOne" element={<CreateScheduleStepOne />} />
           <Route path="/stepTwo" element={<CreateScheduleStepTwo />} />
+          <Route path="/stepThree" element={<CreateScheduleStepThree />} />
         </Route>
 
         {/* 헤더와 푸터 불필요 */}

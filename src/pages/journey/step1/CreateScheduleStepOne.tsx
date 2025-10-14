@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import JourneySidebar from '../../../components/journey/JourneySidebar';
+import { useNavigate } from 'react-router-dom';
 
 // 여행 계획 타입 정의
 interface TravelPlan {
@@ -18,6 +19,8 @@ interface TravelPlan {
  * 여행지 선택을 위한 UI를 제공하며, 사이드바를 통해 단계별 네비게이션을 지원
  */
 const CreateScheduleStepOne = () => {
+  const navigate = useNavigate();
+
   // 선택된 여행지 상태 (기본값: '서울')
   const [selectedLocation, setSelectedLocation] = useState('서울');
 
@@ -98,12 +101,13 @@ const CreateScheduleStepOne = () => {
   const themes = [
     '액티비티',
     '자연',
+    '바다',
+    '등산',
     '쇼핑',
     '문화·예술',
-    '역사 명소',
-    '반려 동물',
+    '관광',
     '먹방',
-    '카페',
+    '힐링',
   ];
 
   /**
@@ -274,6 +278,7 @@ const CreateScheduleStepOne = () => {
     console.log('테마들:', travelPlan.themes);
     console.log('==================');
     // 여기서 다음 단계로 이동하거나 다른 로직 수행
+    navigate('/stepTwo', { state: { travelPlan } });
   };
 
   /**

@@ -6,13 +6,12 @@ import type { Place } from '@/api/place';
 import DayScheduleBar from './DayScheduleBar';
 import PlaceDetail from '@/components/common/PlaceDetail';
 import type { Route } from '@/components/KakaoMap';
-import { useLocation } from 'react-router-dom';
 export interface DaySchedule {
   day: number;
   placeList: Place[];
 }
 
-const CreateScheduleStepTwo = () => {
+const CreateScheduleStepThree = () => {
   // 현재 활성화된 단계 상태 (기본값: 1 - 정보 입력 단계)
   const [currentStep, setCurrentStep] = useState(1);
   const [focusPlace, setFocusPlace] = useState<Place | null>(null);
@@ -26,20 +25,10 @@ const CreateScheduleStepTwo = () => {
 
   const duration = 3;
 
-  const location = useLocation();
-  const travelPlan = location.state?.travelPlan;
-
   // 위치기반 검색용 나중에 수정 필요
   const baseLat = 37.5665;
   const baseLng = 126.978;
   const baseRadius = 3000;
-
-  useEffect(() => {
-    if (travelPlan) {
-      console.log('이전 단계에서 받은 데이터:', travelPlan);
-      // 필요 시 상태 초기화
-    }
-  }, [travelPlan]);
 
   useEffect(() => {
     const scheduleList = Array.from({ length: duration }, (_, i) => ({
@@ -58,7 +47,6 @@ const CreateScheduleStepTwo = () => {
       {detailPlace && (
         <PlaceDetail place={detailPlace} setCurrentPlace={setDetailPlace} />
       )}
-      {/* 왼쪽 사이드바 - 여행 계획 단계 네비게이션 */}
       <JourneySidebar
         currentStep={currentStep}
         onStepChange={handleStepChange}
@@ -99,4 +87,4 @@ const CreateScheduleStepTwo = () => {
   );
 };
 
-export default CreateScheduleStepTwo;
+export default CreateScheduleStepThree;
