@@ -7,25 +7,29 @@ import SchedulePage from './pages/Schedule';
 import Test from './pages/test/Test';
 import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
-import { Header } from '@/layouts/header';
-import { Footer } from '@/layouts/footer';
+import DefaultLayout from './layouts/DefaultLayout';
+import { Header } from './layouts/header';
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen">
-        <Header />
-        <Routes>
+      {/* Header를 Portal로 독립적으로 렌더링 */}
+      <Header />
+
+      <Routes>
+        {/* 헤더와 푸터 필요 */}
+        <Route element={<DefaultLayout />}>
           <Route path="/" element={<Intro />} />
-          <Route path="/login" element={<LoginPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
-          <Route path="/test" element={<Test />} />
           <Route path="/stepOne" element={<CreateScheduleStepOne />} />
-        </Routes>
-        <Footer />
-      </div>
+        </Route>
+
+        {/* 헤더와 푸터 불필요 */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/test" element={<Test />} />
+      </Routes>
     </Router>
   );
 }

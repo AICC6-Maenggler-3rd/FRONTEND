@@ -12,10 +12,10 @@ export function HeroSection() {
 
   // 존재하지 않는 경로 제거하여 흰 화면(로딩 실패) 방지
   const backgroundImages = [
-    '/image/YhpCSslqjTjUqBXhhCivkFHTlmcuikqM.jpg',
-    '/image/busan-beach-city-view.jpg',
-    '/image/3386001_image2_1.jng.png',
-    '/image/dtR3rZAUwKaiG-Sn6RxeWOU7s9leoPI2TCNXEf8Y1lHLrOzDsQhThC37_CilZS6YHCA5wvHgvSXnauFSziCbHA.jpg',
+    '/image/봄.jpg',
+    '/image/여름.jpg',
+    '/image/가을.jpg',
+    '/image/겨울.jpg',
   ];
 
   // 이미지 프리로딩으로 전환시 깜빡임 제거
@@ -47,7 +47,10 @@ export function HeroSection() {
   }, [currentImageIndex, backgroundImages.length]);
 
   return (
-    <section className="min-h-screen relative overflow-hidden">
+    <section
+      className="relative overflow-hidden"
+      style={{ minHeight: '100vh' }}
+    >
       {/* Background with travel images - 두 레이어 크로스페이드 */}
       <div className="absolute inset-0 z-0">
         {/* 현재 이미지 */}
@@ -78,13 +81,13 @@ export function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 pt-80 pb-20">
+      <div className="relative z-10 container mx-auto px-6 pt-96 pb-20">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="animate-fade-in-up">
             <h1 className="text-4xl md:text-5xl font-bold text-balance leading-tight">
               <span className="text-black">AI가 추천하는</span>
               <br />
-              <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 완벽한 여행 일정
               </span>
             </h1>

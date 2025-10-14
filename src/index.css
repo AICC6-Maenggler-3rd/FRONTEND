@@ -1,6 +1,20 @@
 @import 'tailwindcss';
 @custom-variant dark (&:is(.dark *));
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  flex-grow: 1;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
 :root {
   /* Brand palette */
   --background: #ffffff; /* White */
@@ -51,6 +65,24 @@
   --sidebar-accent-foreground: #01579b;
   --sidebar-border: #b3e5fc;
   --sidebar-ring: #b3e5fc;
+}
+
+#header-root {
+  height: 60px;
+  flex-shrink: 0;
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#footer-root {
+  height: auto;
+  position: relative;
 }
 
 button:hover {
