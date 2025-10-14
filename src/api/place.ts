@@ -26,6 +26,13 @@ export interface Place {
   // itinerary_items?: ItineraryItem[];
 }
 
+export const searchPlace = async (query: string, page: number, limit: number): Promise<{
+  data: Place[];
+  total_pages: number;
+}> => {
+  const res = await axios.get(`${API_BASE}/place/search?query=${query}&page=${page}&limit=${limit}`);
+  return res.data;
+};
 
 export const getPlaceList = async (page: number, limit: number): Promise<{
   data: Place[];
@@ -34,6 +41,15 @@ export const getPlaceList = async (page: number, limit: number): Promise<{
   const res = await axios.get(`${API_BASE}/place/list?page=${page}&limit=${limit}`);
   return res.data;
 };
+
+export const getPlaceListWithinRadius = async (page: number, limit: number, lat: number, lng: number, radius: number): Promise<{
+  data: Place[];
+  total_pages: number;
+}> => {
+  const res = await axios.get(`${API_BASE}/place/list?page=${page}&limit=${limit}&lat=${lat}&lng=${lng}&radius=${radius}`);
+  return res.data;
+};
+
 
 export const getPlace = async (place_id: number) => {
   const res = await axios.get(`${API_BASE}/place/${place_id}`);
