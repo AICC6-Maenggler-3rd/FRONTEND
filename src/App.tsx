@@ -9,6 +9,7 @@ import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
 import DefaultLayout from './layouts/DefaultLayout';
 import { Header } from './layouts/header';
+import CreateScheduleStepTwo from './pages/journey/step2/CreateScheduleStepTwo';
 
 function App() {
   return (
