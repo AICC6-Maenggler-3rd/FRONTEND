@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactElement } from "react";
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { Map, MapMarker, type PolylineProps } from "react-kakao-maps-sdk";
 import { requestRoute } from "../api/map";
+import type { Place } from "@/api/place";
 
 interface Coord {
   lat: number;
@@ -16,13 +17,26 @@ interface MapLocation extends Coord{
 
 interface Direction extends MapLocation{
 }
+export interface Route {
+  start_point: Coord
+  end_point: Coord
+  path: Coord[]
+  distance: number
+  duration: number
+  transport: "CAR" | "PEDESTRIAN"
+}
 
 interface MakerInfo extends MapLocation{
 }
 
+
 export interface MapInfo{
   direction? : Direction[]
+  route? : Route
   markers? : MakerInfo[]
+  placeList? : Place[]
+  focusPlace? : Place
+  height? : string
 }
 
 
@@ -32,6 +46,10 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
   const [transport, setTransport] = useState<"CAR" | "PEDESTRIAN">("CAR");
+  const [focusMarker, setFocusMarker] = useState<any>(null);
+  const [drawMarkers, setDrawMarkers] = useState<kakao.maps.Marker[]>([]);
+  const [drawPolylines, setDrawPolylines] = useState<kakao.maps.Polyline[]>([]);
+
   const direction = mapInfo.direction
 
   useEffect(() => {
@@ -43,20 +61,63 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
     setMap(mapObj);
   }, []);
 
+  useEffect(() => {
+    if(mapInfo.focusPlace){
+      // 기존 마커 제거
+      if(focusMarker){
+        focusMarker.setMap(null);
+      }
+      
+      const marker = new window.kakao.maps.Marker({
+        position: new window.kakao.maps.LatLng(Number(mapInfo.focusPlace.address_la),Number(mapInfo.focusPlace.address_lo)),
+      });
+      marker.setMap(map);
+      setFocusMarker(marker);
+      // 마커 위치로 지도 중심 변환
+      map.setCenter(marker.getPosition());
+      map.setLevel(5);
+    }
+  }, [mapInfo.focusPlace]);
 
+  useEffect(() => {
+    // 기존 마커 제거
+    if(drawMarkers.length > 0){
+      drawMarkers.forEach((marker) => marker.setMap(null));
+      drawMarkers.length = 0;
+    }
+    if(focusMarker){
+      focusMarker.setMap(null);
+      setFocusMarker(null);
+    }
 
-  const fetchRoute = async () => {
-    if(direction === undefined || direction.length < 2) return;
-    const data = await requestRoute({
-      startX: direction[0].lng,
-      startY: direction[0].lat,
-      endX: direction[direction.length-1].lng,
-      endY: direction[direction.length-1].lat,
-      viaPoints: (direction.length>2)?direction.slice(1,direction.length-1).map((d)=>{return {x:d.lng, y:d.lat}}):[],
-      transport: transport,
-    })
-    drawRoute(data.route);
-  };
+    if(mapInfo.placeList){
+      console.log(mapInfo.placeList)
+      const markers = mapInfo.placeList.map((place) => {
+      return new window.kakao.maps.Marker({
+        position: new window.kakao.maps.LatLng(Number(place.address_la),Number(place.address_lo)),
+        map: map,
+        color: "#ff0000",
+        title: place.name,
+      });
+    });
+    console.log(markers)
+      setDrawMarkers(markers);
+    }
+
+  }, [mapInfo.placeList, mapInfo.route]);
+
+  useEffect(() => {
+    // 기존 polyline 제거
+    if(drawPolylines.length > 0){
+      drawPolylines.forEach((line) => line.setMap(null));
+      drawPolylines.length = 0; // 배열도 비워줌
+    }
+
+    if (mapInfo.route){
+      setTransport(mapInfo.route.transport);
+      drawRoute(mapInfo.route.path);
+    }
+  }, [mapInfo.route]);
 
   const drawRoute = (coords: Coord[]) => {
     if (!map) return;
@@ -72,6 +133,7 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
       strokeStyle: "solid",
     });
     polyline.setMap(map);
+    setDrawPolylines([...drawPolylines, polyline]);
 
     // 마커 그리기
     direction?.forEach((p, idx) => {
@@ -88,30 +150,11 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
     map.setBounds(bounds);
   };
 
+  
+  
   return (
     <div>
-      <div style={{ marginBottom: 10 }}>
-        <label>
-          <input
-            type="radio"
-            checked={transport === "CAR"}
-            onChange={() => setTransport("CAR")}
-          />
-          자동차
-        </label>
-        <label style={{ marginLeft: 10 }}>
-          <input
-            type="radio"
-            checked={transport === "PEDESTRIAN"}
-            onChange={() => setTransport("PEDESTRIAN")}
-          />
-          보행자
-        </label>
-        <button onClick={fetchRoute} style={{ marginLeft: 10 }}>
-          경로찾기
-        </button>
-      </div>
-      <div ref={mapRef} style={{ width: "100%", height: "500px" }} />
+      <div ref={mapRef} className={`w-full h-[${mapInfo.height?mapInfo.height:"100vh"}]`} />
     </div>
   );
 };

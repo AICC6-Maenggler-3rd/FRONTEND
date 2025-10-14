@@ -24,6 +24,7 @@ function App() {
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/stepOne" element={<CreateScheduleStepOne />} />
+          <Route path="/stepTwo" element={<CreateScheduleStepTwo />} />
         </Route>
 
         {/* 헤더와 푸터 불필요 */}
