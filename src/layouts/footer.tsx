@@ -11,11 +11,16 @@ export function Footer() {
       <div className="container mx-auto px-6 py-16">
         <div className="flex flex-col items-center space-y-4">
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">
-                I
-              </span>
-            </div>
+            <img
+              src="/image/inpik.png"
+              alt="Inpik 로고 아이콘"
+              className="w-20 h-20 absolute"
+              style={{
+                top: '30%',
+                left: '47%',
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
             <span className="text-3xl font-bold text-foreground tracking-tight">
               InPik
             </span>

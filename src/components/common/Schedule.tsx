@@ -15,7 +15,7 @@ const scheduleData: Record<string, any> = {
   '1': {
     title: '제주도 힐링 여행',
     location: '제주도',
-    period: '2024.03.15 - 2024.03.18',
+    period: '2025.03.15 - 2025.03.18',
     duration: '3박 4일',
     status: '진행 완료',
     satisfaction: 4.8,
@@ -25,7 +25,7 @@ const scheduleData: Record<string, any> = {
     dailySchedules: [
       {
         day: 1,
-        date: '2024.03.15 (금)',
+        date: '2025.03.15 (금)',
         activities: [
           {
             time: '09:00',
@@ -67,7 +67,7 @@ const scheduleData: Record<string, any> = {
       },
       {
         day: 2,
-        date: '2024.03.16 (토)',
+        date: '2025.03.16 (토)',
         activities: [
           {
             time: '08:00',
@@ -109,7 +109,7 @@ const scheduleData: Record<string, any> = {
       },
       {
         day: 3,
-        date: '2024.03.17 (일)',
+        date: '2025.03.17 (일)',
         activities: [
           {
             time: '09:00',
@@ -154,7 +154,7 @@ const scheduleData: Record<string, any> = {
   '2': {
     title: '부산 맛집 투어',
     location: '부산',
-    period: '2024.02.20 - 2024.02.23',
+    period: '2025.02.20 - 2025.02.23',
     duration: '3박 4일',
     status: '진행 완료',
     satisfaction: 5.0,
@@ -164,7 +164,7 @@ const scheduleData: Record<string, any> = {
     dailySchedules: [
       {
         day: 1,
-        date: '2024.02.20 (화)',
+        date: '2025.02.20 (화)',
         activities: [
           {
             time: '07:00',
@@ -209,7 +209,7 @@ const scheduleData: Record<string, any> = {
   '3': {
     title: '경주 역사 탐방',
     location: '경주',
-    period: '2024.01.10 - 2024.01.12',
+    period: '2025.01.10 - 2025.01.12',
     duration: '2박 3일',
     status: '진행 완료',
     satisfaction: 4.7,
@@ -219,7 +219,7 @@ const scheduleData: Record<string, any> = {
     dailySchedules: [
       {
         day: 1,
-        date: '2024.01.10 (수)',
+        date: '2025.01.10 (수)',
         activities: [
           {
             time: '08:00',
@@ -340,26 +340,33 @@ export default function ScheduleDetailPage() {
                     (activity: any, actIndex: number) => (
                       <div
                         key={actIndex}
-                        className="flex items-start gap-4 p-4 border rounded-lg"
+                        className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                       >
-                        <div className="text-sm font-mono text-muted-foreground min-w-[60px]">
-                          {activity.time}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold">
-                              {activity.activity}
-                            </h4>
-                            <Badge
-                              variant="outline"
-                              className={`text-xs ${getActivityTypeColor(activity.type)}`}
-                            >
-                              {activity.type}
-                            </Badge>
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="text-sm font-mono text-muted-foreground min-w-[60px]">
+                            {activity.time}
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            📍 {activity.location}
-                          </p>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold">
+                                {activity.activity}
+                              </h4>
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${getActivityTypeColor(activity.type)}`}
+                              >
+                                {activity.type}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              📍 {activity.location}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <button className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                            → 상세보기
+                          </button>
                         </div>
                       </div>
                     ),

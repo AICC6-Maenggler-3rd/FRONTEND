@@ -115,15 +115,24 @@ export function Header() {
     navigate('/');
   };
 
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+  const headerContent = (
+    <header className="fixed top-0 left-0 right-0 z-[100] h-16 bg-background/95 backdrop-blur-sm shadow-sm border-b border-border">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <div
           className="flex items-center space-x-2 cursor-pointer"
           onClick={handleLogoClick}
         >
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">I</span>
+          <div className="w-20 h-8 relative">
+            <img
+              src="/image/inpik.png"
+              alt="Inpik 로고 아이콘"
+              className="w-20 h-20 absolute"
+              style={{
+                top: '50%',
+                left: '70%',
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
           </div>
           <span className="text-2xl font-bold text-foreground">InPik</span>
         </div>
@@ -158,4 +167,6 @@ export function Header() {
       </div>
     </header>
   );
+
+  return headerContent;
 }
