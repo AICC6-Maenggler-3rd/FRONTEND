@@ -9,14 +9,13 @@ import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
 import { Header } from '@/layouts/header';
 import { Footer } from '@/layouts/footer';
-import InstaViewer from './components/common/InataViewer';
-import PlaceList from './pages/placelist/PlaceList';
+import CreateScheduleStepTwo from './pages/journey/step2/CreateScheduleStepTwo';
 
 function App() {
   return (
     <Router>
       <div className="min-h-screen">
-        <Header />
+        {/* <Header /> */}
         <Routes>
           <Route path="/" element={<Intro />} />
           <Route path="/login" element={<LoginPage />} />
@@ -25,9 +24,9 @@ function App() {
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/test" element={<Test />} />
           <Route path="/stepOne" element={<CreateScheduleStepOne />} />
-          <Route path="/placelist" element={<PlaceList />} />
+          <Route path="/stepTwo" element={<CreateScheduleStepTwo />} />
         </Routes>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </Router>
   );
