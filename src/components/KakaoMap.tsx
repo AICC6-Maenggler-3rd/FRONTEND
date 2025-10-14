@@ -154,7 +154,7 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
   
   return (
     <div>
-      <div ref={mapRef} className={`w-full h-[${mapInfo.height?mapInfo.height:"100vh"}]`} />
+      <div ref={mapRef} className={`w-full h-[100vh]`} />
     </div>
   );
 };
