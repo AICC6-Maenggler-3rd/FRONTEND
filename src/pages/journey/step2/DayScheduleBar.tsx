@@ -150,9 +150,9 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, setFocusPlace, setDet
           </div>
         )
       }
-      <div className='w-[300px] h-full bg-white overflow-y-auto'>
-        <h1 className='text-2xl font-bold text-center py-4 border-b border-gray-200'>필수 여행지</h1>
-        <div className='flex flex-col gap-2'>
+      <div className='w-[300px] h-full bg-white '>
+        <h1 className='text-2xl h-[5rem] font-bold text-center py-4 border-b border-gray-200 flex items-center justify-center'>필수 여행지</h1>
+        <div className='flex flex-col gap-2 h-[calc(100%-5rem)] overflow-y-auto '>
           {scheduleList?.map((schedule) => (
             <div 
             key={schedule.day} className='flex flex-col gap-2 p-2 border-b border-gray-200' 

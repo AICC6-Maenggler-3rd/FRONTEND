@@ -1,4 +1,4 @@
-import { getPlaceListWithinRadius, searchPlace, type Place } from '@/api/place';
+import { getPlaceListByAddress, getPlaceList, searchPlace, type Place, getPlaceListWithinRadius } from '@/api/place';
 import InstaViewer from '@/components/common/InataViewer';
 import React, { useEffect, useState } from 'react'
 import PlaceListItem from './PlaceListItem';
@@ -7,21 +7,35 @@ import PlaceDetail from './PlaceDetail';
 interface PlaceListProps {
   setFocusPlace: (place: Place) => void;
   setDetailPlace: (place: Place) => void;
+  baseAddress?: string;
   lat?: number;
   lng?: number;
   radius?: number;
 }
 
-const PlaceList = ({setFocusPlace, setDetailPlace, lat = -1, lng = -1, radius = -1}: PlaceListProps) => {
+const PlaceList = ({setFocusPlace, setDetailPlace, baseAddress, lat, lng, radius}: PlaceListProps) => {
   const [placeList, setPlaceList] = useState<Place[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const getListFunc = (currentPage: number) => {
+    if (lat && lng && radius) {
+      const func = ( )=> getPlaceListWithinRadius(currentPage, 10, lat, lng, radius);
+      return func();
+    }
+    if (baseAddress) {
+      const func = ( )=> getPlaceListByAddress(baseAddress, currentPage, 10);
+      return func();
+    }
+    const func = ( )=> getPlaceList(currentPage, 10);
+    return func();
+  }
+
   const fetchPlaceList = async () => {
     setCurrentPage(1);
-    const res = await getPlaceListWithinRadius(currentPage, 10, lat, lng, radius);
-    setPlaceList(res.data);
+    const res = await getListFunc(currentPage);
+    setPlaceList(res.places);
     setTotalPages(res.total_pages);
   };
   useEffect(() => {
@@ -30,8 +44,14 @@ const PlaceList = ({setFocusPlace, setDetailPlace, lat = -1, lng = -1, radius = 
 
 
   const handleMore = async () => {
-    const res = await getPlaceListWithinRadius(currentPage + 1, 10, lat, lng, radius);
-    setPlaceList([...placeList, ...res.data]);
+    if (searchQuery.length > 0) {
+      const res = await searchPlace(searchQuery, currentPage + 1, 10);
+      setPlaceList([...placeList, ...res.places]);
+      setCurrentPage(currentPage + 1);
+      return;
+    }
+    const res = await getListFunc(currentPage + 1);
+    setPlaceList([...placeList, ...res.places]);
     setCurrentPage(currentPage + 1);
   }
 
@@ -49,12 +69,13 @@ const PlaceList = ({setFocusPlace, setDetailPlace, lat = -1, lng = -1, radius = 
   }
 
   const handleSearch = async () => {
+    setCurrentPage(1);
     if (searchQuery.length === 0) {
       fetchPlaceList();
       return;
     }
     const res = await searchPlace(searchQuery, currentPage, 10);
-    setPlaceList(res.data);
+    setPlaceList(res.places);
     setTotalPages(res.total_pages);
   }
   return (
@@ -76,10 +97,16 @@ const PlaceList = ({setFocusPlace, setDetailPlace, lat = -1, lng = -1, radius = 
             <div key={place.place_id} draggable={true} onDragStart={(e) => handleDragStart(e, place)}>
               <PlaceListItem  place={place} handleFocusPlace={handleFocusPlace} handlePlaceClick={handlePlaceClick}/>
             </div>
-))}
-          <button onClick={handleMore} className='text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm'>
-            더보기
-          </button>
+          ))}
+          {currentPage < totalPages ? (
+            <button onClick={handleMore} className='text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm'>
+              더보기
+            </button>
+          ) : (
+            <div className='text-center text-lg font-bold border-2 border-blue-200 text-blue-300 border-dashed m-2 p-4 rounded-sm'>
+              마지막 장소 입니다
+            </div>
+          )}
         </div>
         
       </div>

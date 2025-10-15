@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { getUserInfo } from '@/api/auth';
 
 export function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [userRole, setUserRole] = useState<string | null>(null); // user role 저장
   const navigate = useNavigate();
 
   // 로그인 상태 확인
@@ -19,9 +19,11 @@ export function Header() {
         if (userData && userData.user) {
           console.log('Header - 로그인됨:', userData.user);
           setIsLoggedIn(true);
+          setUserRole(userData.user.role); // user role 저장
         } else {
           console.log('Header - 로그인 안됨 - userData:', userData);
           setIsLoggedIn(false);
+          setUserRole(null);  // user role 제거 
         }
       } catch (error) {
         console.log('Header - 로그인 상태 확인 실패:', error);
@@ -34,13 +36,12 @@ export function Header() {
           } else {
             console.log('Header - localStorage에도 사용자 정보 없음');
             setIsLoggedIn(false);
+            setUserRole(null);
           }
         } catch (localError) {
           console.log('Header - localStorage 읽기 실패:', localError);
           setIsLoggedIn(false);
         }
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -55,7 +56,7 @@ export function Header() {
     const handleLogout = async () => {
       console.log('Header - 로그아웃 이벤트 감지');
       setIsLoggedIn(false);
-      setIsLoading(false);
+      setUserRole(null);
 
       // 로그아웃 후 API 상태 재확인
       try {
@@ -102,6 +103,8 @@ export function Header() {
 
       setIsLoggedIn(false);
       // localStorage에서 사용자 정보 제거
+      setUserRole(null);
+      // user role 제거
       localStorage.removeItem('userInfo');
       navigate('/');
     }
@@ -113,6 +116,10 @@ export function Header() {
 
   const handleLogoClick = () => {
     navigate('/');
+  };
+
+  const handleManageClick = () => {
+    navigate('/manageIndex');
   };
 
   const headerContent = (
@@ -137,11 +144,18 @@ export function Header() {
           <span className="text-2xl font-bold text-foreground">InPik</span>
         </div>
 
-        <div className="flex ml-auto space-x-4">
-          {isLoading ? (
-            <div className="text-black">로딩중...</div>
-          ) : isLoggedIn ? (
+        <div className="flex ml-auto mr-13 space-x-10"> {/* 버튼 사이 간격 조절 */}  
+          
+          {isLoggedIn ? (
             <>
+            {userRole !== 'user' && (
+        <button
+                onClick={handleManageClick}
+                className="text-black hover:text-blue-800 transition-all duration-300"
+              >
+                ManagePage
+              </button>
+          )}
               <button
                 onClick={handleMyPageClick}
                 className="text-black hover:text-blue-800 transition-all duration-300"
