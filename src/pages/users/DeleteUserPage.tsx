@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { AlertTriangle, Check, X, Shield } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Link } from 'react-router-dom';
+import { deleteUser, logout } from '@/api/auth';
 
 type WithdrawalStep = 'confirmation' | 'reason' | 'complete';
 
@@ -33,6 +33,7 @@ export default function WithdrawalPage() {
   ]);
   const [selectedReason, setSelectedReason] = useState<string>('');
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleCheckboxChange = (index: number, checked: boolean) => {
     const newCheckedItems = [...checkedItems];
@@ -42,24 +43,40 @@ export default function WithdrawalPage() {
 
   const allItemsChecked = checkedItems.every((item) => item);
 
-  const handleWithdrawalComplete = () => {
-    setCurrentStep('complete');
-    setShowCompleteModal(true);
+  const handleWithdrawalComplete = async () => {
+    if (!selectedReason) {
+      console.error('탈퇴 사유를 선택해 주세요.');
+      return;
+    }
+
+    await handleDelete();
+  };
+
+  const reasonToSend = selectedReason.includes('( )') ? '' : selectedReason;
+
+  const handleDelete = async () => {
+    try {
+      await deleteUser(reasonToSend);
+      console.log('회원 탈퇴 API 호출 성공');
+      setCurrentStep('complete');
+      setShowCompleteModal(true);
+    } catch (error) {
+      console.error('회원 탈퇴 중 오류 발생:', error);
+      setErrorMessage('회원 탈퇴에 실패했습니다.');
+    }
   };
 
   const handleModalClose = async () => {
     setShowCompleteModal(false);
 
     try {
-      // 백엔드 로그아웃 API 호출하여 세션 삭제
-      const { logout } = await import('@/api/auth');
       await logout();
       console.log('탈퇴 후 백엔드 로그아웃 성공');
     } catch (error) {
       console.log('탈퇴 후 백엔드 로그아웃 실패:', error);
     }
 
-    // 탈퇴 완료 후 로그인 상태 완전 초기화
+    // 로그인 정보 초기화
     localStorage.removeItem('userInfo');
 
     // 브라우저 쿠키 삭제
@@ -296,7 +313,7 @@ export default function WithdrawalPage() {
                   I
                 </span>
               </div>
-              <h2 className="text-xl font-bold text-foreground">InPik</h2>
+              <h2 className="text-xl font-bold text-foreground">InPick</h2>
             </div>
 
             <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
