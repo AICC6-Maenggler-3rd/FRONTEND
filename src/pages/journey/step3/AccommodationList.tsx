@@ -3,10 +3,8 @@ import {
   searchAccommodation,
   type Accommodation,
 } from '@/api/accommodation';
-import InstaViewer from '@/components/common/InataViewer';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AccommodationListItem from './AccommodationListItem';
-import AccommodationDetail from './AccommodationDetail';
 
 interface AccommodationListProps {
   setFocusAccommodation: (accommodation: Accommodation) => void;
@@ -15,6 +13,8 @@ interface AccommodationListProps {
   lng?: number;
   radius?: number;
 }
+
+const PAGE_SIZE = 10;
 
 const AccommodationList = ({
   setFocusAccommodation,
@@ -30,40 +30,64 @@ const AccommodationList = ({
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchAccommodationList = async () => {
-    setCurrentPage(1);
+  const isSearchMode = useMemo(
+    () => searchQuery.trim().length > 0,
+    [searchQuery],
+  );
+
+  const fetchList = async (page = 1) => {
     const res = await getAccommodationListWithinRadius(
-      currentPage,
-      10,
+      page,
+      PAGE_SIZE,
       lat,
       lng,
       radius,
     );
-    setAccommodationList(res.data);
+    setAccommodationList(
+      page === 1 ? res.data : (prev) => [...prev, ...res.data],
+    );
+    setCurrentPage(page);
     setTotalPages(res.total_pages);
   };
+
+  const fetchSearch = async (page = 1) => {
+    const res = await searchAccommodation(searchQuery.trim(), page, PAGE_SIZE);
+    setAccommodationList(
+      page === 1 ? res.data : (prev) => [...prev, ...res.data],
+    );
+    setCurrentPage(page);
+    setTotalPages(res.total_pages);
+  };
+
+  // 좌표/반경 바뀌면 초기화 후 재조회
   useEffect(() => {
-    fetchAccommodationList();
+    if (lat === -1 || lng === -1 || radius === -1) return;
+    setCurrentPage(1);
+    setAccommodationList([]);
+    isSearchMode ? fetchSearch(1) : fetchList(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lat, lng, radius]);
+
+  // 최초 로드
+  useEffect(() => {
+    fetchList(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleMore = async () => {
-    const res = await getAccommodationListWithinRadius(
-      currentPage + 1,
-      10,
-      lat,
-      lng,
-      radius,
-    );
-    setAccommodationList([...accommodationList, ...res.data]);
-    setCurrentPage(currentPage + 1);
+    if (currentPage >= totalPages) return;
+    const next = currentPage + 1;
+    isSearchMode ? fetchSearch(next) : fetchList(next);
   };
 
-  const handleAccommodationClick = (accommodation: Accommodation) => {
-    setDetailAccommodation(accommodation);
-  };
-
-  const handleFocusAccommodation = (accommodation: Accommodation) => {
-    setFocusAccommodation(accommodation);
+  const handleSearch = async () => {
+    if (!isSearchMode) {
+      fetchList(1);
+      return;
+    }
+    setCurrentPage(1);
+    setAccommodationList([]);
+    await fetchSearch(1);
   };
 
   const handleDragStart = (
@@ -74,20 +98,9 @@ const AccommodationList = ({
     e.dataTransfer.setData('text/plain', JSON.stringify(accommodation));
   };
 
-  const handleSearch = async () => {
-    if (searchQuery.length === 0) {
-      fetchAccommodationList();
-      return;
-    }
-    const res = await searchAccommodation(searchQuery, currentPage, 10);
-    setAccommodationList(res.data);
-    setTotalPages(res.total_pages);
-  };
   return (
     <div className="h-full">
-      {/* <AccommodationDetail accommodation={currentAccommodation} setCurrentAccommodation={setCurrentAccommodation}/> */}
       <div className="flex items-center gap-2 py-2 px-4 h-[100px]">
-        {/* 검색 */}
         <input
           type="text"
           placeholder="검색"
@@ -95,9 +108,7 @@ const AccommodationList = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSearch();
-            }
+            if (e.key === 'Enter') handleSearch();
           }}
         />
         <button
@@ -107,23 +118,29 @@ const AccommodationList = ({
           검색
         </button>
       </div>
-      <div className="flex flex-col gap-2 w-[300px] h-[calc(100%-100px)] px-2 overflow-y-auto ">
-        {accommodationList?.map((accommodation) => (
+
+      <div className="flex flex-col gap-1 w-[300px] h-[calc(100%-100px)] px-2 overflow-y-auto">
+        {accommodationList.map((accommodation) => (
           <div
             key={accommodation.accommodation_id}
-            draggable={true}
+            draggable
             onDragStart={(e) => handleDragStart(e, accommodation)}
           >
             <AccommodationListItem
               accommodation={accommodation}
-              handleFocusAccommodation={handleFocusAccommodation}
-              handleAccommodationClick={handleAccommodationClick}
+              handleFocusAccommodation={setFocusAccommodation}
+              handleAccommodationClick={(a) => {
+                setFocusAccommodation(a);
+                setDetailAccommodation(a);
+              }}
             />
           </div>
         ))}
+
         <button
           onClick={handleMore}
-          className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm"
+          disabled={currentPage >= totalPages}
+          className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm disabled:opacity-50"
         >
           더보기
         </button>

@@ -1,163 +1,85 @@
-import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { Map, MapMarker, type PolylineProps } from 'react-kakao-maps-sdk';
-import { requestRoute } from '../api/map';
+import { useEffect, useRef, useState } from 'react';
 import type { Accommodation } from '@/api/accommodation';
 
-interface Coord {
-  lat: number;
-  lng: number;
-}
-
-interface MapLocation extends Coord {
-  lat: number;
-  lng: number;
-  title?: string;
-  infoWindow?: ReactElement;
-}
-
-interface Direction extends MapLocation {}
-export interface Route {
-  start_point: Coord;
-  end_point: Coord;
-  path: Coord[];
-  distance: number;
-  duration: number;
-  transport: 'CAR' | 'PEDESTRIAN';
-}
-
-interface MakerInfo extends MapLocation {}
-
-export interface MapInfo {
-  direction?: Direction[];
-  route?: Route;
-  markers?: MakerInfo[];
+interface MapProps {
   accommodationList?: Accommodation[];
-  focusAccommodation?: Accommodation;
+  focusAccommodation?: Accommodation | null;
   height?: string;
 }
 
-const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<any>(null);
-  const [transport, setTransport] = useState<'CAR' | 'PEDESTRIAN'>('CAR');
-  const [focusMarker, setFocusMarker] = useState<any>(null);
-  const [drawMarkers, setDrawMarkers] = useState<kakao.maps.Marker[]>([]);
-  const [drawPolylines, setDrawPolylines] = useState<kakao.maps.Polyline[]>([]);
+const KakaoMap = ({
+  accommodationList = [],
+  focusAccommodation,
+  height = '100%',
+}: MapProps) => {
+  const mapEl = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<kakao.maps.Map | null>(null);
+  const markersRef = useRef<kakao.maps.Marker[]>([]);
+  const infoRef = useRef<kakao.maps.InfoWindow | null>(null);
+  const [ready, setReady] = useState(false);
 
-  const direction = mapInfo.direction;
-
+  // 1) 맵 초기화
   useEffect(() => {
-    if (!window.kakao || !mapRef.current) return;
-    const mapObj = new window.kakao.maps.Map(mapRef.current, {
-      center: new window.kakao.maps.LatLng(37.5665, 126.978),
-      level: 5,
+    if (!window.kakao || !mapEl.current) return;
+    const map = new kakao.maps.Map(mapEl.current, {
+      center: new kakao.maps.LatLng(37.5665, 126.978),
+      level: 6,
     });
-    setMap(mapObj);
+    mapRef.current = map;
+    infoRef.current = new kakao.maps.InfoWindow({ zIndex: 2 });
+    setReady(true);
   }, []);
 
+  // 2) 마커 다시 그리기
   useEffect(() => {
-    if (mapInfo.focusAccommodation) {
-      // 기존 마커 제거
-      if (focusMarker) {
-        focusMarker.setMap(null);
-      }
+    if (!ready || !mapRef.current) return;
+    const map = mapRef.current;
 
-      const marker = new window.kakao.maps.Marker({
-        position: new window.kakao.maps.LatLng(
-          Number(mapInfo.focusAccommodation.address_la),
-          Number(mapInfo.focusAccommodation.address_lo),
-        ),
-      });
-      marker.setMap(map);
-      setFocusMarker(marker);
-      // 마커 위치로 지도 중심 변환
-      map.setCenter(marker.getPosition());
-      map.setLevel(5);
-    }
-  }, [mapInfo.focusAccommodation]);
-
-  useEffect(() => {
     // 기존 마커 제거
-    if (drawMarkers.length > 0) {
-      drawMarkers.forEach((marker) => marker.setMap(null));
-      drawMarkers.length = 0;
-    }
-    if (focusMarker) {
-      focusMarker.setMap(null);
-      setFocusMarker(null);
-    }
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
 
-    if (mapInfo.accommodationList) {
-      console.log(mapInfo.accommodationList);
-      const markers = mapInfo.accommodationList.map((accommodation) => {
-        return new window.kakao.maps.Marker({
-          position: new window.kakao.maps.LatLng(
-            Number(accommodation.address_la),
-            Number(accommodation.address_lo),
-          ),
-          map: map,
-          color: '#ff0000',
-          title: accommodation.name,
-        });
+    if (!accommodationList.length) return;
+
+    const bounds = new kakao.maps.LatLngBounds();
+
+    accommodationList.forEach((acc) => {
+      const lat = Number(acc.address_la);
+      const lng = Number(acc.address_lo);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+
+      const pos = new kakao.maps.LatLng(lat, lng);
+      const marker = new kakao.maps.Marker({ position: pos, title: acc.name });
+      marker.setMap(map);
+      markersRef.current.push(marker);
+      bounds.extend(pos);
+
+      // 간단 인포윈도우
+      kakao.maps.event.addListener(marker, 'click', () => {
+        const html = `<div style="padding:6px 10px;white-space:nowrap;font-size:12px">${acc.name}</div>`;
+        infoRef.current?.setContent(html);
+        infoRef.current?.open(map, marker);
       });
-      console.log(markers);
-      setDrawMarkers(markers);
-    }
-  }, [mapInfo.accommodationList, mapInfo.route]);
+    });
 
+    // 보기 좋은 범위로
+    if (!bounds.isEmpty()) map.setBounds(bounds);
+  }, [ready, accommodationList]);
+
+  // 3) 리스트에서 포커스된 숙소를 중앙으로
   useEffect(() => {
-    // 기존 polyline 제거
-    if (drawPolylines.length > 0) {
-      drawPolylines.forEach((line) => line.setMap(null));
-      drawPolylines.length = 0; // 배열도 비워줌
-    }
+    if (!ready || !mapRef.current || !focusAccommodation) return;
+    const lat = Number(focusAccommodation.address_la);
+    const lng = Number(focusAccommodation.address_lo);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return;
 
-    if (mapInfo.route) {
-      setTransport(mapInfo.route.transport);
-      drawRoute(mapInfo.route.path);
-    }
-  }, [mapInfo.route]);
+    const map = mapRef.current;
+    const pos = new kakao.maps.LatLng(lat, lng);
+    map.panTo(pos); // 부드럽게 이동
+    map.setLevel(5);
+  }, [ready, focusAccommodation]);
 
-  const drawRoute = (coords: Coord[]) => {
-    if (!map) return;
-
-    const path = coords.map((c) => new window.kakao.maps.LatLng(c.lat, c.lng));
-
-    // Polyline 그리기
-    const polyline = new window.kakao.maps.Polyline({
-      path,
-      strokeWeight: 5,
-      strokeColor: transport === 'CAR' ? '#FF0000' : '#0000FF',
-      strokeOpacity: 0.7,
-      strokeStyle: 'solid',
-    });
-    polyline.setMap(map);
-    setDrawPolylines([...drawPolylines, polyline]);
-
-    // 마커 그리기
-    direction?.forEach((p, idx) => {
-      new window.kakao.maps.Marker({
-        position: new window.kakao.maps.LatLng(p.lat, p.lng),
-        map,
-        title:
-          idx === 0
-            ? '출발'
-            : idx === path.length - 1
-              ? '도착'
-              : `경유지 ${idx}`,
-      });
-    });
-
-    // 지도 중심 조정
-    const bounds = new window.kakao.maps.LatLngBounds();
-    path.forEach((p) => bounds.extend(p));
-    map.setBounds(bounds);
-  };
-
-  return (
-    <div>
-      <div ref={mapRef} className={`w-full h-[100vh]`} />
-    </div>
-  );
+  return <div ref={mapEl} className="w-full" style={{ height }} />;
 };
+
 export default KakaoMap;

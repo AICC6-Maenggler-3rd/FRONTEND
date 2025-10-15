@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AccommodationList from './AccommodationList';
 import JourneySidebar from '@/components/journey/JourneySidebar';
 import KakaoMap from '@/components/KakaoMapAccomodation';
@@ -14,10 +14,10 @@ export interface DaySchedule {
 
 const CreateScheduleStepThree = () => {
   // 현재 활성화된 단계 상태 (기본값: 1 - 정보 입력 단계)
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(3);
   const [focusAccommodation, setFocusAccommodation] =
     useState<Accommodation | null>(null);
-
+  const [focused, setFocused] = useState<Accommodation | null>(null);
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
   const [usedAccommodationList, setUsedAccommodationList] = useState<
     Accommodation[]
@@ -44,8 +44,6 @@ const CreateScheduleStepThree = () => {
 
   const travelPlan = location.state?.travelPlan || TestTravelPlan;
 
-  const duration = 3;
-
   // 위치기반 검색용 나중에 수정 필요
   const baseLat = 37.5665;
   const baseLng = 126.978;
@@ -54,17 +52,22 @@ const CreateScheduleStepThree = () => {
   useEffect(() => {
     if (travelPlan) {
       console.log('이전 단계에서 받은 데이터:', travelPlan);
-      // 필요 시 상태 초기화
+      const startDate = new Date(travelPlan.startDate);
+      const endDate = new Date(travelPlan.endDate);
+      const timeDifference = endDate.getTime() - startDate.getTime();
+
+      const ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
+      const duration = timeDifference / ONE_DAY_IN_MS;
+
+      const scheduleList = Array.from({ length: duration }, (_, i) => ({
+        day: i + 1,
+        accommodationList: [],
+      }));
+      setScheduleList(scheduleList);
     }
   }, [travelPlan]);
 
-  useEffect(() => {
-    const scheduleList = Array.from({ length: duration }, (_, i) => ({
-      day: i + 1,
-      accommodationList: [],
-    }));
-    setScheduleList(scheduleList);
-  }, []);
+  useEffect(() => {}, []);
 
   const handleStepChange = (step: number) => {
     setCurrentStep(step);
@@ -101,7 +104,7 @@ const CreateScheduleStepThree = () => {
           />
           <div className="px-5 w-full flex justify-center">
             <button className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm w-full">
-              스케쥴 자동 생성
+              다음
             </button>
           </div>
         </div>
@@ -109,9 +112,8 @@ const CreateScheduleStepThree = () => {
 
       <div className="w-full h-full">
         <KakaoMap
-          focusAccommodation={focusAccommodation || undefined}
-          route={route || undefined}
-          accommodationList={accommodationList || undefined}
+          accommodationList={accommodationList} // 조회 결과 배열
+          focusAccommodation={focused} // 리스트 아이템 클릭 시 설정
         />
       </div>
       <div>
