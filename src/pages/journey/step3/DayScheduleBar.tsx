@@ -1,41 +1,43 @@
-import type { Place } from '@/api/place';
+import type { Accommodation } from '@/api/accommodation';
 import React, { useEffect, useRef, useState } from 'react';
 import type { DaySchedule } from './CreateScheduleStepThree';
-import PlaceListItem from '@/components/common/PlaceListItem';
+import AccommodationListItem from '@/pages/journey/step3/AccommodationListItem';
 import { requestPath } from '@/api/map';
 import type { Route } from '@/components/KakaoMap';
 interface DayScheduleBarProps {
   scheduleList: DaySchedule[];
   updateScheduleList?: (scheduleList: DaySchedule[]) => void;
-  setFocusPlace?: (place: Place) => void;
-  setDetailPlace?: (place: Place) => void;
+  setFocusAccommodation?: (accommodation: Accommodation) => void;
+  setDetailAccommodation?: (accommodation: Accommodation) => void;
   setRoute?: (route: Route) => void;
-  setPlaceList?: (placeList: Place[]) => void;
+  setAccommodationList?: (accommodationList: Accommodation[]) => void;
 }
 
 interface DragItem {
   colIndex: number;
   itemIndex: number;
-  place: Place;
+  accommodation: Accommodation;
 }
 
 const DayScheduleBar = ({
   scheduleList,
   updateScheduleList,
-  setFocusPlace,
-  setDetailPlace,
+  setFocusAccommodation,
+  setDetailAccommodation,
   setRoute,
-  setPlaceList,
+  setAccommodationList,
 }: DayScheduleBarProps) => {
   const dragItemRef = useRef<DragItem | null>(null);
   const dropColRef = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [colPlaceholder, setColPlaceholder] = useState<number | null>(null);
+  const [colAccommodationholder, setColAccommodationholder] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     const handleGlobalDragEnd = () => {
       setIsDragging(false);
-      setColPlaceholder(null);
+      setColAccommodationholder(null);
     };
 
     window.addEventListener('dragend', handleGlobalDragEnd);
@@ -49,38 +51,45 @@ const DayScheduleBar = ({
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, day: number) => {
     setIsDragging(false);
-    setColPlaceholder(null);
+    setColAccommodationholder(null);
     if (e.dataTransfer.getData('day') === day.toString()) {
       return;
     }
     if (dragItemRef.current) {
       if (dragItemRef.current.colIndex === day) return;
       if (
-        scheduleList[day - 1].placeList.some(
-          (p) => p.place_id === dragItemRef.current?.place.place_id,
+        scheduleList[day - 1].accommodationList.some(
+          (p) =>
+            p.accommodation_id ===
+            dragItemRef.current?.accommodation.accommodation_id,
         )
       )
         return;
       const newScheduleList = [...scheduleList];
-      newScheduleList[dragItemRef.current.colIndex - 1].placeList.splice(
-        dragItemRef.current.itemIndex,
-        1,
+      newScheduleList[
+        dragItemRef.current.colIndex - 1
+      ].accommodationList.splice(dragItemRef.current.itemIndex, 1);
+      newScheduleList[day - 1].accommodationList.push(
+        dragItemRef.current.accommodation,
       );
-      newScheduleList[day - 1].placeList.push(dragItemRef.current.place);
       updateScheduleList?.(newScheduleList);
       dragItemRef.current = null;
 
       return;
     }
     if (!e.dataTransfer.getData('text/plain')) return;
-    const place: Place = JSON.parse(e.dataTransfer.getData('text/plain'));
+    const accommodation: Accommodation = JSON.parse(
+      e.dataTransfer.getData('text/plain'),
+    );
     if (
-      scheduleList[day - 1].placeList.some((p) => p.place_id === place.place_id)
+      scheduleList[day - 1].accommodationList.some(
+        (p) => p.accommodation_id === accommodation.accommodation_id,
+      )
     )
       return;
 
     const newScheduleList = [...scheduleList];
-    newScheduleList[day - 1].placeList.push(place);
+    newScheduleList[day - 1].accommodationList.push(accommodation);
 
     updateScheduleList?.(newScheduleList);
   };
@@ -91,7 +100,7 @@ const DayScheduleBar = ({
     index: number,
   ) => {
     dropColRef.current = day;
-    setColPlaceholder(day);
+    setColAccommodationholder(day);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>, day: number) => {
@@ -101,14 +110,13 @@ const DayScheduleBar = ({
 
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
     setIsDragging(false);
-    setColPlaceholder(null);
+    setColAccommodationholder(null);
     if (!dragItemRef.current) return;
     if (dropColRef.current === -1) {
       const newScheduleList = [...scheduleList];
-      newScheduleList[dragItemRef.current.colIndex - 1].placeList.splice(
-        dragItemRef.current.itemIndex,
-        1,
-      );
+      newScheduleList[
+        dragItemRef.current.colIndex - 1
+      ].accommodationList.splice(dragItemRef.current.itemIndex, 1);
       updateScheduleList?.(newScheduleList);
       dragItemRef.current = null;
       return;
@@ -117,27 +125,31 @@ const DayScheduleBar = ({
 
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
-    place: Place,
+    accommodation: Accommodation,
     day: number,
     itemIndex: number,
   ) => {
-    dragItemRef.current = { colIndex: day, itemIndex: itemIndex, place: place };
+    dragItemRef.current = {
+      colIndex: day,
+      itemIndex: itemIndex,
+      accommodation: accommodation,
+    };
     e.dataTransfer.effectAllowed = 'move';
     setIsDragging(true);
   };
 
-  const handleFocusPlace = (place: Place) => {
-    setFocusPlace?.(place);
+  const handleFocusAccommodation = (accommodation: Accommodation) => {
+    setFocusAccommodation?.(accommodation);
   };
 
-  const handlePlaceClick = (place: Place) => {
-    setDetailPlace?.(place);
+  const handleAccommodationClick = (accommodation: Accommodation) => {
+    setDetailAccommodation?.(accommodation);
   };
 
   const handleViewPath = async (day: number) => {
-    if (scheduleList[day - 1].placeList.length < 2) return;
+    if (scheduleList[day - 1].accommodationList.length < 2) return;
     const schedule = scheduleList[day - 1];
-    const waypoints = schedule.placeList.map((p) => ({
+    const waypoints = schedule.accommodationList.map((p) => ({
       lng: parseFloat(p.address_lo),
       lat: parseFloat(p.address_la),
     }));
@@ -151,7 +163,7 @@ const DayScheduleBar = ({
       transport: 'CAR',
     };
     setRoute?.(route);
-    setPlaceList?.(schedule.placeList);
+    setAccommodationList?.(schedule.accommodationList);
   };
   const handleDeleteDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -159,7 +171,7 @@ const DayScheduleBar = ({
   };
 
   const handelDeleteDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    setColPlaceholder(-1);
+    setColAccommodationholder(-1);
     dropColRef.current = -1;
     e.preventDefault();
     e.stopPropagation();
@@ -204,30 +216,35 @@ const DayScheduleBar = ({
                 className="flex flex-col gap-2"
                 onDragOver={(e) => handleDragOver(e, schedule.day)}
               >
-                {schedule.placeList?.map((place, itemIndex) => (
-                  <div key={place.place_id}>
+                {schedule.accommodationList?.map((accommodation, itemIndex) => (
+                  <div key={accommodation.accommodation_id}>
                     <div
                       draggable={true}
                       onDragStart={(e) =>
-                        handleDragStart(e, place, schedule.day, itemIndex)
+                        handleDragStart(
+                          e,
+                          accommodation,
+                          schedule.day,
+                          itemIndex,
+                        )
                       }
                       onDragEnd={(e) => handleDragEnd(e)}
                     >
-                      <PlaceListItem
-                        place={place}
-                        handleFocusPlace={handleFocusPlace}
-                        handlePlaceClick={handlePlaceClick}
+                      <AccommodationListItem
+                        accommodation={accommodation}
+                        handleFocusAccommodation={handleFocusAccommodation}
+                        handleAccommodationClick={handleAccommodationClick}
                       />
                     </div>
                   </div>
                 ))}
-                {schedule.placeList.length === 0 && (
+                {schedule.accommodationList.length === 0 && (
                   <div className="text-center border-2 border-gray-200 rounded-md p-2 border-dashed h-[100px] flex flex-col items-center justify-center text-gray-500 select-none">
                     <div className="text-5xl">+</div>
                     <div>숙소를 놓아주세요.</div>
                   </div>
                 )}
-                {colPlaceholder === schedule.day && (
+                {colAccommodationholder === schedule.day && (
                   <div className="h-2 bg-blue-600/40 select-none"></div>
                 )}
               </div>
