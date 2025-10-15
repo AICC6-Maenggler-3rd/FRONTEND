@@ -22,7 +22,7 @@ export function Footer() {
               }}
             />
             <span className="text-3xl font-bold text-foreground tracking-tight">
-              InPik
+              InPick
             </span>
           </div>
 
@@ -39,7 +39,7 @@ export function Footer() {
           </div>
 
           <div className="text-center text-xs text-muted-foreground mt-4">
-            <p>&copy; 2025 InPik. All rights reserved.</p>
+            <p>&copy; 2025 InPick. All rights reserved.</p>
             <p className="mt-1">AI 기반 맞춤형 여행 일정 플래너</p>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUserInfo } from '@/api/auth';
 
 export function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null); // user role 저장
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ export function Header() {
         } else {
           console.log('Header - 로그인 안됨 - userData:', userData);
           setIsLoggedIn(false);
-          setUserRole(null);  // user role 제거 
+          setUserRole(null); // user role 제거
         }
       } catch (error) {
         console.log('Header - 로그인 상태 확인 실패:', error);
@@ -141,21 +141,22 @@ export function Header() {
               }}
             />
           </div>
-          <span className="text-2xl font-bold text-foreground">InPik</span>
+          <span className="text-2xl font-bold text-foreground">InPick</span>
         </div>
 
-        <div className="flex ml-auto mr-13 space-x-10"> {/* 버튼 사이 간격 조절 */}  
-          
+        <div className="flex ml-auto mr-13 space-x-10">
+          {' '}
+          {/* 버튼 사이 간격 조절 */}
           {isLoggedIn ? (
             <>
-            {userRole !== 'user' && (
-        <button
-                onClick={handleManageClick}
-                className="text-black hover:text-blue-800 transition-all duration-300"
-              >
-                ManagePage
-              </button>
-          )}
+              {userRole !== 'user' && (
+                <button
+                  onClick={handleManageClick}
+                  className="text-black hover:text-blue-800 transition-all duration-300"
+                >
+                  ManagePage
+                </button>
+              )}
               <button
                 onClick={handleMyPageClick}
                 className="text-black hover:text-blue-800 transition-all duration-300"
