@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import JourneySidebar from '../../../components/journey/JourneySidebar';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 // 여행 계획 타입 정의
 interface TravelPlan {
@@ -19,8 +19,6 @@ interface TravelPlan {
  * 여행지 선택을 위한 UI를 제공하며, 사이드바를 통해 단계별 네비게이션을 지원
  */
 const CreateScheduleStepOne = () => {
-  const navigate = useNavigate();
-
   // 선택된 여행지 상태 (기본값: '서울')
   const [selectedLocation, setSelectedLocation] = useState('서울');
 
@@ -255,30 +253,6 @@ const CreateScheduleStepOne = () => {
       setTravelPlan((plan) => ({ ...plan, themes: newThemes }));
       return newThemes;
     });
-  };
-
-  /**
-   * 테마 선택 완료 후 최종 확인
-   */
-  const handleThemeSelectionComplete = () => {
-    console.log('=== 최종 여행 계획 ===');
-    console.log('통합 여행 계획 객체:', travelPlan);
-    console.log('위치:', travelPlan.location);
-    console.log(
-      '시작:',
-      travelPlan.startDate?.toLocaleDateString('ko-KR'),
-      travelPlan.startTime,
-    );
-    console.log(
-      '종료:',
-      travelPlan.endDate?.toLocaleDateString('ko-KR'),
-      travelPlan.endTime,
-    );
-    console.log('구성원:', travelPlan.companion);
-    console.log('테마들:', travelPlan.themes);
-    console.log('==================');
-    // 여기서 다음 단계로 이동하거나 다른 로직 수행
-    navigate('/stepTwo', { state: { travelPlan } });
   };
 
   /**
@@ -882,12 +856,13 @@ const CreateScheduleStepOne = () => {
                   이전
                 </Button>
                 {selectedThemes.length > 0 && (
-                  <Button
-                    onClick={handleThemeSelectionComplete}
+                  <Link
+                    to="/stepThree"
+                    state={{ travelPlan }}
                     className="px-8 py-3 text-lg font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                   >
                     완료
-                  </Button>
+                  </Link>
                 )}
               </div>
             </div>
