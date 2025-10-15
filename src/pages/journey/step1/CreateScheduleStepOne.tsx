@@ -4,7 +4,7 @@ import JourneySidebar from '../../../components/journey/JourneySidebar';
 import { Link } from 'react-router-dom';
 
 // 여행 계획 타입 정의
-interface TravelPlan {
+export interface TravelPlan {
   location: string;
   startDate: Date | null;
   endDate: Date | null;
