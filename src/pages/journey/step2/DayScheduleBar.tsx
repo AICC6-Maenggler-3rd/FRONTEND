@@ -25,12 +25,12 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
   const dropColRef = useRef<number | null>(null);
   const dropIndexRef = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [colPlaceholder, setColPlaceholder] = useState<{day: number, index: number}>({day: -1, index: -1});
+  const [colPlaceholder, setColPlaceholder] = useState<{col_index: number, index: number}>({col_index: -1, index: -1});
 
   useEffect(() => {
     const handleGlobalDragEnd = () => {
       setIsDragging(false);
-      setColPlaceholder({day: -1, index: -1});
+      setColPlaceholder({col_index: -1, index: -1});
     };
   
     window.addEventListener("dragend", handleGlobalDragEnd);
@@ -49,23 +49,24 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
     setIsDragging(true);
   }
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, day: number) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     setIsDragging(false);
-    setColPlaceholder({day: -1, index: -1});
+    setColPlaceholder({col_index: -1, index: -1});
 
-    if (e.dataTransfer.getData('day') === day.toString()){
+    if (e.dataTransfer.getData('day') === index.toString()){
       return;
     }
     if(dragItemRef.current){
       //다른날짜에서 들여온 아이템이 현재 날짜에 있는 경우 스킵
-      if (dragItemRef.current.colIndex !== day-1 && scheduleList[day-1].placeList.some((p) => p.place_id === dragItemRef.current?.place.place_id)) return;
+      if (dragItemRef.current.colIndex !== index && scheduleList[index].placeList.some((p) => p.place_id === dragItemRef.current?.place.place_id)) return;
       const newScheduleList = [...scheduleList];
-      newScheduleList[dragItemRef.current.colIndex-1].placeList.splice(dragItemRef.current.itemIndex, 1);
-
-      if(dropIndexRef.current){
-        newScheduleList[day-1].placeList.splice(dropIndexRef.current, 0, dragItemRef.current.place);
+      newScheduleList[dragItemRef.current.colIndex].placeList.splice(dragItemRef.current.itemIndex, 1);
+      console.log("drop index", dropIndexRef.current)
+      if(dropIndexRef.current !== null){
+        const targetIndex = (dragItemRef.current.colIndex === index && dragItemRef.current.itemIndex < dropIndexRef.current) ? dropIndexRef.current -1: dropIndexRef.current;
+        newScheduleList[index].placeList.splice(targetIndex, 0, dragItemRef.current.place);
       }else{
-        newScheduleList[day-1].placeList.push(dragItemRef.current.place);
+        newScheduleList[index].placeList.push(dragItemRef.current.place);
       }
       updateScheduleList?.(newScheduleList);
       dragItemRef.current = null;
@@ -74,9 +75,14 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
     if(!e.dataTransfer.getData('text/plain')) return;
     // 외부에서 들어온 경우
     const place : Place = JSON.parse(e.dataTransfer.getData('text/plain'));
-    if (scheduleList[day-1].placeList.some((p) => p.place_id === place.place_id)) return;
+    if (scheduleList[index].placeList.some((p) => p.place_id === place.place_id)) return;
+
     const newScheduleList = [...scheduleList];
-    newScheduleList[day-1].placeList.push(place);
+    if(dropIndexRef.current !== null){
+      newScheduleList[index].placeList.splice(dropIndexRef.current, 0, place);
+    }else{
+      newScheduleList[index].placeList.push(place);
+    }
 
     updateScheduleList?.(newScheduleList);
   }
@@ -85,7 +91,7 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
   const handleDragEnterItem = (colIndex: number, itemIndex: number) => {
     dropColRef.current = colIndex;
     dropIndexRef.current = itemIndex;
-    setColPlaceholder({day: colIndex, index: itemIndex });
+    setColPlaceholder({col_index: colIndex, index: itemIndex });
   };
 
   // 컬럼 위로 들어옴 (빈 컬럼 처리)
@@ -93,47 +99,34 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
     dropColRef.current = colIndex;
     if (scheduleList[colIndex].placeList.length === 0) {
       dropIndexRef.current = 0;
-      setColPlaceholder({day: colIndex, index: 0});
+      setColPlaceholder({col_index: colIndex, index: 0});
     }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, day: number) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     e.preventDefault();
     e.stopPropagation();
   }
 
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
     setIsDragging(false);
-    setColPlaceholder({day: -1, index: -1});
+    setColPlaceholder({col_index: -1, index: -1});
     if(!dragItemRef.current) return;
     if(dropColRef.current === -1){
       const newScheduleList = [...scheduleList];
-      newScheduleList[dragItemRef.current.colIndex-1].placeList.splice(dragItemRef.current.itemIndex, 1);
+      newScheduleList[dragItemRef.current.colIndex].placeList.splice(dragItemRef.current.itemIndex, 1);
       updateScheduleList?.(newScheduleList);
       dragItemRef.current = null;
       return;
     }
   }
 
-  
-
-
-  const handleDeleteDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
   const handelDeleteDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    setColPlaceholder({day: -1, index: -1});
+    setColPlaceholder({col_index: -1, index: -1});
     dropColRef.current = -1;
     e.preventDefault();
     e.stopPropagation();
-    console.log("object")
   }
-
-
-
-
 
   const handleFocusPlace = (place: Place) => {
     setFocusPlace?.(place);
@@ -143,9 +136,9 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
     setDetailPlace?.(place);
   }
   
-  const handleViewPath = async (day: number) => {
-    if(scheduleList[day-1].placeList.length < 2) return;
-    const schedule = scheduleList[day-1];
+  const handleViewPath = async (index: number) => {
+    if(scheduleList[index].placeList.length < 2) return;
+    const schedule = scheduleList[index];
     const waypoints = schedule.placeList.map((p) => ({lng: parseFloat(p.address_lo), lat: parseFloat(p.address_la)}));
     const path = await requestPath({waypoints: waypoints, transport: "CAR"});
     const route : Route = {
@@ -161,8 +154,6 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
   }
 
   
-  
-
   return (
     <div className='flex h-full relative'>
       {
@@ -181,33 +172,32 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
         <div className='flex flex-col gap-2 h-[calc(100%-5rem)] overflow-y-auto '>
           {scheduleList?.map((schedule) => (
             <div 
-            key={schedule.day} className='flex flex-col gap-2 p-2 border-b border-gray-200' 
-            onDrop={(e) => handleDrop(e, schedule.day)}
-            onDragEnter={(e) => handleDragEnterColumn(schedule.day-1)}
+            key={schedule.index} className='flex flex-col gap-2 p-2 border-b border-gray-200' 
+            onDrop={(e) => handleDrop(e, schedule.index)}
+            onDragEnter={(e) => handleDragEnterColumn(schedule.index)}
             >
               <div className='flex justify-between items-center'>
-                <h2>{schedule.day}일차</h2>
+                <h2>{schedule.index+1}일차</h2>
                 <div className='flex gap-2'>
-                  <button className='text-sm text-gray-500' onClick={() => handleViewPath(schedule.day)}>
+                  <button className='text-sm text-gray-500' onClick={() => handleViewPath(schedule.index)}>
                     view
                   </button>
                 </div>
               </div>
               <div 
                 className='flex flex-col gap-2' 
-                onDragOver={(e) => handleDragOver(e, schedule.day-1)}>
+                onDragOver={(e) => handleDragOver(e, schedule.index)}>
                 {schedule.placeList?.map((place, itemIndex) => (
                   <div  key={place.place_id}>
                     <div 
                       draggable={true}
-                      onDragStart={(e) => handleDragStart(e, place, schedule.day, itemIndex)}
+                      onDragStart={(e) => handleDragStart(e, place, schedule.index, itemIndex)}
                       onDragEnd={(e) => handleDragEnd(e)}
-                      onDragEnter={(e) => handleDragEnterItem(schedule.day-1, itemIndex)}
+                      onDragEnter={(e) => handleDragEnterItem(schedule.index, itemIndex)}
                       >
                         {
-                          (colPlaceholder.day === schedule.day-1 && colPlaceholder.index === itemIndex) && (
-                            <div className='h-2 bg-blue-600/40 select-none'>
-                            </div>
+                          (colPlaceholder.col_index === schedule.index && colPlaceholder.index === itemIndex) && (
+                            <div className='h-2 bg-blue-600/40 select-none'/>
                           )
                         }
                         <PlaceListItem 
@@ -221,20 +211,31 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
                 ))}
                 {
                   schedule.placeList.length === 0 
-                  && (
+                  ? (
                     <div 
                     className='text-center border-2 border-gray-200 rounded-md p-2 border-dashed h-[100px] flex flex-col items-center justify-center text-gray-500 select-none'
-                    
                     >
                       <div className='text-5xl'>+</div>
                       <div>여행지를 놓아주세요.</div>
                     </div>
                   )
-                  
+                  : (
+                    <>
+                      {
+                        (colPlaceholder.col_index === schedule.index && colPlaceholder.index === schedule.placeList.length) && (
+                          <div className='h-2 bg-blue-600/40 select-none'/>
+                        )
+                      }
+                      <div 
+                        className='h-[20px] select-none'
+                        onDragEnter={(e) => handleDragEnterItem(schedule.index, schedule.placeList.length)}
+                        />
+                    </>
+                  )
                 }
               </div>
               {
-                (colPlaceholder.day === schedule.day-1 && colPlaceholder.index === -1) && (
+                (colPlaceholder.col_index === schedule.index && colPlaceholder.index === -1) && (
                   <div 
                     className='h-2 bg-blue-600/40 select-none'
                   >

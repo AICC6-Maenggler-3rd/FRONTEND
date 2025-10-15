@@ -8,7 +8,7 @@ import PlaceDetail from '@/components/common/PlaceDetail';
 import type { Route } from '@/components/KakaoMap';
 import { useLocation, useNavigate } from 'react-router-dom';
 export interface DaySchedule {
-  day: number;
+  index: number;
   placeList: Place[];
 }
 
@@ -45,7 +45,7 @@ const CreateScheduleStepTwo = () => {
 
   useEffect(() => {
     const scheduleList = Array.from({ length: duration }, (_, i) => ({
-      day: i + 1,
+      index: i,
       placeList: [],
     }));
     setScheduleList(scheduleList);
