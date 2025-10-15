@@ -203,14 +203,6 @@ const DayScheduleBar = ({
             >
               <div className="flex justify-between items-center">
                 <h2>{schedule.day}일차</h2>
-                <div className="flex gap-2">
-                  <button
-                    className="text-sm text-gray-500"
-                    onClick={() => handleViewPath(schedule.day)}
-                  >
-                    view
-                  </button>
-                </div>
               </div>
               <div
                 className="flex flex-col gap-2"
