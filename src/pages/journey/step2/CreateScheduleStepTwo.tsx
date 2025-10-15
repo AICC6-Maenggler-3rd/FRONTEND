@@ -58,7 +58,23 @@ const CreateScheduleStepTwo = () => {
   const handleAutoSchedule = () => {
     console.log('스케쥴 자동 생성');
     console.log(scheduleList);
+    // navigate('/stepThree', { state: { travelPlan, scheduleList } });
+  }
+
+  const handlePrevious = () => {
+    navigate('/stepOne', { state: { travelPlan } });
+  }
+
+  const handleNext = () => {
     navigate('/stepThree', { state: { travelPlan, scheduleList } });
+  }
+
+  const handleFocusPlace = (place: Place) => {
+    if(focusPlace?.place_id === place.place_id) {
+      setFocusPlace(null);
+    }else{
+      setFocusPlace(place);
+    }
   }
 
   return (
@@ -73,7 +89,8 @@ const CreateScheduleStepTwo = () => {
       />
       <div className="h-full flex">
         <PlaceList
-          setFocusPlace={setFocusPlace}
+          focusPlace={focusPlace || undefined}
+          setFocusPlace={handleFocusPlace}
           setDetailPlace={setDetailPlace}
           baseAddress={travelPlan?.location}
         />
@@ -82,7 +99,8 @@ const CreateScheduleStepTwo = () => {
             <DayScheduleBar
               scheduleList={scheduleList}
               updateScheduleList={setScheduleList}
-              setFocusPlace={setFocusPlace}
+              focusPlace={focusPlace || undefined}
+              setFocusPlace={handleFocusPlace}
               setDetailPlace={setDetailPlace}
               setRoute={setRoute}
               setPlaceList={setPlaceList}
@@ -96,12 +114,25 @@ const CreateScheduleStepTwo = () => {
         </div>
       </div>
 
-      <div className="w-full h-full">
+      <div className="relative w-full h-full">
         <KakaoMap
           focusPlace={focusPlace || undefined}
           route={route || undefined}
           placeList={placeList || undefined}
         />
+        <div className='navigation-bar absolute top-5 right-2 z-50 flex h-[3rem] w-[15rem] items-center justify-center gap-2'>
+          <button 
+            className='h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full' 
+            onClick={handlePrevious}
+          >
+            이전
+          </button>
+          <button 
+            className='h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full' 
+            onClick={handleNext}>
+            다음
+          </button>
+        </div>
       </div>
     </div>
   );
