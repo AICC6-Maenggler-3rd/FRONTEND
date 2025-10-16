@@ -8,9 +8,10 @@ const JourneyMain = () => {
 
   // 현재 경로에 따라 step 결정
   const getCurrentStepFromPath = () => {
-    if (location.pathname.includes('/step1')) return 1;
-    if (location.pathname.includes('/step2')) return 2;
-    if (location.pathname.includes('/step3')) return 3;
+    if (location.pathname.includes('/journey/step1')) return 1;
+    if (location.pathname.includes('/journey/step2')) return 2;
+    if (location.pathname.includes('/journey/step3')) return 3;
+    if (location.pathname.includes('/journey/step4')) return 4;
     return 1;
   };
 

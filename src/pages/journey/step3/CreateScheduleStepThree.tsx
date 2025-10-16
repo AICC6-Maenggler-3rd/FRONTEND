@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import AccommodationList from './AccommodationList';
 import KakaoMap from '@/components/KakaoMapAccomodation';
 import type { Accommodation } from '@/api/accommodation';
@@ -18,12 +18,13 @@ const CreateScheduleStepThree = () => {
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
   const [detailAccommodation, setDetailAccommodation] =
     useState<Accommodation | null>(null);
-  const [_, setRoute] = useState<Route | null>(null);
+  const [route, setRoute] = useState<Route | null>(null);
   const [accommodationList, setAccommodationList] = useState<Accommodation[]>(
     [],
   );
 
   const location = useLocation();
+  const hasInitialized = useRef(false);
 
   const TestTravelPlan = {
     location: '경상도',
@@ -43,8 +44,10 @@ const CreateScheduleStepThree = () => {
   const baseRadius = 3000;
 
   useEffect(() => {
-    if (travelPlan) {
+    if (travelPlan && !hasInitialized.current) {
       console.log('이전 단계에서 받은 데이터:', travelPlan);
+      hasInitialized.current = true;
+
       const startDate = new Date(travelPlan.startDate);
       const endDate = new Date(travelPlan.endDate);
       const timeDifference = endDate.getTime() - startDate.getTime();
@@ -97,8 +100,9 @@ const CreateScheduleStepThree = () => {
 
       <div className="w-full h-full">
         <KakaoMap
-          accommodationList={accommodationList} // 조회 결과 배열
-          focusAccommodation={focusAccommodation} // 리스트 아이템 클릭 시 설정
+          focusAccommodation={focusAccommodation || undefined}
+          route={route || undefined}
+          accommodationList={accommodationList || undefined}
         />
       </div>
       <div>
