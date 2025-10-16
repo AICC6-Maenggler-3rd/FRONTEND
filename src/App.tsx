@@ -13,6 +13,7 @@ import DefaultLayout from './layouts/DefaultLayout';
 import { Header } from './layouts/header';
 import Index from './pages/manage/Index';
 import JourneyMain from './pages/journey/main';
+import MemberDetail from './pages/manage/memberdetail'
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             <Route path="step3" element={<CreateScheduleStepThree />} />
           </Route>
           <Route path="/manageIndex" element={<Index />} />
+          <Route path="/manage/memberdetail" element={<MemberDetail />} />
         </Route>
 
         {/* 헤더와 푸터 불필요 */}
