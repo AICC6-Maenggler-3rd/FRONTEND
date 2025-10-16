@@ -1,5 +1,6 @@
 import type { Accommodation } from '@/api/accommodation';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
+import useSingleAndDoubleClick from '@/hooks/common';
 
 interface AccommodationListItemProps {
   accommodation: Accommodation;
@@ -9,8 +10,15 @@ interface AccommodationListItemProps {
 
 const AccommodationListItem = ({
   accommodation,
+  handleFocusAccommodation,
   handleAccommodationClick,
 }: AccommodationListItemProps) => {
+  // 선택된 항목 색상 변경
+  // const [isSelected, setIsSelected] = useState(false);
+  // const backgroundClass = isSelected
+  //   ? 'bg-blue-100 border-blue-400' // 선택되었을 때의 스타일
+  //   : 'bg-white border-gray-200'; // 선택되지 않았을 때의 스타일
+
   // 이미지 배열 파싱
   const firstImage = useMemo(() => {
     if (!accommodation?.image_url) return '';
@@ -20,17 +28,27 @@ const AccommodationListItem = ({
       .filter(Boolean)[0];
     return first || '';
   }, [accommodation]);
+
+  // 더블클릭
+  const handleSingleOrDoubleClick = useSingleAndDoubleClick(
+    () => {
+      handleFocusAccommodation(accommodation);
+      // setIsSelected((prev) => !prev);
+    },
+    () => {
+      handleAccommodationClick(accommodation);
+      // setIsSelected((prev) => !prev);
+    },
+  );
+
   return (
     <div
+      // className={`flex items-center gap-2 hover:cursor-pointer border ${backgroundClass}`}
       className="flex items-center gap-2 bg-white hover:cursor-pointer border"
       draggable
-      onClick={() => handleAccommodationClick(accommodation)}
+      // onClick={() => handleAccommodationClick(accommodation)}
+      onClick={handleSingleOrDoubleClick}
     >
-      {/* <div
-      className="flex items-center gap-2 justify-between bg-white"
-      draggable
-      onClick={() => handleFocusAccommodation(accommodation)}
-    > */}
       {/* 썸네일 */}
       <div className="shrink-0 w-16 h-16 rounded-md overflow-hidden">
         {firstImage ? (

@@ -1,31 +1,24 @@
 import { useEffect, useState } from 'react';
 import AccommodationList from './AccommodationList';
-import JourneySidebar from '@/components/journey/JourneySidebar';
 import KakaoMap from '@/components/KakaoMapAccomodation';
 import type { Accommodation } from '@/api/accommodation';
 import DayScheduleBar from './DayScheduleBar';
 import AccommodationDetail from '@/pages/journey/step3/AccommodationDetail';
 import type { Route } from '@/components/KakaoMap';
 import { useLocation } from 'react-router-dom';
+
 export interface DaySchedule {
   day: number;
   accommodationList: Accommodation[];
 }
 
 const CreateScheduleStepThree = () => {
-  // 현재 활성화된 단계 상태 (기본값: 1 - 정보 입력 단계)
-  const [currentStep, setCurrentStep] = useState(3);
   const [focusAccommodation, setFocusAccommodation] =
     useState<Accommodation | null>(null);
-  const [focused, setFocused] = useState<Accommodation | null>(null);
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
-  const [usedAccommodationList, setUsedAccommodationList] = useState<
-    Accommodation[]
-  >([]);
   const [detailAccommodation, setDetailAccommodation] =
     useState<Accommodation | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [route, setRoute] = useState<Route | null>(null);
+  const [_, setRoute] = useState<Route | null>(null);
   const [accommodationList, setAccommodationList] = useState<Accommodation[]>(
     [],
   );
@@ -44,9 +37,9 @@ const CreateScheduleStepThree = () => {
 
   const travelPlan = location.state?.travelPlan || TestTravelPlan;
 
-  // 위치기반 검색용 나중에 수정 필요
-  const baseLat = 37.5665;
-  const baseLng = 126.978;
+  // 위치기반 검색용 나중에 수정 필요 - 부산광역시청
+  const baseLat = 35.198362;
+  const baseLng = 129.053922;
   const baseRadius = 3000;
 
   useEffect(() => {
@@ -69,10 +62,6 @@ const CreateScheduleStepThree = () => {
 
   useEffect(() => {}, []);
 
-  const handleStepChange = (step: number) => {
-    setCurrentStep(step);
-  };
-
   return (
     <div className="h-[calc(100vh)] bg-white flex">
       {detailAccommodation && (
@@ -81,10 +70,6 @@ const CreateScheduleStepThree = () => {
           setCurrentAccommodation={setDetailAccommodation}
         />
       )}
-      <JourneySidebar
-        currentStep={currentStep}
-        onStepChange={handleStepChange}
-      />
       <div className="h-full flex">
         <AccommodationList
           setFocusAccommodation={setFocusAccommodation}
@@ -113,7 +98,7 @@ const CreateScheduleStepThree = () => {
       <div className="w-full h-full">
         <KakaoMap
           accommodationList={accommodationList} // 조회 결과 배열
-          focusAccommodation={focused} // 리스트 아이템 클릭 시 설정
+          focusAccommodation={focusAccommodation} // 리스트 아이템 클릭 시 설정
         />
       </div>
       <div>
