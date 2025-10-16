@@ -1,6 +1,6 @@
 import type { Place } from '@/api/place';
 import React, { useEffect, useRef, useState } from 'react'
-import type { DaySchedule } from './CreateScheduleStepTwo';
+import type { DaySchedule, PlaceItem } from './CreateScheduleStepTwo';
 import PlaceListItem from '@/components/common/PlaceListItem';
 import { requestPath } from '@/api/map';
 import type { Route } from '@/components/KakaoMap';
@@ -17,7 +17,7 @@ interface DayScheduleBarProps {
 interface DragItem {
   colIndex: number;
   itemIndex: number;
-  place: Place;
+  place: PlaceItem;
 }
 
 const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusPlace, setDetailPlace, setRoute, setPlaceList}: DayScheduleBarProps) => {
@@ -42,10 +42,11 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
     };
   }, []);
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, place: Place, day: number, itemIndex: number) => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, place: PlaceItem, day: number, itemIndex: number) => {
     dragItemRef.current = {colIndex: day, itemIndex: itemIndex, place: place};
     dropIndexRef.current = itemIndex;
     e.dataTransfer.effectAllowed = 'move';
+    console.log("drag start", place);
     setIsDragging(true);
   }
 
@@ -79,9 +80,11 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
 
     const newScheduleList = [...scheduleList];
     if(dropIndexRef.current !== null){
-      newScheduleList[index].placeList.splice(dropIndexRef.current, 0, place);
+      newScheduleList[index].placeList.splice(dropIndexRef.current, 0, {
+        place_id: place.place_id, accommodation_id: 0, start_time: null, end_time: null, is_required: true, info: place});
     }else{
-      newScheduleList[index].placeList.push(place);
+      newScheduleList[index].placeList.push({
+        place_id: place.place_id, accommodation_id: 0, start_time: null, end_time: null, is_required: true, info: place});
     }
 
     updateScheduleList?.(newScheduleList);
@@ -139,7 +142,7 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
   const handleViewPath = async (index: number) => {
     if(scheduleList[index].placeList.length < 2) return;
     const schedule = scheduleList[index];
-    const waypoints = schedule.placeList.map((p) => ({lng: parseFloat(p.address_lo), lat: parseFloat(p.address_la)}));
+    const waypoints = schedule.placeList.map((p) => ({lng: parseFloat(p.info.address_lo), lat: parseFloat(p.info.address_la)}));
     const path = await requestPath({waypoints: waypoints, transport: "CAR"});
     const route : Route = {
       start_point: {lng: path.start_point.lng, lat: path.start_point.lat},
@@ -150,7 +153,7 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
       transport: "CAR"
     }
     setRoute?.(route);
-    setPlaceList?.(schedule.placeList);
+    setPlaceList?.(schedule.placeList.map((p) => p.info));
   }
 
   
@@ -168,8 +171,8 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
         )
       }
       <div className='w-[300px] h-full bg-white '>
-        <h1 className='text-2xl h-[5rem] font-bold text-center py-4 border-b border-gray-200 flex items-center justify-center'>필수 여행지</h1>
-        <div className='flex flex-col gap-2 h-[calc(100%-5rem)] overflow-y-auto '>
+        
+        <div className='flex flex-col gap-2 h-full overflow-y-auto '>
           {scheduleList?.map((schedule) => (
             <div 
             key={schedule.index} className='flex flex-col gap-2 p-2 border-b border-gray-200' 
@@ -177,7 +180,7 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
             onDragEnter={(e) => handleDragEnterColumn(schedule.index)}
             >
               <div className='flex justify-between items-center'>
-                <h2>{schedule.index+1}일차</h2>
+                <h2>{schedule.index+1}일차 ({schedule.date.toLocaleDateString()})</h2>
                 <div className='flex gap-2'>
                   <button className='text-sm text-gray-500' onClick={() => handleViewPath(schedule.index)}>
                     view
@@ -201,7 +204,7 @@ const DayScheduleBar = ({scheduleList, updateScheduleList, focusPlace, setFocusP
                           )
                         }
                         <PlaceListItem 
-                        place={place} 
+                        place={place.info} 
                         focus={focusPlace?.place_id === place.place_id}
                         handleFocusPlace={handleFocusPlace} 
                         handlePlaceClick={handlePlaceClick} 
