@@ -78,3 +78,117 @@ export const getPlacesCategoryStats = async () => {
     return { category_stats: [], total_categories: 0 };
   }
 };
+
+export const toggleUserStatus = async (userId: number) => {
+  try {
+    const res = await axios.patch(`${API_BASE}/manage/users/${userId}/status`, {}, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error('사용자 상태 변경 실패:', error);
+    throw error;
+  }
+};
+
+export const getUserActivityLogs = async (userId: number) => {
+  try {
+    const res = await axios.get(`${API_BASE}/manage/users/${userId}/activity-logs`, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error('사용자 활동 로그 조회 실패:', error);
+    throw error;
+  }
+};
+
+export const deleteUser = async (userId: number) => {
+  try {
+    const res = await axios.delete(`${API_BASE}/manage/users/${userId}`, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error('사용자 삭제 실패:', error);
+    throw error;
+  }
+};
+
+// ==================== 카테고리 관리 API ====================
+
+export interface Category {
+  category_id: number;
+  name: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  place_count: number;
+}
+
+export interface CategoryCreateData {
+  name: string;
+  status: string;
+}
+
+export const getCategoriesList = async (): Promise<{ categories: Category[]; total_count: number }> => {
+  try {
+    console.log('API 호출 시작:', `${API_BASE}/manage/categories`);
+    const res = await axios.get(`${API_BASE}/manage/categories`, {
+      withCredentials: true,
+    });
+    console.log('API 응답:', res.data);
+    return res.data;
+  } catch (error) {
+    console.error('카테고리 목록 조회 실패:', error);
+    return { categories: [], total_count: 0 };
+  }
+};
+
+export const createCategory = async (categoryData: CategoryCreateData) => {
+  try {
+    const res = await axios.post(`${API_BASE}/manage/categories`, categoryData, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error('카테고리 생성 실패:', error);
+    throw error;
+  }
+};
+
+export const updateCategory = async (categoryId: number, categoryData: CategoryCreateData) => {
+  try {
+    const res = await axios.patch(`${API_BASE}/manage/categories/${categoryId}`, categoryData, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error('카테고리 수정 실패:', error);
+    throw error;
+  }
+};
+
+export const toggleCategoryStatus = async (categoryId: number) => {
+  try {
+    const res = await axios.patch(`${API_BASE}/manage/categories/${categoryId}/status`, {}, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error('카테고리 상태 변경 실패:', error);
+    throw error;
+  }
+};
+
+export const deleteCategory = async (categoryId: number) => {
+  try {
+    const res = await axios.delete(`${API_BASE}/manage/categories/${categoryId}`, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error('카테고리 삭제 실패:', error);
+    throw error;
+  }
+};

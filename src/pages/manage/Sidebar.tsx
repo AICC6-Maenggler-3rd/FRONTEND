@@ -25,10 +25,12 @@ const Sidebar = () => {
                   회원 관리
                 </Button>
               </Link>
-              <Button variant="outline" className="w-full justify-start gap-3 text-foreground hover:bg-secondary">
-                <FolderTree className="h-4 w-4" />
-                카테고리 관리
-              </Button>
+              <Link to="/manage/categorydetail">
+                <Button variant="outline" className="w-full justify-start gap-3 text-foreground hover:bg-secondary">
+                  <FolderTree className="h-4 w-4" />
+                  카테고리 관리
+                </Button>
+              </Link>
               <Button variant="outline" className="w-full justify-start gap-3 text-foreground hover:bg-secondary">
                 <Shield className="h-4 w-4" />
                 관리자 계정 관리
