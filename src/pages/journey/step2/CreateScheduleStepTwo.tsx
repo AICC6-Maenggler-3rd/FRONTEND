@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import type { Itinerary, ItineraryCreateRequest, ItineraryItem, ItineraryItemDataResponse, ItineraryItemResponse, ItineraryResponse } from '@/types/itinerary';
 import { generateItinerary } from '@/api/itinerary';
 import type { Accommodation } from '@/types/accommodation';
+import { Link } from 'react-router-dom';
 
 
 export interface DaySchedule {
@@ -131,11 +132,6 @@ const CreateScheduleStepTwo = () => {
     }));
     setScheduleList(scheduleList);
   }, [duration]);
-
-  const handleStepChange = (step: number) => {
-    setCurrentStep(step);
-  };
-
   const handleAutoSchedule = async () => {
     console.log('스케쥴 자동 생성');
     const itinerary = ConvertScheduleToItineraryRequest(scheduleList, travelPlan);
@@ -145,14 +141,6 @@ const CreateScheduleStepTwo = () => {
     setScheduleList(new_scheduleList);
     setGenerateAction(false);
     // navigate('/stepThree', { state: { travelPlan, scheduleList: new_scheduleList } });
-  }
-
-  const handlePrevious = () => {
-    navigate('/stepOne', { state: { travelPlan } });
-  }
-
-  const handleNext = () => {
-    navigate('/stepThree', { state: { travelPlan, scheduleList } });
   }
 
   const handleFocusPlace = (place: Place) => {
@@ -168,11 +156,6 @@ const CreateScheduleStepTwo = () => {
       {detailPlace && (
         <PlaceDetail place={detailPlace} setCurrentPlace={setDetailPlace} />
       )}
-      {/* 왼쪽 사이드바 - 여행 계획 단계 네비게이션 */}
-      <JourneySidebar
-        currentStep={currentStep}
-        onStepChange={handleStepChange}
-      />
       <div className='relative h-full w-full flex'>
         {
           generateAction && (
@@ -226,17 +209,20 @@ const CreateScheduleStepTwo = () => {
             placeList={placeList || undefined}
             />
           <div className='navigation-bar absolute top-5 right-2 z-50 flex h-[3rem] w-[15rem] items-center justify-center gap-2'>
-            <button 
+            <Link 
+              to='/journey/step1'
+              state={{ travelPlan, scheduleList }}
               className='h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full' 
-              onClick={handlePrevious}
               >
               이전
-            </button>
-            <button 
+            </Link>
+            <Link 
+              to='/journey/step2'
+              state={{ travelPlan, scheduleList }}
               className='h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full' 
-              onClick={handleNext}>
+            >
               다음
-            </button>
+            </Link>
           </div>
         </div>
       </div>
