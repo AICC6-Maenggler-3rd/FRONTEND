@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Link } from 'react-router-dom';
-import { getAllRegion, type RegionItem } from '../../../api/region';
 
 // 여행 계획 타입 정의
 export interface TravelPlan {
@@ -12,8 +11,8 @@ export interface TravelPlan {
   endTime: string;
   companion: string | null;
   themes: string[];
-  default_lo: number;
   default_la: number;
+  default_lo: number;
 }
 
 /**
@@ -21,11 +20,11 @@ export interface TravelPlan {
  * 여행지 선택을 위한 UI를 제공하며, 사이드바를 통해 단계별 네비게이션을 지원
  */
 const CreateScheduleStepOne = () => {
-  // 선택된 여행지 상태 (기본값: '서울')
-  const [selectedLocation, setSelectedLocation] = useState('서울');
+  // 선택된 여행지 상태 (기본값: '서울특별시')
+  const [selectedLocation, setSelectedLocation] = useState('서울특별시');
 
-  // 검색 입력 필드 상태
-  const [searchInput, setSearchInput] = useState('');
+  // 검색 입력 필드 상태 (현재 사용하지 않음)
+  // const [searchInput, setSearchInput] = useState('');
 
   // 현재 화면 상태 (위치 선택, 날짜 선택, 시간 선택, 구성원 선택, 테마 선택)
   const [currentView, setCurrentView] = useState<
@@ -54,7 +53,7 @@ const CreateScheduleStepOne = () => {
 
   // 통합 여행 계획 상태
   const [travelPlan, setTravelPlan] = useState<TravelPlan>({
-    location: '서울',
+    location: '서울특별시',
     startDate: null,
     endDate: null,
     startTime: '09:00',
@@ -70,66 +69,24 @@ const CreateScheduleStepOne = () => {
     new Date(new Date().getFullYear(), new Date().getMonth()),
   );
 
-  // 지역 목록 상태 (백엔드 연동)
-  const [regions, setRegions] = useState<RegionItem[]>([]);
-  const [isLoadingRegions, setIsLoadingRegions] = useState(false);
-  const [regionsError, setRegionsError] = useState<string | null>(null);
-
-  // 페이지 로드시 전체 지역 조회
-  useEffect(() => {
-    const fetchRegions = async () => {
-      try {
-        setIsLoadingRegions(true);
-        setRegionsError(null);
-        const data = await getAllRegion();
-        setRegions(data);
-        // 초기 선택된 위치가 리스트에 있으면 기본 좌표 설정
-        const matched = data.find(
-          (r) =>
-            selectedLocation &&
-            r.name.includes(selectedLocation.replace(/\s/g, '')),
-        );
-        if (matched) {
-          setTravelPlan((prev) => ({
-            ...prev,
-            default_la: matched.address_la,
-            default_lo: matched.address_lo,
-          }));
-        }
-      } catch (e) {
-        setRegionsError('지역 정보를 불러오지 못했습니다.');
-      } finally {
-        setIsLoadingRegions(false);
-      }
-    };
-    fetchRegions();
-  }, []);
-
   // 선택 가능한 여행지 목록 (3x4 그리드로 표시)
   const locations = [
     '서울특별시',
     '부산광역시',
-    '대구광역시',
+    '제주특별자치도',
     '인천광역시',
-    '광주광역시',
-    '대전광역시',
-    '울산광역시',
-    '세종특별자치시',
-    '경기도',
-    '충청북도',
-    '충청남도',
-    '전라남도',
-    '경상북도',
     '경상남도',
     '강원특별자치도',
-    '전북특별자치도',
-    '제주특별자치도',
+    '전라남도',
+    '전라북도',
+    '광주광역시',
+    '울산광역시',
+    '충청남도',
+    '충청북도',
+    '대전광역시',
+    '대구광역시',
+    '세종특별자치시',
   ];
-
-  // 검색어로 필터링된 여행지 목록
-  const filteredLocations = locations.filter((location) =>
-    location.toLowerCase().includes(searchInput.toLowerCase()),
-  );
 
   // 선택 가능한 구성원 목록 (2x3 그리드로 표시)
   const companions = [
@@ -162,16 +119,7 @@ const CreateScheduleStepOne = () => {
    */
   const handleLocationSelect = (location: string) => {
     setSelectedLocation(location);
-    // 선택된 지역의 기본 좌표 함께 업데이트
-    const matched = regions.find((r) =>
-      r.name.includes(location.replace(/\s/g, '')),
-    );
-    setTravelPlan((prev) => ({
-      ...prev,
-      location,
-      default_la: matched?.address_la ?? prev.default_la,
-      default_lo: matched?.address_lo ?? prev.default_lo,
-    }));
+    setTravelPlan((prev) => ({ ...prev, location }));
   };
 
   /**
@@ -438,50 +386,416 @@ const CreateScheduleStepOne = () => {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-blue-900 mb-4">위치</h1>
             <p className="text-xl text-blue-900">어디로 가시나요?</p>
-            {/* 지역 검색 입력 */}
-            <div className="mt-6 max-w-xl mx-auto">
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="지역명을 입력해 검색하세요 (예: 서울, 부산)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                aria-label="지역 검색"
-              />
-            </div>
           </div>
 
-          {/* 지역 선택 버튼 그리드 (3x4 레이아웃) */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            {isLoadingRegions && (
-              <div className="col-span-3 text-center text-gray-500 py-6">
-                지역 정보를 불러오는 중...
+          {/* 한국 지도와 지역 선택 */}
+          <div className="mb-8">
+            <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  지역을 선택해주세요
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  지도에서 원하는 지역을 클릭하거나 아래 목록에서 선택하세요
+                </p>
               </div>
-            )}
-            {regionsError && !isLoadingRegions && (
-              <div className="col-span-3 text-center text-red-500 py-6">
-                {regionsError}
+
+              {/* 한국 지도 SVG */}
+              <div
+                className="flex justify-center mb-6 bg-cover bg-center w-full h-full"
+                style={{
+                  backgroundImage: "url('/image/korea.jpg')",
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  width: '100%',
+                }}
+              >
+                <svg viewBox="0 0 400 500" className="w-full h-full">
+                  {/* 지역별 클릭 가능한 영역들 */}
+                  {/* 서울 */}
+                  <circle
+                    cx="145"
+                    cy="125"
+                    r="1"
+                    fill={
+                      selectedLocation === '서울특별시' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '서울특별시' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('서울특별시')}
+                  />
+                  <text
+                    x="145"
+                    y="130"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill- pointer-events-none "
+                  >
+                    서울
+                  </text>
+
+                  {/* 부산 */}
+                  <circle
+                    cx="320"
+                    cy="350"
+                    r="15"
+                    fill={
+                      selectedLocation === '부산광역시' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '부산광역시' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('부산광역시')}
+                  />
+                  <text
+                    x="320"
+                    y="355"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    부산
+                  </text>
+
+                  {/* 제주 */}
+                  <circle
+                    cx="180"
+                    cy="420"
+                    r="12"
+                    fill={
+                      selectedLocation === '제주특별자치도'
+                        ? '#3b82f6'
+                        : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '제주특별자치도'
+                        ? '#1d4ed8'
+                        : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('제주특별자치도')}
+                  />
+                  <text
+                    x="180"
+                    y="425"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    제주
+                  </text>
+
+                  {/* 인천 */}
+                  <circle
+                    cx="180"
+                    cy="100"
+                    r="12"
+                    fill={
+                      selectedLocation === '인천광역시' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '인천광역시' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('인천광역시')}
+                  />
+                  <text
+                    x="180"
+                    y="105"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    인천
+                  </text>
+
+                  {/* 경상남도 */}
+                  <circle
+                    cx="300"
+                    cy="320"
+                    r="12"
+                    fill={
+                      selectedLocation === '경상남도' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '경상남도' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('경상남도')}
+                  />
+                  <text
+                    x="300"
+                    y="325"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    경남
+                  </text>
+
+                  {/* 강원특별자치도 */}
+                  <circle
+                    cx="220"
+                    cy="160"
+                    r="12"
+                    fill={
+                      selectedLocation === '강원특별자치도'
+                        ? '#3b82f6'
+                        : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '강원특별자치도'
+                        ? '#1d4ed8'
+                        : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('강원특별자치도')}
+                  />
+                  <text
+                    x="220"
+                    y="165"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    강원
+                  </text>
+
+                  {/* 전라남도 */}
+                  <circle
+                    cx="180"
+                    cy="350"
+                    r="12"
+                    fill={
+                      selectedLocation === '전라남도' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '전라남도' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('전라남도')}
+                  />
+                  <text
+                    x="180"
+                    y="355"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    전남
+                  </text>
+
+                  {/* 전라북도 */}
+                  <circle
+                    cx="200"
+                    cy="320"
+                    r="12"
+                    fill={
+                      selectedLocation === '전라북도' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '전라북도' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('전라북도')}
+                  />
+                  <text
+                    x="200"
+                    y="325"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    전북
+                  </text>
+
+                  {/* 광주 */}
+                  <circle
+                    cx="160"
+                    cy="340"
+                    r="10"
+                    fill={
+                      selectedLocation === '광주광역시' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '광주광역시' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('광주광역시')}
+                  />
+                  <text
+                    x="160"
+                    y="345"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    광주
+                  </text>
+
+                  {/* 울산 */}
+                  <circle
+                    cx="340"
+                    cy="330"
+                    r="10"
+                    fill={
+                      selectedLocation === '울산광역시' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '울산광역시' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('울산광역시')}
+                  />
+                  <text
+                    x="340"
+                    y="335"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    울산
+                  </text>
+
+                  {/* 충청남도 */}
+                  <circle
+                    cx="200"
+                    cy="260"
+                    r="12"
+                    fill={
+                      selectedLocation === '충청남도' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '충청남도' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('충청남도')}
+                  />
+                  <text
+                    x="200"
+                    y="265"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    충남
+                  </text>
+
+                  {/* 충청북도 */}
+                  <circle
+                    cx="220"
+                    cy="220"
+                    r="12"
+                    fill={
+                      selectedLocation === '충청북도' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '충청북도' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('충청북도')}
+                  />
+                  <text
+                    x="220"
+                    y="225"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    충북
+                  </text>
+
+                  {/* 대전 */}
+                  <circle
+                    cx="210"
+                    cy="250"
+                    r="10"
+                    fill={
+                      selectedLocation === '대전광역시' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '대전광역시' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('대전광역시')}
+                  />
+                  <text
+                    x="210"
+                    y="255"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    대전
+                  </text>
+
+                  {/* 대구 */}
+                  <circle
+                    cx="280"
+                    cy="280"
+                    r="12"
+                    fill={
+                      selectedLocation === '대구광역시' ? '#3b82f6' : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '대구광역시' ? '#1d4ed8' : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('대구광역시')}
+                  />
+                  <text
+                    x="280"
+                    y="285"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    대구
+                  </text>
+
+                  {/* 세종 */}
+                  <circle
+                    cx="190"
+                    cy="240"
+                    r="8"
+                    fill={
+                      selectedLocation === '세종특별자치시'
+                        ? '#3b82f6'
+                        : '#e2e8f0'
+                    }
+                    stroke={
+                      selectedLocation === '세종특별자치시'
+                        ? '#1d4ed8'
+                        : '#94a3b8'
+                    }
+                    strokeWidth="2"
+                    className="cursor-pointer hover:fill-blue-300 transition-colors"
+                    onClick={() => handleLocationSelect('세종특별자치시')}
+                  />
+                  <text
+                    x="190"
+                    y="245"
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-white pointer-events-none"
+                  >
+                    세종
+                  </text>
+                </svg>
               </div>
-            )}
-            {filteredLocations.length > 0 ? (
-              filteredLocations.map((location) => (
-                <button
-                  key={location}
-                  onClick={() => handleLocationSelect(location)}
-                  className={`px-4 py-3 rounded-lg text-lg font-medium transition-colors ${
-                    selectedLocation === location
-                      ? 'bg-gray-600 text-white' // 선택된 지역: 회색 배경, 흰 텍스트
-                      : 'bg-gray-100 text-blue-900 hover:bg-gray-200' // 미선택 지역: 연한 회색 배경, 파란 텍스트
-                  }`}
-                >
-                  {location}
-                </button>
-              ))
-            ) : (
-              <div className="col-span-3 text-center text-gray-500 py-6">
-                검색 결과가 없습니다.
-              </div>
-            )}
+
+              {/* 선택된 지역 표시 */}
+              {selectedLocation && (
+                <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-blue-700 font-medium">
+                    선택된 지역:{' '}
+                    <span className="font-bold">{selectedLocation}</span>
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* 다음 단계로 이동하는 버튼 */}
