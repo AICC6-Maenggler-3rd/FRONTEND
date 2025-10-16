@@ -178,7 +178,7 @@ export default function ProfilePage() {
                           제주도 힐링 여행
                         </h4>
                         <p className="text-sm text-black">
-                          2024.03.15 - 2024.03.18 (3박 4일)
+                          2025.03.15 - 2025.03.18 (3박 4일)
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-800 mt-2">
@@ -206,7 +206,7 @@ export default function ProfilePage() {
                           부산 맛집 투어
                         </h4>
                         <p className="text-sm text-black">
-                          2024.02.20 - 2024.02.23 (3박 4일)
+                          2025.02.20 - 2025.02.23 (3박 4일)
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-800 mt-2">
@@ -234,7 +234,7 @@ export default function ProfilePage() {
                           경주 역사 탐방
                         </h4>
                         <p className="text-sm text-black">
-                          2024.01.10 - 2024.01.12 (2박 3일)
+                          2025.01.10 - 2025.01.12 (2박 3일)
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-800 mt-2">
