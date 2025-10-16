@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import AccommodationList from './AccommodationList';
-import JourneySidebar from '@/components/journey/JourneySidebar';
 import KakaoMap from '@/components/KakaoMapAccomodation';
 import type { Accommodation } from '@/api/accommodation';
 import DayScheduleBar from './DayScheduleBar';
@@ -14,8 +13,6 @@ export interface DaySchedule {
 }
 
 const CreateScheduleStepThree = () => {
-  // 현재 활성화된 단계 상태 (기본값: 3 - 숙소 선택 단계)
-  const [currentStep, setCurrentStep] = useState(3);
   const [focusAccommodation, setFocusAccommodation] =
     useState<Accommodation | null>(null);
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
@@ -65,10 +62,6 @@ const CreateScheduleStepThree = () => {
 
   useEffect(() => {}, []);
 
-  const handleStepChange = (step: number) => {
-    setCurrentStep(step);
-  };
-
   return (
     <div className="h-[calc(100vh)] bg-white flex">
       {detailAccommodation && (
@@ -77,10 +70,6 @@ const CreateScheduleStepThree = () => {
           setCurrentAccommodation={setDetailAccommodation}
         />
       )}
-      <JourneySidebar
-        currentStep={currentStep}
-        onStepChange={handleStepChange}
-      />
       <div className="h-full flex">
         <AccommodationList
           setFocusAccommodation={setFocusAccommodation}
