@@ -8,17 +8,17 @@ export function Footer() {
 
   return (
     <footer className="bg-muted/30 border-t border-border">
-      <div className="container mx-auto px-6 py-16">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="flex items-center space-x-2">
+      <div className="container mx-auto px-6 py-12">
+        <div className="flex flex-col items-center space-y-6">
+          <div className="flex items-center space-x-1">
             <img
-              src="/image/inpik.png"
-              alt="Inpik 로고 아이콘"
-              className="w-20 h-20 absolute"
+              src="/image/inpick.png"
+              alt="InPick 로고 아이콘"
+              className="w-20 h-20"
               style={{
-                top: '30%',
-                left: '47%',
-                transform: 'translate(-50%, -50%)',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(15%, 3%)',
               }}
             />
             <span className="text-3xl font-bold text-foreground tracking-tight">
@@ -26,7 +26,7 @@ export function Footer() {
             </span>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-10 text-sm mt-4">
+          <div className="flex flex-wrap justify-center gap-10 text-sm">
             {footerLinks.map((link, index) => (
               <a
                 key={index}

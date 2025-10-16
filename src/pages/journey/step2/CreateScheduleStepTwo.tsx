@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PlaceList from '../../../components/common/PlaceList';
-import JourneySidebar from '@/components/journey/JourneySidebar';
 import KakaoMap from '@/components/KakaoMap';
 import type { Place } from '@/api/place';
 import DayScheduleBar from './DayScheduleBar';
@@ -90,10 +89,7 @@ const ConvertItineraryResponseToSchedule = (itinerary: ItineraryResponse) => {
 }
 
 const CreateScheduleStepTwo = () => {
-
   const navigate = useNavigate();
-  // 현재 활성화된 단계 상태 (기본값: 1 - 정보 입력 단계)
-  const [currentStep, setCurrentStep] = useState(2);
   const [focusPlace, setFocusPlace] = useState<Place | null>(null);
 
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
@@ -118,8 +114,11 @@ const CreateScheduleStepTwo = () => {
     if (travelPlan) {
       console.log('이전 단계에서 받은 데이터:', travelPlan);
       // 필요 시 상태 초기화
-      const diffTime = travelPlan.endDate?.getTime() - travelPlan.startDate?.getTime();
-      setDuration(diffTime ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1 : 1);
+      const diffTime =
+        travelPlan.endDate?.getTime() - travelPlan.startDate?.getTime();
+      setDuration(
+        diffTime ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1 : 1,
+      );
     }
   }, [travelPlan]);
 

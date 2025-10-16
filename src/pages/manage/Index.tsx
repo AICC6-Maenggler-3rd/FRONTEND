@@ -1,9 +1,13 @@
-import React from 'react'
+import Sidebar from './Sidebar'
+import Main from './Main'
 
-const Manage = () => {
+const ManageIndex = () => {
   return (
-    <div>Manage</div>
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar />
+      <Main />
+    </div>
   )
 }
 
-export default Manage
+export default ManageIndex;
