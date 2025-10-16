@@ -10,7 +10,7 @@ interface PlaceListItemProps {
 }
 
 const PlaceListItem = ({place, focus, handleFocusPlace, handlePlaceClick}: PlaceListItemProps) => {
-  if(focus) console.log("Focus Place", place)
+  
   return (
     <div className={`flex px-4 items-center gap-2 justify-between duration-300 ease-out hover:bg-gray-100 cursor-pointer rounded-md ${focus ? 'bg-gray-100' : 'bg-white'}`} draggable={true} onClick={() => handleFocusPlace(place)}>
       <div className='py-2 flex flex-col gap-2 w-[150px] select-none'>
