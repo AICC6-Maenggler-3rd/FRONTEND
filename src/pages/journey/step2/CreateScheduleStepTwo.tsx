@@ -207,6 +207,7 @@ const CreateScheduleStepTwo = () => {
             focusPlace={focusPlace || undefined}
             route={route || undefined}
             placeList={placeList || undefined}
+            placeMarkerClick={setDetailPlace}
             />
           <div className='navigation-bar absolute top-5 right-2 z-50 flex h-[3rem] w-[15rem] items-center justify-center gap-2'>
             <Link 
@@ -217,7 +218,7 @@ const CreateScheduleStepTwo = () => {
               이전
             </Link>
             <Link 
-              to='/journey/step2'
+              to='/journey/step3'
               state={{ travelPlan, scheduleList }}
               className='h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full' 
             >

@@ -36,18 +36,73 @@ export interface MapInfo{
   markers? : MakerInfo[]
   placeList? : Place[]
   focusPlace? : Place
+  placeMarkerClick? : (place: Place) => void
   height? : string
+  startPoint? : Coord
 }
 
 
+
+interface PlaceMarker{
+  marker: kakao.maps.Marker
+  overlay: kakao.maps.CustomOverlay
+}
+
+const MarkerLable = (name: string) => {
+  const content = `
+        <div style="
+          background:white;
+          border:1px solid #888;
+          border-radius:6px;
+          padding:3px 8px;
+          font-size:13px;
+          font-weight:500;
+          white-space:nowrap;
+          box-shadow:0 2px 4px rgba(0,0,0,0.2);
+          transform: translateY(-5px);
+          cursor: pointer;
+        ">
+          ${name}
+        </div>
+      `;
+  return content;
+}
+
+const CreateMarker = (place: Place, map: kakao.maps.Map, placeMarkerClick?: (place: Place) => void) => {
+  const marker = new window.kakao.maps.Marker({
+    position: new window.kakao.maps.LatLng(Number(place.address_la),Number(place.address_lo)),
+    map: map,
+    title: place.name,
+  });
+
+  const content = document.createElement('div');
+  content.innerHTML = MarkerLable(place.name);
+  const overlay = new window.kakao.maps.CustomOverlay({
+    position: new window.kakao.maps.LatLng(Number(place.address_la),Number(place.address_lo)),
+    content: content,
+    yAnchor: 2.5, // 마커 위로 살짝 이동
+    map: map,
+  });
+
+  // 클릭 이벤트 추가
+  kakao.maps.event.addListener(marker, 'click', () => {
+    placeMarkerClick?.(place);
+  });
+  content.addEventListener('click', () => {
+    placeMarkerClick?.(place);
+  });
+
+
+  return {marker, overlay};
+}
 
 const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
 
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
   const [transport, setTransport] = useState<"CAR" | "PEDESTRIAN">("CAR");
-  const [focusMarker, setFocusMarker] = useState<any>(null);
-  const [drawMarkers, setDrawMarkers] = useState<kakao.maps.Marker[]>([]);
+  const [focusMarker, setFocusMarker] = useState<PlaceMarker | null>(null);
+  const [drawMarkers, setDrawMarkers] = useState<PlaceMarker[]>([]);
   const [drawPolylines, setDrawPolylines] = useState<kakao.maps.Polyline[]>([]);
 
   const direction = mapInfo.direction
@@ -55,24 +110,23 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
   useEffect(() => {
     if (!window.kakao || !mapRef.current) return;
     const mapObj = new window.kakao.maps.Map(mapRef.current, {
-      center: new window.kakao.maps.LatLng(37.5665, 126.978),
+      center: new window.kakao.maps.LatLng(mapInfo.startPoint?.lat || 37.5665, mapInfo.startPoint?.lng || 126.978),
       level: 5,
     });
     setMap(mapObj);
   }, []);
 
   useEffect(() => {
-    if(mapInfo.focusPlace){
+    const place = mapInfo.focusPlace;
+    if(place){
       // 기존 마커 제거
       if(focusMarker){
-        focusMarker.setMap(null);
+        focusMarker.marker.setMap(null);
+        focusMarker.overlay.setMap(null);
       }
       
-      const marker = new window.kakao.maps.Marker({
-        position: new window.kakao.maps.LatLng(Number(mapInfo.focusPlace.address_la),Number(mapInfo.focusPlace.address_lo)),
-      });
-      marker.setMap(map);
-      setFocusMarker(marker);
+      const {marker, overlay} = CreateMarker(place, map, mapInfo.placeMarkerClick);
+      setFocusMarker({marker, overlay});
       // 마커 위치로 지도 중심 변환
       map.setCenter(marker.getPosition());
       map.setLevel(5);
@@ -82,23 +136,21 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
   useEffect(() => {
     // 기존 마커 제거
     if(drawMarkers.length > 0){
-      drawMarkers.forEach((marker) => marker.setMap(null));
+      drawMarkers.forEach((marker) => marker.marker.setMap(null));
+      drawMarkers.forEach((marker) => marker.overlay.setMap(null));
       drawMarkers.length = 0;
     }
     if(focusMarker){
-      focusMarker.setMap(null);
+      focusMarker.marker.setMap(null);
+      focusMarker.overlay.setMap(null);
       setFocusMarker(null);
     }
 
     if(mapInfo.placeList){
       console.log(mapInfo.placeList)
       const markers = mapInfo.placeList.map((place) => {
-      return new window.kakao.maps.Marker({
-        position: new window.kakao.maps.LatLng(Number(place.address_la),Number(place.address_lo)),
-        map: map,
-        color: "#ff0000",
-        title: place.name,
-      });
+        const {marker, overlay} = CreateMarker(place, map, mapInfo.placeMarkerClick);
+        return {marker, overlay};
     });
     console.log(markers)
       setDrawMarkers(markers);
@@ -150,6 +202,7 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
     map.setBounds(bounds);
   };
 
+  
   
   
   return (
