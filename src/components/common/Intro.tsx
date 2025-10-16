@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
@@ -111,7 +110,7 @@ export function HeroSection() {
             style={{ animationDelay: '0.4s' }}
           >
             <Link
-              to="/stepOne"
+              to="/journey/step1"
               className="bg-gray-200 opacity-70 hover:bg-white text-primary-foreground px-8 py-6 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-100"
             >
               여행 계획 시작하기
@@ -381,7 +380,7 @@ export function TravelProcessSection() {
                   </p>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-16 items-center relative">
+                <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center relative">
                   {/* 왼쪽: 인스타그램 게시물 */}
                   <div className="relative">
                     <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200 max-w-md mx-auto">
@@ -424,6 +423,41 @@ export function TravelProcessSection() {
                         </p>
                       </div>
                     </div>
+                  </div>
+
+                  {/* 모바일용 화살표 (세로 방향) */}
+                  <div className="flex justify-center py-4 lg:hidden">
+                    <svg width="50" height="150" viewBox="0 0 50 100">
+                      <defs>
+                        <marker
+                          id="arrowhead-mobile"
+                          markerWidth="10"
+                          markerHeight="10"
+                          refX="5"
+                          refY="5"
+                          orient="auto"
+                          fill="#3b82f6"
+                        >
+                          <polygon points="0 0, 10 5, 0 10" />
+                        </marker>
+                      </defs>
+                      <path
+                        d="M 25 5 L 25 95"
+                        stroke="#3b82f6"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeDasharray="8,8"
+                        markerEnd="url(#arrowhead-mobile)"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="-16"
+                          dur="1s"
+                          repeatCount="indefinite"
+                        />
+                      </path>
+                    </svg>
                   </div>
 
                   {/* 중간: 점선 연결 (데스크톱에서만 표시) */}
@@ -554,41 +588,6 @@ export function TravelProcessSection() {
                     </div>
                   </div>
                 </div>
-
-                {/* 모바일용 화살표 (세로 방향) */}
-                <div className="flex justify-center my-8 lg:hidden">
-                  <svg width="50" height="100" viewBox="0 0 50 100">
-                    <defs>
-                      <marker
-                        id="arrowhead-mobile"
-                        markerWidth="10"
-                        markerHeight="10"
-                        refX="5"
-                        refY="5"
-                        orient="auto"
-                        fill="#3b82f6"
-                      >
-                        <polygon points="0 0, 10 5, 0 10" />
-                      </marker>
-                    </defs>
-                    <path
-                      d="M 25 10 L 25 90"
-                      stroke="#3b82f6"
-                      strokeWidth="3"
-                      fill="none"
-                      strokeDasharray="8,8"
-                      markerEnd="url(#arrowhead-mobile)"
-                    >
-                      <animate
-                        attributeName="stroke-dashoffset"
-                        from="0"
-                        to="-16"
-                        dur="1s"
-                        repeatCount="indefinite"
-                      />
-                    </path>
-                  </svg>
-                </div>
               </div>
             </div>
           </section>
@@ -714,9 +713,12 @@ export function TravelProcessSection() {
                 </Badge>
               </div>
 
-              <Button className="bg-blue-400 hover:bg-blue-600">
+              <Link
+                to="/journey/step1"
+                className="bg-blue-400 hover:bg-blue-600"
+              >
                 AI일정 만들어보기
-              </Button>
+              </Link>
             </div>
           </div>
         </div>
