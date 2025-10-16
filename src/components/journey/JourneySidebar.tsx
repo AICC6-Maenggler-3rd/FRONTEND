@@ -46,7 +46,7 @@ const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-center min-h-screen">
+    <div className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col min-h-screen">
       {/* 단계별 네비게이션 목록 */}
       <div className="space-y-8">
         {steps.map((step) => (

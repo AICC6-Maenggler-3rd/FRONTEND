@@ -7,11 +7,12 @@ import SchedulePage from './pages/Schedule';
 import Test from './pages/test/Test';
 import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
-import DefaultLayout from './layouts/DefaultLayout';
-import { Header } from './layouts/header';
 import CreateScheduleStepTwo from './pages/journey/step2/CreateScheduleStepTwo';
 import CreateScheduleStepThree from './pages/journey/step3/CreateScheduleStepThree';
-import Index from './pages/manage/Index'
+import DefaultLayout from './layouts/DefaultLayout';
+import { Header } from './layouts/header';
+import Index from './pages/manage/Index';
+import JourneyMain from './pages/journey/main';
 import MemberDetail from './pages/manage/memberdetail'
 
 function App() {
@@ -28,12 +29,13 @@ function App() {
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/userinfo" element={<MyPage />} />
-          <Route path="/stepOne" element={<CreateScheduleStepOne />} />
-          <Route path="/stepTwo" element={<CreateScheduleStepTwo />} />
-          <Route path="/stepThree" element={<CreateScheduleStepThree />} />
+          <Route path="/journey" element={<JourneyMain />}>
+            <Route path="step1" element={<CreateScheduleStepOne />} />
+            <Route path="step2" element={<CreateScheduleStepTwo />} />
+            <Route path="step3" element={<CreateScheduleStepThree />} />
+          </Route>
           <Route path="/manageIndex" element={<Index />} />
           <Route path="/manage/memberdetail" element={<MemberDetail />} />
-        
         </Route>
 
         {/* 헤더와 푸터 불필요 */}
