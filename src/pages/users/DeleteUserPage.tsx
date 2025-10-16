@@ -67,6 +67,10 @@ export default function WithdrawalPage() {
   };
 
   const handleModalClose = async () => {
+    // 먼저 페이지 이동을 수행하여 회원 탈퇴 페이지가 보이지 않도록 함
+    navigate('/');
+
+    // 모달 닫기
     setShowCompleteModal(false);
 
     try {
@@ -88,8 +92,6 @@ export default function WithdrawalPage() {
 
     // 로그아웃 이벤트 발생시켜 header 상태 업데이트
     window.dispatchEvent(new CustomEvent('logout'));
-
-    navigate('/');
   };
 
   const handleBackToProfile = () => {
@@ -151,7 +153,8 @@ export default function WithdrawalPage() {
                       }
                     />
                     <Label htmlFor="check1" className="text-sm leading-relaxed">
-                      모든 개인정보와 여행 데이터가 영구적으로 삭제됩니다.
+                      탈퇴 신청 후에는 서비스 이용이 제한되며, 보관 기간 종료 후
+                      계정 정보가 완전히 삭제됩니다.
                     </Label>
                   </div>
 
@@ -164,7 +167,8 @@ export default function WithdrawalPage() {
                       }
                     />
                     <Label htmlFor="check2" className="text-sm leading-relaxed">
-                      삭제된 정보는 복구할 수 없습니다.
+                      탈퇴 후 180일간은 법적 의무에 따라 일부 정보가 보관될 수
+                      있습니다.
                     </Label>
                   </div>
 
@@ -177,7 +181,7 @@ export default function WithdrawalPage() {
                       }
                     />
                     <Label htmlFor="check3" className="text-sm leading-relaxed">
-                      30일 동안 재가입 제한 정책이 적용됩니다.
+                      탈퇴 후 일주일 내 로그인 시 재가입이 가능합니다.
                     </Label>
                   </div>
                 </div>
