@@ -12,6 +12,7 @@ import { Header } from './layouts/header';
 import CreateScheduleStepTwo from './pages/journey/step2/CreateScheduleStepTwo';
 import CreateScheduleStepThree from './pages/journey/step3/CreateScheduleStepThree';
 import Index from './pages/manage/Index'
+import MemberDetail from './pages/manage/memberdetail'
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/stepTwo" element={<CreateScheduleStepTwo />} />
           <Route path="/stepThree" element={<CreateScheduleStepThree />} />
           <Route path="/manageIndex" element={<Index />} />
+          <Route path="/manage/memberdetail" element={<MemberDetail />} />
         
         </Route>
 
