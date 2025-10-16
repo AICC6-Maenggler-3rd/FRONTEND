@@ -81,6 +81,7 @@ const CreateMarker = (place: Place, map: kakao.maps.Map, placeMarkerClick?: (pla
     position: new window.kakao.maps.LatLng(Number(place.address_la),Number(place.address_lo)),
     content: content,
     yAnchor: 2.5, // 마커 위로 살짝 이동
+    zIndex: 10,
     map: map,
   });
 
