@@ -21,8 +21,8 @@ export interface TravelPlan {
  * 여행지 선택을 위한 UI를 제공하며, 사이드바를 통해 단계별 네비게이션을 지원
  */
 const CreateScheduleStepOne = () => {
-  // 선택된 여행지 상태 (기본값: '서울')
-  const [selectedLocation, setSelectedLocation] = useState('서울');
+  // 선택된 여행지 상태 (초기값은 빈 문자열로 설정)
+  const [selectedLocation, setSelectedLocation] = useState('');
 
   // 검색 입력 필드 상태
   const [searchInput, setSearchInput] = useState('');
@@ -54,7 +54,7 @@ const CreateScheduleStepOne = () => {
 
   // 통합 여행 계획 상태
   const [travelPlan, setTravelPlan] = useState<TravelPlan>({
-    location: '서울',
+    location: '',
     startDate: null,
     endDate: null,
     startTime: '09:00',
@@ -75,6 +75,9 @@ const CreateScheduleStepOne = () => {
   const [isLoadingRegions, setIsLoadingRegions] = useState(false);
   const [regionsError, setRegionsError] = useState<string | null>(null);
 
+  // 키보드 네비게이션을 위한 상태
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
   // 페이지 로드시 전체 지역 조회
   useEffect(() => {
     const fetchRegions = async () => {
@@ -83,18 +86,17 @@ const CreateScheduleStepOne = () => {
         setRegionsError(null);
         const data = await getAllRegion();
         setRegions(data);
+
         // 초기 선택된 위치가 리스트에 있으면 기본 좌표 설정
-        const matched = data.find(
-          (r) =>
-            selectedLocation &&
-            r.name.includes(selectedLocation.replace(/\s/g, '')),
-        );
-        if (matched) {
-          setTravelPlan((prev) => ({
-            ...prev,
-            default_la: matched.address_la,
-            default_lo: matched.address_lo,
-          }));
+        if (selectedLocation) {
+          const matched = data.find((r) => r.name === selectedLocation);
+          if (matched) {
+            setTravelPlan((prev) => ({
+              ...prev,
+              default_la: matched.address_la,
+              default_lo: matched.address_lo,
+            }));
+          }
         }
       } catch (e) {
         setRegionsError('지역 정보를 불러오지 못했습니다.');
@@ -105,30 +107,9 @@ const CreateScheduleStepOne = () => {
     fetchRegions();
   }, []);
 
-  // 선택 가능한 여행지 목록 (3x4 그리드로 표시)
-  const locations = [
-    '서울특별시',
-    '부산광역시',
-    '대구광역시',
-    '인천광역시',
-    '광주광역시',
-    '대전광역시',
-    '울산광역시',
-    '세종특별자치시',
-    '경기도',
-    '충청북도',
-    '충청남도',
-    '전라남도',
-    '경상북도',
-    '경상남도',
-    '강원특별자치도',
-    '전북특별자치도',
-    '제주특별자치도',
-  ];
-
-  // 검색어로 필터링된 여행지 목록
-  const filteredLocations = locations.filter((location) =>
-    location.toLowerCase().includes(searchInput.toLowerCase()),
+  // 검색어로 필터링된 여행지 목록 (백엔드 regions 데이터 기반)
+  const filteredLocations = regions.filter((region) =>
+    region.name.toLowerCase().includes(searchInput.toLowerCase()),
   );
 
   // 선택 가능한 구성원 목록 (2x3 그리드로 표시)
@@ -162,10 +143,10 @@ const CreateScheduleStepOne = () => {
    */
   const handleLocationSelect = (location: string) => {
     setSelectedLocation(location);
+    setSearchInput('');
+    setHighlightedIndex(-1);
     // 선택된 지역의 기본 좌표 함께 업데이트
-    const matched = regions.find((r) =>
-      r.name.includes(location.replace(/\s/g, '')),
-    );
+    const matched = regions.find((r) => r.name === location);
     setTravelPlan((prev) => ({
       ...prev,
       location,
@@ -175,12 +156,55 @@ const CreateScheduleStepOne = () => {
   };
 
   /**
+   * 키보드 이벤트 핸들러
+   * 화살표 키와 엔터 키를 처리
+   */
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!searchInput || filteredLocations.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev < filteredLocations.length - 1 ? prev + 1 : 0,
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev > 0 ? prev - 1 : filteredLocations.length - 1,
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (
+          highlightedIndex >= 0 &&
+          highlightedIndex < filteredLocations.length
+        ) {
+          handleLocationSelect(filteredLocations[highlightedIndex].name);
+        }
+        break;
+      case 'Escape':
+        setSearchInput('');
+        setHighlightedIndex(-1);
+        break;
+    }
+  };
+
+  /**
    * 다음 단계로 이동하는 핸들러
    * 위치 선택 후 날짜 선택 화면으로 전환
    */
   const handleNext = () => {
+    // 선택된 위치가 있는지 확인
+    if (!selectedLocation) {
+      alert('위치를 선택해주세요.');
+      return;
+    }
+
     // 선택된 위치를 콘솔에 출력 (디버깅용)
     console.log('선택된 위치:', selectedLocation);
+    console.log('위경도:', travelPlan.default_la, travelPlan.default_lo);
 
     // 날짜 선택 화면으로 전환
     setCurrentView('date');
@@ -439,56 +463,151 @@ const CreateScheduleStepOne = () => {
             <h1 className="text-4xl font-bold text-blue-900 mb-4">위치</h1>
             <p className="text-xl text-blue-900">어디로 가시나요?</p>
             {/* 지역 검색 입력 */}
-            <div className="mt-6 max-w-xl mx-auto">
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="지역명을 입력해 검색하세요 (예: 서울, 부산)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                aria-label="지역 검색"
-              />
+            <div className="mt-6 max-w-xl mx-auto relative">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => {
+                    setSearchInput(e.target.value);
+                    setHighlightedIndex(-1);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="지역명을 입력해 검색하세요"
+                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base shadow-sm hover:shadow-md transition-shadow"
+                  aria-label="지역 검색"
+                />
+                {searchInput && (
+                  <button
+                    onClick={() => {
+                      setSearchInput('');
+                      setSelectedLocation('');
+                      setHighlightedIndex(-1);
+                      setTravelPlan((prev) => ({
+                        ...prev,
+                        location: '',
+                        default_la: 0,
+                        default_lo: 0,
+                      }));
+                    }}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* 지역 선택 버튼 그리드 (3x4 레이아웃) */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          {/* 검색 결과 드롭다운 */}
+          <div className="relative max-w-xl mx-auto mb-8">
             {isLoadingRegions && (
-              <div className="col-span-3 text-center text-gray-500 py-6">
+              <div className="text-center text-gray-500 py-6">
                 지역 정보를 불러오는 중...
               </div>
             )}
             {regionsError && !isLoadingRegions && (
-              <div className="col-span-3 text-center text-red-500 py-6">
+              <div className="text-center text-red-500 py-6">
                 {regionsError}
               </div>
             )}
-            {filteredLocations.length > 0 ? (
-              filteredLocations.map((location) => (
-                <button
-                  key={location}
-                  onClick={() => handleLocationSelect(location)}
-                  className={`px-4 py-3 rounded-lg text-lg font-medium transition-colors ${
-                    selectedLocation === location
-                      ? 'bg-gray-600 text-white' // 선택된 지역: 회색 배경, 흰 텍스트
-                      : 'bg-gray-100 text-blue-900 hover:bg-gray-200' // 미선택 지역: 연한 회색 배경, 파란 텍스트
-                  }`}
-                >
-                  {location}
-                </button>
-              ))
-            ) : (
-              <div className="col-span-3 text-center text-gray-500 py-6">
-                검색 결과가 없습니다.
+            {!isLoadingRegions && !regionsError && searchInput && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-80 overflow-y-auto">
+                {filteredLocations.length > 0 ? (
+                  filteredLocations.map((region, index) => (
+                    <button
+                      key={region.name}
+                      onClick={() => handleLocationSelect(region.name)}
+                      className={`w-full px-4 py-3 text-left transition-colors border-b border-gray-100 last:border-b-0 flex items-center justify-between ${
+                        index === highlightedIndex
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'hover:bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      <span>{region.name}</span>
+                      {selectedLocation === region.name && (
+                        <span className="text-blue-500 text-sm">✓</span>
+                      )}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-6 text-center text-gray-500">
+                    "{searchInput}"에 대한 검색 결과가 없습니다.
+                  </div>
+                )}
               </div>
             )}
           </div>
+
+          {/* 선택된 지역 표시 */}
+          {selectedLocation && (
+            <div className="max-w-xl mx-auto mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-blue-600 font-medium">
+                    선택된 지역
+                  </p>
+                  <p className="text-lg text-blue-800 font-semibold">
+                    {selectedLocation}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedLocation('');
+                    setSearchInput('');
+                    setHighlightedIndex(-1);
+                    setTravelPlan((prev) => ({
+                      ...prev,
+                      location: '',
+                      default_la: 0,
+                      default_lo: 0,
+                    }));
+                  }}
+                  className="text-blue-500 hover:text-blue-700 text-sm"
+                >
+                  변경
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* 다음 단계로 이동하는 버튼 */}
           <div className="text-center">
             <Button
               onClick={handleNext}
-              className="px-12 py-4 text-lg font-semibold bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg shadow-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-200"
+              disabled={!selectedLocation}
+              className={`px-12 py-4 text-lg font-semibold rounded-lg shadow-lg transition-all duration-200 ${
+                selectedLocation
+                  ? 'bg-gradient-to-r from-blue-400 to-blue-500 text-white hover:from-blue-500 hover:to-blue-600'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
             >
               다음
             </Button>
