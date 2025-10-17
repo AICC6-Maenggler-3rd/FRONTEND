@@ -96,6 +96,7 @@ const AccommodationList = ({
   ) => {
     e.dataTransfer.effectAllowed = 'copy';
     e.dataTransfer.setData('text/plain', JSON.stringify(accommodation));
+    e.dataTransfer.setData('type', 'accommodation');
   };
 
   return (

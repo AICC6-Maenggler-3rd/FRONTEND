@@ -6,8 +6,8 @@ export interface Accommodation {
   accommodation_id: number;
   name: string;
   address: string;
-  address_la: string;
-  address_lo: string;
+  address_la: number;
+  address_lo: number;
   type: string;
   phone: string;
   website?: string | null;

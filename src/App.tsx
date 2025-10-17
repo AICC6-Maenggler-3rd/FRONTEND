@@ -14,6 +14,7 @@ import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
 import CreateScheduleStepTwo from './pages/journey/step2/CreateScheduleStepTwo';
 import CreateScheduleStepThree from './pages/journey/step3/CreateScheduleStepThree';
+import CreateScheduleStepFour from './pages/journey/step4/CreateScheduleStepFour';
 import DefaultLayout from './layouts/DefaultLayout';
 import { Header } from './layouts/header';
 import { Footer } from './layouts/footer';
@@ -47,6 +48,7 @@ function AppContent() {
             <Route path="step1" element={<CreateScheduleStepOne />} />
             <Route path="step2" element={<CreateScheduleStepTwo />} />
             <Route path="step3" element={<CreateScheduleStepThree />} />
+            <Route path="step4" element={<CreateScheduleStepFour />} />
           </Route>
           <Route path="/manageIndex" element={<Index />} />
           <Route path="/manage/memberdetail" element={<MemberDetail />} />
