@@ -21,17 +21,26 @@ export interface DaySchedule {
 export interface PlaceItem extends ItineraryItem{
   info: Place;
 }
+const ms_per_hour = 60 * 60 * 1000;
+const ms_per_day = 24 * ms_per_hour;
+
+const CalculateDate = (date: Date, day: number, hour: number) => {
+  return new Date(date.getTime() + day * ms_per_day + hour * ms_per_hour);
+}
+
 const CalculateDuration = (start_at: string, end_at: string) => {
   // 기간 계산, 시작일과 종료일 포함
-  return Math.ceil((new Date(end_at).getTime() - new Date(start_at).getTime()) / (24 * 60 * 60 * 1000)) + 1;
+  return Math.ceil((new Date(end_at).getTime() - new Date(start_at).getTime()) / ms_per_day) + 1;
 }
 
 const CalculateDayIndex = (start_at: string, date: string) => {
   // 시작일을 기준으로 몇 번째 날짜인지 계산, 시작일은 0일로 계산
-  return Math.floor((new Date(date).getTime() - new Date(start_at).getTime() + 12 * 60 * 60 * 1000) / (24 * 60 * 60 * 1000));
+  return Math.floor((new Date(date).getTime() - new Date(start_at).getTime() + ms_per_hour) / ms_per_day);
 }
 
+
 const ConvertScheduleToItineraryRequest = (scheduleList: DaySchedule[], travelPlan: any) => {
+  
   const itinerary : ItineraryCreateRequest = {
     start_location: travelPlan.location,
     theme: travelPlan.theme,
@@ -43,17 +52,28 @@ const ConvertScheduleToItineraryRequest = (scheduleList: DaySchedule[], travelPl
   }
   for(const schedule of scheduleList) {
     //travelPlan.startDate 기준으로 일정 인덱스 만큼 더해서 날짜 계산 DateType, date-fns 없음
-    const date = new Date(travelPlan.startDate.getTime() + schedule.index * 24 * 60 * 60 * 1000);
+    const date = CalculateDate(travelPlan.startDate, schedule.index, 0);
     for(const place of schedule.placeList) {
       const index = schedule.placeList.indexOf(place);
-      const start_time = new Date(date.getTime() + index * 2 * 60 * 60 * 1000);
-      const end_time = new Date(date.getTime() + (index * 2 + 2) * 60 * 60 * 1000);
+      const start_time = CalculateDate(date, 0, 2 * index);
+      const end_time = CalculateDate(date, 0, 2 * (index + 1));
       const item : ItineraryItem = {
         place_id: place.info.place_id,
         accommodation_id: 0,
         start_time: start_time.toISOString(),
         end_time: end_time.toISOString(),
         is_required: true,
+      }
+      itinerary.items.push(item);
+    }
+    
+    if(schedule.accommodation) {
+      const item : ItineraryItem = {
+        place_id: 0,
+        accommodation_id: schedule.accommodation.accommodation_id,
+        start_time: date.toISOString(),
+        end_time: date.toISOString(),
+        is_required: false,
       }
       itinerary.items.push(item);
     }
@@ -66,7 +86,7 @@ const ConvertItineraryResponseToSchedule = (itinerary: ItineraryResponse) => {
   const duration = CalculateDuration(itinerary.start_at, itinerary.end_at);
   const scheduleList: DaySchedule[] = Array.from({ length: duration }, (_, i) => ({
     index: i,
-    date: new Date(new Date(itinerary.start_at).getTime() + i * 24 * 60 * 60 * 1000),
+    date: CalculateDate(new Date(itinerary.start_at), i, 0),
     placeList: [],
     accommodation: null,
   }));
@@ -84,6 +104,9 @@ const ConvertItineraryResponseToSchedule = (itinerary: ItineraryResponse) => {
         is_required: true,
         info: item.data.info as Place,
       } as PlaceItem);
+    }
+    if(item.item_type === "accommodation") {
+      scheduleList[index].accommodation = item.data.info as Accommodation;
     }
   }
   return scheduleList;

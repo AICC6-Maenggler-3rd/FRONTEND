@@ -119,13 +119,13 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
 
   useEffect(() => {
     const place = mapInfo.focusPlace;
+    // 기존 마커 제거
+    if(focusMarker){
+      focusMarker.marker.setMap(null);
+      focusMarker.overlay.setMap(null);
+    }
+    // 새 마커 생성
     if(place){
-      // 기존 마커 제거
-      if(focusMarker){
-        focusMarker.marker.setMap(null);
-        focusMarker.overlay.setMap(null);
-      }
-      
       const {marker, overlay} = CreateMarker(place, map, mapInfo.placeMarkerClick);
       setFocusMarker({marker, overlay});
       // 마커 위치로 지도 중심 변환

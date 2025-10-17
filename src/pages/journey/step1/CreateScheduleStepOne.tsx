@@ -831,7 +831,7 @@ const CreateScheduleStepOne = () => {
               </Button>
               {selectedThemes.length > 0 && (
                 <Link
-                  to="/journey/step3"
+                  to="/journey/step2"
                   state={{ travelPlan }}
                   className="px-8 py-3 text-lg font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 >
