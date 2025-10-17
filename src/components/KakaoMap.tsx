@@ -2,6 +2,17 @@ import { useEffect, useRef, useState, type ReactElement } from "react";
 import { Map, MapMarker, type PolylineProps } from "react-kakao-maps-sdk";
 import { requestRoute } from "../api/map";
 import type { Place } from "@/api/place";
+import marker_restaurant from '@/images/marker/restaurant.png'
+import marker_accommodation from '@/images/marker/accommodation.png'
+import marker_tour from '@/images/marker/tour.png'
+import marker_cafe from '@/images/marker/cafe.png'
+import marker_shop from '@/images/marker/shop.png'
+import marker_activity from '@/images/marker/activity.png'
+import marker_steam from '@/images/marker/steam.png'
+import marker_spa from '@/images/marker/spa.png'
+import marker_exhibition from '@/images/marker/exhibition.png'
+
+
 
 interface Coord {
   lat: number;
@@ -38,7 +49,7 @@ export interface MapInfo{
   focusPlace? : Place
   placeMarkerClick? : (place: Place) => void
   height? : string
-  startPoint? : Coord
+  startLocation? : Coord
 }
 
 
@@ -68,11 +79,30 @@ const MarkerLable = (name: string) => {
   return content;
 }
 
+
+
 const CreateMarker = (place: Place, map: kakao.maps.Map, placeMarkerClick?: (place: Place) => void) => {
+  const imageSize = new kakao.maps.Size(40, 54);
+  const imageOption = { offset: new kakao.maps.Point(20, 54) };
+  const getMarkerImage = () => {
+    console.log(place.type)
+    if(place.type === '음식점') return marker_restaurant;
+    if(place.type === '숙소') return marker_accommodation;
+    if(place.type === '관광지') return marker_tour;
+    if(place.type === '카페') return marker_cafe;
+    if(place.type === '쇼핑') return marker_shop;
+    if(place.type === '액티비티') return marker_activity;
+    if(place.type === '스파') return marker_spa;
+    if(place.type === '찜질방') return marker_steam;
+    if(place.type === '전시장') return marker_exhibition;
+    return marker_tour;
+  }
+  const markerImage = new kakao.maps.MarkerImage(getMarkerImage(), imageSize, imageOption);
   const marker = new window.kakao.maps.Marker({
     position: new window.kakao.maps.LatLng(Number(place.address_la),Number(place.address_lo)),
     map: map,
     title: place.name,
+    image: markerImage,
   });
 
   const content = document.createElement('div');
@@ -80,7 +110,7 @@ const CreateMarker = (place: Place, map: kakao.maps.Map, placeMarkerClick?: (pla
   const overlay = new window.kakao.maps.CustomOverlay({
     position: new window.kakao.maps.LatLng(Number(place.address_la),Number(place.address_lo)),
     content: content,
-    yAnchor: 2.5, // 마커 위로 살짝 이동
+    yAnchor: 3, // 마커 위로 살짝 이동
     zIndex: 10,
     map: map,
   });
@@ -89,8 +119,33 @@ const CreateMarker = (place: Place, map: kakao.maps.Map, placeMarkerClick?: (pla
   kakao.maps.event.addListener(marker, 'click', () => {
     placeMarkerClick?.(place);
   });
+  kakao.maps.event.addListener(marker, 'mouseover', () => {
+    overlay.setZIndex(9999);
+    marker.setZIndex(9999);
+    content.style.transform = "translateY(-4px) scale(1.05)";
+  });
+  kakao.maps.event.addListener(marker, 'mouseout', () => {
+    overlay.setZIndex(10);
+    marker.setZIndex(1);
+    content.style.transform = "translateY(0px) scale(1)";
+  });
+
   content.addEventListener('click', () => {
     placeMarkerClick?.(place);
+  });
+
+  // ✅ 마우스 오버 시 z-index 높이기
+  content.addEventListener("mouseenter", () => {
+    overlay.setZIndex(9999);
+    marker.setZIndex(9999);
+    content.style.transform = "translateY(-4px) scale(1.05)";
+  });
+
+  // ✅ 마우스 아웃 시 복원
+  content.addEventListener("mouseleave", () => {
+    overlay.setZIndex(10);
+    marker.setZIndex(1);
+    content.style.transform = "translateY(0px) scale(1)";
   });
 
 
@@ -111,7 +166,7 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
   useEffect(() => {
     if (!window.kakao || !mapRef.current) return;
     const mapObj = new window.kakao.maps.Map(mapRef.current, {
-      center: new window.kakao.maps.LatLng(mapInfo.startPoint?.lat || 37.5665, mapInfo.startPoint?.lng || 126.978),
+      center: new window.kakao.maps.LatLng(mapInfo.startLocation?.lat || 37.5665, mapInfo.startLocation?.lng || 126.978),
       level: 5,
     });
     setMap(mapObj);

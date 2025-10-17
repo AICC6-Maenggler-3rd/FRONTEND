@@ -10,6 +10,7 @@ import type { Itinerary, ItineraryCreateRequest, ItineraryItem, ItineraryItemDat
 import { generateItinerary } from '@/api/itinerary';
 import type { Accommodation } from '@/types/accommodation';
 import { Link } from 'react-router-dom';
+import type { TravelPlan } from '../step1/CreateScheduleStepOne';
 
 
 export interface DaySchedule {
@@ -124,7 +125,7 @@ const CreateScheduleStepTwo = () => {
   const [duration, setDuration] = useState(1);
 
   const location = useLocation();
-  const travelPlan = location.state?.travelPlan;
+  const travelPlan : TravelPlan | null = location.state?.travelPlan;
 
   const [generateAction, setGenerateAction] = useState(false);
   const [fixSchedule, setFixSchedule] = useState(false);
@@ -137,11 +138,13 @@ const CreateScheduleStepTwo = () => {
   useEffect(() => {
     if (travelPlan) {
       console.log('이전 단계에서 받은 데이터:', travelPlan);
+      const startDate = travelPlan.startDate || new Date();
+      const endDate = travelPlan.endDate || new Date();
       // 필요 시 상태 초기화
       const diffTime =
-        travelPlan.endDate?.getTime() - travelPlan.startDate?.getTime();
+        endDate.getTime() - startDate.getTime();
       setDuration(
-        diffTime ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1 : 1,
+        diffTime ? Math.ceil(diffTime / ms_per_day) + 1 : 1,
       );
     }
   }, [travelPlan]);
@@ -149,7 +152,7 @@ const CreateScheduleStepTwo = () => {
   useEffect(() => {
     const scheduleList = Array.from({ length: duration }, (_, i) => ({
       index: i,
-      date: new Date(travelPlan.startDate.getTime() + i * 24 * 60 * 60 * 1000),
+      date: CalculateDate(travelPlan?.startDate || new Date(), i, 0),
       placeList: [],
       accommodation: null,
     }));
@@ -231,6 +234,7 @@ const CreateScheduleStepTwo = () => {
             route={route || undefined}
             placeList={placeList || undefined}
             placeMarkerClick={setDetailPlace}
+            startLocation={travelPlan ? {lat: travelPlan.default_la, lng: travelPlan.default_lo} : undefined}
             />
           <div className='navigation-bar absolute top-5 right-2 z-50 flex h-[3rem] w-[15rem] items-center justify-center gap-2'>
             <Link 
