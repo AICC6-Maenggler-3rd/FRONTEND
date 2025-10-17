@@ -177,6 +177,17 @@ const CreateScheduleStepTwo = () => {
     }
   }
 
+  const baseLocation = ()=>{
+    const splits = travelPlan?.location.split(' ');
+    if(splits && splits.length === 1) {
+      return splits[0];
+    }
+    if(splits && splits.length > 1) {
+      return splits[0] + ' ' + splits[1];
+    }
+    return travelPlan?.location;
+  }
+  
   return (
     <div className="h-[calc(100vh)] bg-white flex">
       {detailPlace && (
@@ -201,7 +212,7 @@ const CreateScheduleStepTwo = () => {
             focusPlace={focusPlace || undefined}
             setFocusPlace={handleFocusPlace}
             setDetailPlace={setDetailPlace}
-            baseAddress={travelPlan?.location}
+            baseAddress={baseLocation()}
             />
           <div className="h-full flex flex-col justify-between items-baseline">
             <div className='h-[5rem] w-full flex items-center justify-center'>
