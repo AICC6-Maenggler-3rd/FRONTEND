@@ -128,14 +128,6 @@ const DayScheduleBar = ({
         e.dataTransfer.getData('text/plain'),
       );
 
-      // 이미 숙박시설이 있는 경우 추가 불가
-      if (scheduleList[index].accommodation) {
-        const newScheduleList = [...scheduleList];
-        newScheduleList[index].accommodation = accommodation as any;
-        updateScheduleList?.(newScheduleList);
-        return;
-      }
-
       const newScheduleList = [...scheduleList];
       newScheduleList[index].accommodation = accommodation as any;
       updateScheduleList?.(newScheduleList);
