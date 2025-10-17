@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import AccommodationList from './AccommodationList';
 import KakaoMap from '@/components/KakaoMapAccomodation';
 import type { Accommodation } from '@/api/accommodation';
@@ -6,16 +6,14 @@ import DayScheduleBar from './DayScheduleBar';
 import AccommodationDetail from '@/pages/journey/step3/AccommodationDetail';
 import type { Route } from '@/components/KakaoMap';
 import { useLocation } from 'react-router-dom';
-
-export interface DaySchedule {
-  day: number;
-  accommodationList: Accommodation[];
-}
+import type { TravelPlan } from '../step1/CreateScheduleStepOne';
+import type { DaySchedule } from '../step2/CreateScheduleStepTwo';
 
 const CreateScheduleStepThree = () => {
   const [focusAccommodation, setFocusAccommodation] =
     useState<Accommodation | null>(null);
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
+  const [travelPlan, setTravelPlan] = useState<TravelPlan | null>(null);
   const [detailAccommodation, setDetailAccommodation] =
     useState<Accommodation | null>(null);
   const [route, setRoute] = useState<Route | null>(null);
@@ -23,11 +21,8 @@ const CreateScheduleStepThree = () => {
     [],
   );
 
-  const location = useLocation();
-  const hasInitialized = useRef(false);
-
   const TestTravelPlan = {
-    location: '경상도',
+    location: '테스트 데이터',
     startDate: '2025-10-15T15:00:00.000Z',
     endDate: '2025-10-24T15:00:00.000Z',
     startTime: '09:00',
@@ -36,34 +31,41 @@ const CreateScheduleStepThree = () => {
     themes: ['쇼핑', '자연', '먹방'],
   };
 
-  const travelPlan = location.state?.travelPlan || TestTravelPlan;
+  // {index: 0, date: Tue Oct 14 2025 00:00:00 GMT+0900 (한국 표준시), placeList: Array(3), accommodation: null}
+  // {index: 1, date: Wed Oct 15 2025 00:00:00 GMT+0900 (한국 표준시), placeList: Array(0), accommodation: null}
+  // {index: 2, date: Thu Oct 16 2025 00:00:00 GMT+0900 (한국 표준시), placeList: Array(0), accommodation: null}
+  // {index: 3, date: Fri Oct 17 2025 00:00:00 GMT+0900 (한국 표준시), placeList: Array(0), accommodation: null}
+  // {index: 4, date: Sat Oct 18 2025 00:00:00 GMT+0900 (한국 표준시), placeList: Array(0), accommodation: null}
 
   // 위치기반 검색용 나중에 수정 필요 - 부산광역시청
   const baseLat = 35.198362;
   const baseLng = 129.053922;
   const baseRadius = 3000;
 
+  const location = useLocation();
   useEffect(() => {
-    if (travelPlan && !hasInitialized.current) {
-      console.log('이전 단계에서 받은 데이터:', travelPlan);
-      hasInitialized.current = true;
+    const state = location.state;
 
-      const startDate = new Date(travelPlan.startDate);
-      const endDate = new Date(travelPlan.endDate);
-      const timeDifference = endDate.getTime() - startDate.getTime();
-
-      const ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
-      const duration = timeDifference / ONE_DAY_IN_MS;
-
-      const scheduleList = Array.from({ length: duration }, (_, i) => ({
-        day: i + 1,
-        accommodationList: [],
-      }));
-      setScheduleList(scheduleList);
+    // location.state에 값이 있다면 상태로 세팅
+    if (state?.travelPlan) {
+      setTravelPlan(state.travelPlan);
     }
-  }, [travelPlan]);
+    if (state?.scheduleList) {
+      setScheduleList(state.scheduleList);
+    }
 
-  useEffect(() => {}, []);
+    // console.log('이전 단계에서 받은 데이터:', {
+    //   travelPlan: state?.travelPlan,
+    //   scheduleList: state?.scheduleList,
+    // });
+  }, [location.state]);
+
+  useEffect(() => {
+    if (travelPlan && scheduleList) {
+      console.log('travelPlan', travelPlan);
+      console.log('scheduleList', scheduleList);
+    }
+  }, [travelPlan, scheduleList]);
 
   return (
     <div className="h-[calc(100vh)] bg-white flex">
