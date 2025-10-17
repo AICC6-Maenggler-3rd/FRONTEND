@@ -1,4 +1,4 @@
-// React import는 JSX를 사용하기 위해 필요하지만 명시적으로 import하지 않아도 됨
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 여행 계획 단계를 나타내는 인터페이스
@@ -25,6 +25,8 @@ interface JourneySidebarProps {
  * @param onStepChange - 단계 변경 시 호출되는 콜백 함수
  */
 const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
+  const navigate = useNavigate();
+
   // 여행 계획의 4단계 정의
   const steps: Step[] = [
     { number: 1, title: '정보 입력', isActive: currentStep === 1 },
@@ -35,11 +37,34 @@ const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
 
   /**
    * 단계 클릭 시 호출되는 핸들러 함수
-   * 부모 컴포넌트에 단계 변경을 알림
+   * 해당 단계 페이지로 이동하고 부모 컴포넌트에 단계 변경을 알림
    *
    * @param stepNumber - 클릭된 단계 번호
    */
   const handleStepClick = (stepNumber: number) => {
+    // 현재 단계와 같으면 이동하지 않음
+    if (stepNumber === currentStep) return;
+
+    // 해당 단계 페이지로 이동
+    switch (stepNumber) {
+      case 1:
+        navigate('/journey/step1');
+        break;
+      case 2:
+        navigate('/journey/step2');
+        break;
+      case 3:
+        navigate('/journey/step3');
+        break;
+      case 4:
+        // step4는 아직 구현되지 않았으므로 현재 위치 유지
+        console.log('Step 4는 아직 구현되지 않았습니다.');
+        break;
+      default:
+        console.log('알 수 없는 단계입니다.');
+    }
+
+    // 부모 컴포넌트에 단계 변경 알림
     if (onStepChange) {
       onStepChange(stepNumber);
     }
