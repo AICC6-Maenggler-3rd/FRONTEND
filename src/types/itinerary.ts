@@ -28,6 +28,7 @@ export interface ItineraryCreateRequest {
   relation: string;
   user_id: number;
   items: ItineraryItem[];
+  name: string;
 }
 
 export interface ItineraryResponse {
@@ -38,6 +39,7 @@ export interface ItineraryResponse {
   relation: string | null;
   user_id: number | null;
   items: ItineraryItemResponse[];
+  name: string | null;
 }
 
 export interface ItineraryItemResponse {
@@ -57,6 +59,7 @@ export interface ItineraryCreateResponse {
   relation: string;
   user_id: number;
   items: ItineraryItemResponse[];
+  name: string;
 }
 
 export interface ItineraryGenerateResponse {
