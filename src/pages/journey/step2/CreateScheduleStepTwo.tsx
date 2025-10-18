@@ -64,6 +64,7 @@ const ConvertScheduleToItineraryRequest = (
     relation: travelPlan.companion,
     user_id: travelPlan.user_id,
     items: [],
+    name: travelPlan.name,
   };
   for (const schedule of scheduleList) {
     //travelPlan.startDate 기준으로 일정 인덱스 만큼 더해서 날짜 계산 DateType, date-fns 없음
