@@ -88,7 +88,6 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
     }
 
     if (mapInfo.accommodationList) {
-      console.log(mapInfo.accommodationList);
       const markers = mapInfo.accommodationList.map((accommodation) => {
         return new window.kakao.maps.Marker({
           position: new window.kakao.maps.LatLng(
@@ -100,7 +99,6 @@ const KakaoMap: React.FC<MapInfo> = (mapInfo) => {
           title: accommodation.name,
         });
       });
-      console.log(markers);
       setDrawMarkers(markers);
     }
   }, [mapInfo.accommodationList, mapInfo.route]);

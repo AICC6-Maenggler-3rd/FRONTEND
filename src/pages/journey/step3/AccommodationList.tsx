@@ -1,9 +1,8 @@
 import {
   getAccommodationListWithinRadius,
-  searchAccommodation,
   type Accommodation,
 } from '@/api/accommodation';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AccommodationListItem from './AccommodationListItem';
 
 interface AccommodationListProps {
@@ -27,13 +26,8 @@ const AccommodationList = ({
     [],
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const isSearchMode = useMemo(
-    () => searchQuery.trim().length > 0,
-    [searchQuery],
-  );
+  const [hasMoreData, setHasMoreData] = useState(true);
 
   const fetchList = async (page = 1) => {
     const res = await getAccommodationListWithinRadius(
@@ -42,21 +36,15 @@ const AccommodationList = ({
       lat,
       lng,
       radius,
+      searchQuery.replace(' ', ''),
     );
     setAccommodationList(
       page === 1 ? res.data : (prev) => [...prev, ...res.data],
     );
     setCurrentPage(page);
-    setTotalPages(res.total_pages);
-  };
 
-  const fetchSearch = async (page = 1) => {
-    const res = await searchAccommodation(searchQuery.trim(), page, PAGE_SIZE);
-    setAccommodationList(
-      page === 1 ? res.data : (prev) => [...prev, ...res.data],
-    );
-    setCurrentPage(page);
-    setTotalPages(res.total_pages);
+    // 실제 반환된 데이터가 PAGE_SIZE보다 적으면 더 이상 데이터가 없음
+    setHasMoreData(res.data.length === PAGE_SIZE);
   };
 
   // 좌표/반경 바뀌면 초기화 후 재조회
@@ -64,30 +52,27 @@ const AccommodationList = ({
     if (lat === -1 || lng === -1 || radius === -1) return;
     setCurrentPage(1);
     setAccommodationList([]);
-    isSearchMode ? fetchSearch(1) : fetchList(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setHasMoreData(true);
+    fetchList(1);
   }, [lat, lng, radius]);
 
   // 최초 로드
   useEffect(() => {
     fetchList(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleMore = async () => {
-    if (currentPage >= totalPages) return;
+    if (!hasMoreData) return;
     const next = currentPage + 1;
-    isSearchMode ? fetchSearch(next) : fetchList(next);
+    fetchList(next);
   };
 
   const handleSearch = async () => {
-    if (!isSearchMode) {
-      fetchList(1);
-      return;
-    }
     setCurrentPage(1);
     setAccommodationList([]);
-    await fetchSearch(1);
+    setHasMoreData(true);
+    fetchList(1);
+    return;
   };
 
   const handleDragStart = (
@@ -137,14 +122,19 @@ const AccommodationList = ({
             />
           </div>
         ))}
-
-        <button
-          onClick={handleMore}
-          disabled={currentPage >= totalPages}
-          className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm disabled:opacity-50"
-        >
-          더보기
-        </button>
+        {hasMoreData && (
+          <button
+            onClick={handleMore}
+            className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm disabled:opacity-50"
+          >
+            더보기
+          </button>
+        )}
+        {!hasMoreData && (
+          <div className="text-center text-lg font-bold border-2 border-blue-200 text-blue-300 border-dashed m-2 p-4 rounded-sm">
+            마지막 숙박시설 입니다
+          </div>
+        )}
       </div>
     </div>
   );

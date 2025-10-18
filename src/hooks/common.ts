@@ -13,7 +13,6 @@ function useSingleAndDoubleClick(
     const timer = setTimeout(() => {
       // simple click
       if (click === 1) {
-        console.log('한번클릭');
         actionSimpleClick();
         setClick(0);
       }
@@ -22,7 +21,6 @@ function useSingleAndDoubleClick(
     // the duration between this click and the previous one
     // is less than the value of delay = double-click
     if (click === 2) {
-      console.log('두번클릭');
       actionDoubleClick();
       setClick(0);
     }

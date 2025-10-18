@@ -1,4 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import type { TravelPlan } from '@/pages/journey/step1/CreateScheduleStepOne';
+import type { DaySchedule } from '@/pages/journey/step2/CreateScheduleStepTwo';
 
 /**
  * 여행 계획 단계를 나타내는 인터페이스
@@ -26,6 +29,20 @@ interface JourneySidebarProps {
  */
 const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [travelPlan, setTravelPlan] = useState<TravelPlan | null>(null);
+  const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
+  useEffect(() => {
+    const state = location.state;
+
+    // location.state에 값이 있다면 상태로 세팅
+    if (state?.travelPlan) {
+      setTravelPlan(state.travelPlan);
+    }
+    if (state?.scheduleList) {
+      setScheduleList(state.scheduleList);
+    }
+  }, [location.state]);
 
   // 여행 계획의 4단계 정의
   const steps: Step[] = [
@@ -48,17 +65,16 @@ const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
     // 해당 단계 페이지로 이동
     switch (stepNumber) {
       case 1:
-        navigate('/journey/step1');
+        navigate('/journey/step1', { state: { travelPlan, scheduleList } });
         break;
       case 2:
-        navigate('/journey/step2');
+        navigate('/journey/step2', { state: { travelPlan, scheduleList } });
         break;
       case 3:
-        navigate('/journey/step3');
+        navigate('/journey/step3', { state: { travelPlan, scheduleList } });
         break;
       case 4:
-        // step4는 아직 구현되지 않았으므로 현재 위치 유지
-        console.log('Step 4는 아직 구현되지 않았습니다.');
+        navigate('/journey/step4', { state: { travelPlan, scheduleList } });
         break;
       default:
         console.log('알 수 없는 단계입니다.');
