@@ -5,7 +5,9 @@ const API_BASE = import.meta.env.VITE_API_HOST || 'http://localhost:8000'; // Fa
 
 const loginRedirect = async (provider: string) => {
   try {
-    const res = await axios.get(`${API_BASE}/auth/${provider}/login`);
+    const res = await axios.get(`${API_BASE}/auth/${provider}/login`, {
+      withCredentials: true,
+    });
     window.location.href = res.data.auth_url;
   } catch (error) {
     console.log(`${provider} 로그인 요청 실패`);

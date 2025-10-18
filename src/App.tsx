@@ -8,7 +8,7 @@ import Intro from './components/common/Intro';
 import LoginPage from './pages/Login';
 import MyPage from './pages/MyPage';
 import './index.css';
-import SchedulePage from './pages/Schedule';
+import SchedulePage from './pages/users/Schedule';
 import Test from './pages/test/Test';
 import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
@@ -21,6 +21,7 @@ import { Footer } from './layouts/footer';
 import Index from './pages/manage/Index';
 import JourneyMain from './pages/journey/main';
 import MemberDetail from './pages/manage/memberdetail';
+import ItineraryListPage from './pages/users/ItineraryList';
 
 function AppContent() {
   const location = useLocation();
@@ -41,6 +42,7 @@ function AppContent() {
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<Intro />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/itineraries" element={<ItineraryListPage />} />
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/userinfo" element={<MyPage />} />

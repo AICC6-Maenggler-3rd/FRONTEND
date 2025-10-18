@@ -1,21 +1,22 @@
-import type { Place } from "./place";
-import type { Accommodation } from "./accommodation";
+import type { Place } from './place';
+import type { Accommodation } from './accommodation';
 
 export interface Itinerary {
   user_id: number;
   relation: string;
-  start_at: string|null;
-  end_at: string|null;
+  start_at: string | null;
+  end_at: string | null;
   start_location: string;
   theme: string;
   items: ItineraryItem[];
+  name: string | null;
 }
 
 export interface ItineraryItem {
   place_id: number;
   accommodation_id: number;
-  start_time: string|null;
-  end_time: string|null;
+  start_time: string | null;
+  end_time: string | null;
   is_required: boolean;
 }
 
@@ -63,3 +64,24 @@ export interface ItineraryGenerateResponse {
   model_name: string;
 }
 
+export interface ItineraryListResponse {
+  itineraries: ItinerarySchema[];
+  total_count: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export interface ItinerarySchema {
+  itinerary_id: number;
+  user_id: number | null;
+  relation: string | null;
+  name?: string | null;
+  start_at: string;
+  end_at: string;
+  start_location: string | null;
+  theme: string | null;
+  created_at: string;
+  deleted_at: string | null;
+  updated_at: string;
+}
