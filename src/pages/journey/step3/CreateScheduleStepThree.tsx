@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import AccommodationList from './AccommodationList';
-import KakaoMap from '@/components/KakaoMapAccomodation';
+import KakaoMap from '@/components/KakaoMap';
 import type { Accommodation } from '@/api/accommodation';
 import DayScheduleBar from './DayScheduleBar';
 import AccommodationDetail from '@/pages/journey/step3/AccommodationDetail';
@@ -10,16 +10,18 @@ import type { TravelPlan } from '../step1/CreateScheduleStepOne';
 import type { DaySchedule } from '../step2/CreateScheduleStepTwo';
 
 const CreateScheduleStepThree = () => {
-  const [focusAccommodation, setFocusAccommodation] =
-    useState<Accommodation | null>(null);
+  const [focusAccommodation, setFocusAccommodation] = useState<any | null>(
+    null,
+  );
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
   const [travelPlan, setTravelPlan] = useState<TravelPlan | null>(null);
   const [detailAccommodation, setDetailAccommodation] =
     useState<Accommodation | null>(null);
-  const [route, setRoute] = useState<Route | null>(null);
+  const [route, setRoute] = useState<Route | undefined>(undefined);
   const [accommodationList, setAccommodationList] = useState<Accommodation[]>(
     [],
   );
+  const [placeList, setPlaceList] = useState<any[]>([]);
 
   // 위치기반 검색용 나중에 수정 필요 - 부산광역시청
   // const baseLat = 35.198362;
@@ -70,15 +72,19 @@ const CreateScheduleStepThree = () => {
             setDetailAccommodation={setDetailAccommodation}
             setRoute={setRoute}
             setAccommodationList={setAccommodationList}
+            setFocusPlace={setFocusAccommodation}
+            setPlaceList={setPlaceList}
           />
         </div>
       </div>
 
       <div className="relative w-full h-full">
         <KakaoMap
-          focusAccommodation={focusAccommodation || undefined}
+          focusPlace={focusAccommodation || undefined}
           route={route || undefined}
-          accommodationList={accommodationList || undefined}
+          placeList={
+            placeList.length > 0 ? placeList : accommodationList || undefined
+          }
         />
 
         <div className="navigation-bar absolute top-5 right-2 z-50 flex h-[3rem] w-[15rem] items-center justify-center gap-2">

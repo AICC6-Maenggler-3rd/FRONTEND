@@ -13,11 +13,11 @@ interface DayScheduleBarProps {
   focusPlace?: Place;
   setFocusPlace?: (place: Place) => void;
   setDetailPlace?: (place: Place) => void;
-  setPlaceList?: (placeList: Place[]) => void;
+  setPlaceList?: (placeList: any[]) => void;
   setFocusAccommodation?: (accommodation: Accommodation) => void;
   setDetailAccommodation?: (accommodation: Accommodation) => void;
   setAccommodationList?: (accommodationList: Accommodation[]) => void;
-  setRoute?: (route: Route) => void;
+  setRoute?: (route: Route | undefined) => void;
 }
 
 interface DragItem {
@@ -30,6 +30,7 @@ const DayScheduleBar = ({
   scheduleList,
   updateScheduleList,
   focusPlace,
+  setFocusPlace,
   setDetailPlace,
   setRoute,
   setPlaceList,
@@ -59,18 +60,6 @@ const DayScheduleBar = ({
       window.removeEventListener('drop', handleGlobalDragEnd);
     };
   }, []);
-
-  const handleDragStart = (
-    e: React.DragEvent<HTMLDivElement>,
-    place: PlaceItem,
-    day: number,
-    itemIndex: number,
-  ) => {
-    dragItemRef.current = { colIndex: day, itemIndex: itemIndex, place: place };
-    dropIndexRef.current = itemIndex;
-    e.dataTransfer.effectAllowed = 'move';
-    setIsDragging(true);
-  };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     setIsDragging(false);
@@ -203,22 +192,6 @@ const DayScheduleBar = ({
     e.stopPropagation();
   };
 
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    setColPlaceholder({ col_index: -1, index: -1 });
-    if (!dragItemRef.current) return;
-    if (dropColRef.current === -1) {
-      const newScheduleList = [...scheduleList];
-      newScheduleList[dragItemRef.current.colIndex].placeList.splice(
-        dragItemRef.current.itemIndex,
-        1,
-      );
-      updateScheduleList?.(newScheduleList);
-      dragItemRef.current = null;
-      return;
-    }
-  };
-
   const handelDeleteDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     setColPlaceholder({ col_index: -1, index: -1 });
     dropColRef.current = -1;
@@ -227,8 +200,7 @@ const DayScheduleBar = ({
   };
 
   const handleFocusPlace = (place: Place) => {
-    // setFocusPlace는 props에서 받지 않으므로 제거
-    console.log('Focus place:', place);
+    setFocusPlace?.(place);
   };
 
   const handleFocusAccommodation = (accommodation: Accommodation) => {
@@ -244,23 +216,41 @@ const DayScheduleBar = ({
   };
 
   const handleViewPath = async (index: number) => {
-    if (scheduleList[index].placeList.length < 2) return;
     const schedule = scheduleList[index];
-    const waypoints = schedule.placeList.map((p) => ({
-      lng: parseFloat(p.info.address_lo),
-      lat: parseFloat(p.info.address_la),
-    }));
-    const path = await requestPath({ waypoints: waypoints, transport: 'CAR' });
-    const route: Route = {
-      start_point: { lng: path.start_point.lng, lat: path.start_point.lat },
-      end_point: { lng: path.end_point.lng, lat: path.end_point.lat },
-      path: path.path.map((p) => ({ lng: p.lng, lat: p.lat })),
-      distance: path.distance,
-      duration: path.duration,
-      transport: 'CAR',
-    };
-    setRoute?.(route);
-    setPlaceList?.(schedule.placeList.map((p) => p.info));
+
+    // 장소가 2개 이상인 경우에만 경로 계산
+    if (schedule.placeList.length >= 2) {
+      const waypoints = schedule.placeList.map((p) => ({
+        lng: parseFloat(p.info.address_lo),
+        lat: parseFloat(p.info.address_la),
+      }));
+      const path = await requestPath({
+        waypoints: waypoints,
+        transport: 'CAR',
+      });
+      const route: Route = {
+        start_point: { lng: path.start_point.lng, lat: path.start_point.lat },
+        end_point: { lng: path.end_point.lng, lat: path.end_point.lat },
+        path: path.path.map((p) => ({ lng: p.lng, lat: p.lat })),
+        distance: path.distance,
+        duration: path.duration,
+        transport: 'CAR',
+      };
+      setRoute?.(route);
+    } else {
+      // 장소가 1개 이하인 경우 경로 초기화
+      setRoute?.(undefined);
+    }
+
+    // 해당 날짜의 장소들과 숙소를 모두 포함한 리스트 생성
+    const allPlaces: any[] = [...schedule.placeList.map((p) => p.info)];
+
+    // 숙소가 있는 경우 추가
+    if (schedule.accommodation) {
+      allPlaces.push(schedule.accommodation);
+    }
+
+    setPlaceList?.(allPlaces);
   };
 
   return (
@@ -306,16 +296,7 @@ const DayScheduleBar = ({
               >
                 {schedule.placeList?.map((place, itemIndex) => (
                   <div key={place.place_id}>
-                    <div
-                      draggable
-                      onDragStart={(e) =>
-                        handleDragStart(e, place, schedule.index, itemIndex)
-                      }
-                      onDragEnd={() => handleDragEnd()}
-                      onDragEnter={() =>
-                        handleDragEnterItem(schedule.index, itemIndex)
-                      }
-                    >
+                    <div>
                       {colPlaceholder.col_index === schedule.index &&
                         colPlaceholder.index === itemIndex && (
                           <div className="h-2 bg-blue-600/40 select-none" />
