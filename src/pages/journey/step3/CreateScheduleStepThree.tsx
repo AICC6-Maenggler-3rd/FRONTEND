@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import AccommodationList from './AccommodationList';
-import KakaoMap from '@/components/KakaoMapAccomodation';
+import KakaoMap from '@/components/KakaoMap';
 import type { Accommodation } from '@/api/accommodation';
 import DayScheduleBar from './DayScheduleBar';
 import AccommodationDetail from '@/pages/journey/step3/AccommodationDetail';
@@ -10,21 +10,23 @@ import type { TravelPlan } from '../step1/CreateScheduleStepOne';
 import type { DaySchedule } from '../step2/CreateScheduleStepTwo';
 
 const CreateScheduleStepThree = () => {
-  const [focusAccommodation, setFocusAccommodation] =
-    useState<Accommodation | null>(null);
+  const [focusAccommodation, setFocusAccommodation] = useState<any | null>(
+    null,
+  );
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
   const [travelPlan, setTravelPlan] = useState<TravelPlan | null>(null);
   const [detailAccommodation, setDetailAccommodation] =
     useState<Accommodation | null>(null);
-  const [route, setRoute] = useState<Route | null>(null);
+  const [route, setRoute] = useState<Route | undefined>(undefined);
   const [accommodationList, setAccommodationList] = useState<Accommodation[]>(
     [],
   );
+  const [placeList, setPlaceList] = useState<any[]>([]);
 
-  // 위치기반 검색용 나중에 수정 필요 - 부산광역시청
-  // const baseLat = 35.198362;
-  // const baseLng = 129.053922;
-  // const baseRadius = 3000;
+  const hasAccommodation = useMemo(() => {
+    if (!scheduleList?.length) return false;
+    return scheduleList.slice(0, -1).every((d) => !!d.accommodation);
+  }, [scheduleList]);
 
   const location = useLocation();
   useEffect(() => {
@@ -70,15 +72,19 @@ const CreateScheduleStepThree = () => {
             setDetailAccommodation={setDetailAccommodation}
             setRoute={setRoute}
             setAccommodationList={setAccommodationList}
+            setFocusPlace={setFocusAccommodation}
+            setPlaceList={setPlaceList}
           />
         </div>
       </div>
 
       <div className="relative w-full h-full">
         <KakaoMap
-          focusAccommodation={focusAccommodation || undefined}
+          focusPlace={focusAccommodation || undefined}
           route={route || undefined}
-          accommodationList={accommodationList || undefined}
+          placeList={
+            placeList.length > 0 ? placeList : accommodationList || undefined
+          }
         />
 
         <div className="navigation-bar absolute top-5 right-2 z-50 flex h-[3rem] w-[15rem] items-center justify-center gap-2">
@@ -92,7 +98,17 @@ const CreateScheduleStepThree = () => {
           <Link
             to="/journey/step4"
             state={{ travelPlan, scheduleList }}
-            className="h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full"
+            onClick={(e) => {
+              if (!hasAccommodation) e.preventDefault();
+            }}
+            aria-disabled={!hasAccommodation}
+            className={`h-[3rem] shadow-md flex items-center justify-center text-lg font-bold m-2 p-4 rounded-sm w-full
+      ${
+        hasAccommodation
+          ? 'bg-white border-2 border-blue-300'
+          : 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed pointer-events-auto'
+      }`}
+            title={hasAccommodation ? '' : '숙소를 먼저 선택하세요'}
           >
             다음
           </Link>

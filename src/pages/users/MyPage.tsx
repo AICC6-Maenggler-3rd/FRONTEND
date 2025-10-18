@@ -204,7 +204,7 @@ export default function ProfilePage() {
                           (endDate.getTime() - startDate.getTime()) /
                             (1000 * 60 * 60 * 24),
                         );
-                        const locationName = itinerary.start_location || '';
+                        const locationName = itinerary.location || '';
                         const title =
                           itinerary.name ||
                           itinerary.theme ||

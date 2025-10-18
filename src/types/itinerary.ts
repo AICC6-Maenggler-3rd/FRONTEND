@@ -6,7 +6,7 @@ export interface Itinerary {
   relation: string;
   start_at: string | null;
   end_at: string | null;
-  start_location: string;
+  location: string;
   theme: string;
   items: ItineraryItem[];
   name: string | null;
@@ -21,7 +21,7 @@ export interface ItineraryItem {
 }
 
 export interface ItineraryCreateRequest {
-  start_location: string;
+  location: string;
   theme: string;
   start_at: string;
   end_at: string;
@@ -31,7 +31,7 @@ export interface ItineraryCreateRequest {
 }
 
 export interface ItineraryResponse {
-  start_location: string;
+  location: string;
   theme: string | null;
   start_at: string;
   end_at: string;
@@ -50,7 +50,7 @@ export interface ItineraryItemDataResponse extends ItineraryItem {
 }
 
 export interface ItineraryCreateResponse {
-  start_location: string;
+  location: string;
   theme: string;
   start_at: string;
   end_at: string;
@@ -79,7 +79,7 @@ export interface ItinerarySchema {
   name?: string | null;
   start_at: string;
   end_at: string;
-  start_location: string | null;
+  location: string | null;
   theme: string | null;
   created_at: string;
   deleted_at: string | null;
