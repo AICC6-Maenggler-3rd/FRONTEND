@@ -21,6 +21,7 @@ import { Footer } from './layouts/footer';
 import Index from './pages/manage/Index';
 import JourneyMain from './pages/journey/main';
 import MemberDetail from './pages/manage/memberdetail';
+import ItineraryListPage from './pages/users/ItineraryList';
 
 function AppContent() {
   const location = useLocation();
@@ -41,6 +42,7 @@ function AppContent() {
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<Intro />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/itineraries" element={<ItineraryListPage />} />
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/userinfo" element={<MyPage />} />
