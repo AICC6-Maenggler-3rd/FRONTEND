@@ -19,7 +19,7 @@ interface ItineraryItem {
 
 interface ItineraryResponse {
   itinerary_id: number;
-  start_location: string;
+  location: string;
   theme?: string;
   start_at: string;
   end_at: string;
@@ -29,21 +29,6 @@ interface ItineraryResponse {
   name: string;
 }
 
-const getActivityTypeColor = (type?: string) => {
-  switch (type) {
-    case '식사':
-      return 'bg-orange-100 text-orange-800';
-    case '숙박':
-      return 'bg-purple-100 text-purple-800';
-    case '관광':
-      return 'bg-blue-100 text-blue-800';
-    case '교통':
-      return 'bg-blue-50 text-blue-700';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
-
 export default function ScheduleDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -51,6 +36,49 @@ export default function ScheduleDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchItinerary = async () => {
+      try {
+        // // ✅ 로그인한 사용자 정보 가져오기
+        // const userData = await getUserInfo();
+        // console.log('ScheduleDetailPage - userData:', userData);
+        // // ✅ 로그인한 사용자 정보 가져오기
+        // const userData = await getUserInfo();
+        // console.log('ScheduleDetailPage - userData:', userData);
+
+        // // user_id가 존재할 때만 API 요청
+        // if (userData?.user?.id) {
+        //   const data = await getItineraryDetail(Number(id));
+        //   setItinerary(data);
+        // } else {
+        //   console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
+        // }
+
+        // 실제 API 호출 대신 하드코딩된 데이터 사용
+        console.log('하드코딩된 일정 데이터를 사용합니다.');
+        setItinerary(mockItinerary);
+        // // user_id가 존재할 때만 API 요청
+        // if (userData?.user?.id) {
+        //   const data = await getItineraryDetail(Number(id));
+        //   setItinerary(data);
+        // } else {
+        //   console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
+        // }
+
+        // 실제 API 호출 대신 하드코딩된 데이터 사용
+        console.log('하드코딩된 일정 데이터를 사용합니다.');
+        setItinerary(mockItinerary);
+      } catch (error) {
+        console.error('❌ 일정 데이터를 불러오지 못했습니다:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItinerary();
+  }, [id]);
 
   // 하드코딩된 일정 데이터 (테스트용)
   const mockItinerary: ItineraryResponse = {
@@ -196,80 +224,21 @@ export default function ScheduleDetailPage() {
     ],
   };
 
-  useEffect(() => {
-    if (!id) return;
-    const fetchItinerary = async () => {
-      try {
-        // // ✅ 로그인한 사용자 정보 가져오기
-        // const userData = await getUserInfo();
-        // console.log('ScheduleDetailPage - userData:', userData);
-        // // ✅ 로그인한 사용자 정보 가져오기
-        // const userData = await getUserInfo();
-        // console.log('ScheduleDetailPage - userData:', userData);
+  // 날짜별로 일정 묶기
+  const groupedByDay: Record<string, ItineraryItem[]> = {};
 
-        // // user_id가 존재할 때만 API 요청
-        // if (userData?.user?.id) {
-        //   const data = await getItineraryDetail(Number(id));
-        //   setItinerary(data);
-        // } else {
-        //   console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
-        // }
-
-        // 실제 API 호출 대신 하드코딩된 데이터 사용
-        console.log('하드코딩된 일정 데이터를 사용합니다.');
-        setItinerary(mockItinerary);
-        // // user_id가 존재할 때만 API 요청
-        // if (userData?.user?.id) {
-        //   const data = await getItineraryDetail(Number(id));
-        //   setItinerary(data);
-        // } else {
-        //   console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
-        // }
-
-        // 실제 API 호출 대신 하드코딩된 데이터 사용
-        console.log('하드코딩된 일정 데이터를 사용합니다.');
-        setItinerary(mockItinerary);
-      } catch (error) {
-        console.error('❌ 일정 데이터를 불러오지 못했습니다:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItinerary();
-  }, [id]);
-
-  // 공유 URL 생성 (토글 방식)
-  const generateShareUrl = () => {
-    if (showShareModal) {
-      // 이미 모달이 열려있으면 닫기
-      setShowShareModal(false);
-    } else {
-      // 모달이 닫혀있으면 열기
-      const currentUrl = window.location.href;
-      setShareUrl(currentUrl);
-      setShowShareModal(true);
-    }
-  };
-
-  // URL 복사 기능
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      alert('URL이 클립보드에 복사되었습니다!');
-    } catch (err) {
-      console.error('복사 실패:', err);
-      alert('복사에 실패했습니다.');
-    }
-  };
-
-  // 일정 수정 페이지로 이동
-  const handleEditSchedule = () => {
-    if (id) {
-      navigate(`/journey/step4/${id}`);
-    } else {
-      // ID가 없는 경우 기본 경로로 이동
-      navigate('/journey/step4');
+  const getActivityTypeColor = (type?: string) => {
+    switch (type) {
+      case '식사':
+        return 'bg-orange-100 text-orange-800';
+      case '숙박':
+        return 'bg-purple-100 text-purple-800';
+      case '관광':
+        return 'bg-blue-100 text-blue-800';
+      case '교통':
+        return 'bg-blue-50 text-blue-700';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -327,8 +296,6 @@ export default function ScheduleDetailPage() {
       </div>
     );
 
-  // 날짜별로 일정 묶기
-  const groupedByDay: Record<string, ItineraryItem[]> = {};
   itinerary.items.forEach((item) => {
     const dateKey = item.start_time.split('T')[0];
     if (!groupedByDay[dateKey]) groupedByDay[dateKey] = [];
@@ -338,36 +305,6 @@ export default function ScheduleDetailPage() {
   // 여행 정보 요약 컴포넌트
   const TravelSummary = () => {
     if (!itinerary) return null;
-
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-5xl mx-auto px-4 pt-16 pb-10">
-        <Link
-          to="/mypage"
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-10 transition-colors"
-        >
-          ← 마이페이지로 돌아가기
-        </Link>
-
-        {/* 일정 기본 정보 */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-3xl mb-2">
-                  {itinerary.name || '여행명'}
-                </CardTitle>
-                <CardDescription className="text-lg mb-4">
-                  출발지: {itinerary.start_location}
-                </CardDescription>
-                <div className="flex flex-col text-sm gap-1">
-                  <div>
-                    📅 {itinerary.start_at} ~ {itinerary.end_at}
-                  </div>
-                  {itinerary.relation && <div>👥 {itinerary.relation}</div>}
-                </div>
-              </div>
-              <Badge variant="secondary">진행 완료</Badge>
     return (
       <Card className="p-6 mb-6">
         <h3 className="text-xl font-semibold mb-4 text-blue-900">
