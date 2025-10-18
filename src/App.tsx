@@ -8,7 +8,7 @@ import Intro from './components/common/Intro';
 import LoginPage from './pages/Login';
 import MyPage from './pages/MyPage';
 import './index.css';
-import SchedulePage from './pages/Schedule';
+import SchedulePage from './pages/users/Schedule';
 import Test from './pages/test/Test';
 import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
