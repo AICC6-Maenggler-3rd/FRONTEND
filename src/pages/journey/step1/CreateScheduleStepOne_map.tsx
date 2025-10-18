@@ -127,9 +127,6 @@ const CreateScheduleStepOne = () => {
    * 위치 선택 후 날짜 선택 화면으로 전환
    */
   const handleNext = () => {
-    // 선택된 위치를 콘솔에 출력 (디버깅용)
-    console.log('선택된 위치:', selectedLocation);
-
     // 날짜 선택 화면으로 전환
     setCurrentView('date');
   };

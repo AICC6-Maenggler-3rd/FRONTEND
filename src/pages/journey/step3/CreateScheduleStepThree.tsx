@@ -22,9 +22,9 @@ const CreateScheduleStepThree = () => {
   );
 
   // 위치기반 검색용 나중에 수정 필요 - 부산광역시청
-  const baseLat = 35.198362;
-  const baseLng = 129.053922;
-  const baseRadius = 3000;
+  // const baseLat = 35.198362;
+  // const baseLng = 129.053922;
+  // const baseRadius = 3000;
 
   const location = useLocation();
   useEffect(() => {
@@ -37,11 +37,6 @@ const CreateScheduleStepThree = () => {
     if (state?.scheduleList) {
       setScheduleList(state.scheduleList);
     }
-
-    // console.log('이전 단계에서 받은 데이터:', {
-    //   travelPlan: state?.travelPlan,
-    //   scheduleList: state?.scheduleList,
-    // });
   }, [location.state]);
 
   useEffect(() => {
@@ -51,9 +46,6 @@ const CreateScheduleStepThree = () => {
     }
   }, [travelPlan, scheduleList]);
 
-  const testNext = () => {
-    console.log('testNext');
-  };
   return (
     <div className="h-[calc(100vh)] bg-white flex">
       {detailAccommodation && (
@@ -66,9 +58,9 @@ const CreateScheduleStepThree = () => {
         <AccommodationList
           setFocusAccommodation={setFocusAccommodation}
           setDetailAccommodation={setDetailAccommodation}
-          lat={baseLat}
-          lng={baseLng}
-          radius={baseRadius}
+          lat={travelPlan?.default_la}
+          lng={travelPlan?.default_lo}
+          radius={3000}
         />
         <div className="h-full flex flex-col justify-between items-baseline">
           <DayScheduleBar
@@ -79,24 +71,32 @@ const CreateScheduleStepThree = () => {
             setRoute={setRoute}
             setAccommodationList={setAccommodationList}
           />
-          <div className="px-5 w-full flex justify-center">
-            <Link
-              to="/journey/step4"
-              state={{ travelPlan, scheduleList }}
-              className="h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full"
-            >
-              다음
-            </Link>
-          </div>
         </div>
       </div>
 
-      <div className="w-full h-full">
+      <div className="relative w-full h-full">
         <KakaoMap
           focusAccommodation={focusAccommodation || undefined}
           route={route || undefined}
           accommodationList={accommodationList || undefined}
         />
+
+        <div className="navigation-bar absolute top-5 right-2 z-50 flex h-[3rem] w-[15rem] items-center justify-center gap-2">
+          <Link
+            to="/journey/step2"
+            state={{ travelPlan, scheduleList }}
+            className="h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full"
+          >
+            이전
+          </Link>
+          <Link
+            to="/journey/step4"
+            state={{ travelPlan, scheduleList }}
+            className="h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full"
+          >
+            다음
+          </Link>
+        </div>
       </div>
     </div>
   );

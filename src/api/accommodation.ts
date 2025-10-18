@@ -17,32 +17,10 @@ export interface Accommodation {
   updated_at: string;
 }
 
-export const searchAccommodation = async (
-  query: string,
-  page: number,
-  limit: number,
-): Promise<{
-  data: Accommodation[];
+export interface AccommodationListResponse {
+  accommodation: Accommodation[];
   total_pages: number;
-}> => {
-  const res = await axios.get(
-    `${API_BASE}/accommodation/search?query=${query}&page=${page}&limit=${limit}`,
-  );
-  return res.data;
-};
-
-export const getAccommodationList = async (
-  page: number,
-  limit: number,
-): Promise<{
-  data: Accommodation[];
-  total_pages: number;
-}> => {
-  const res = await axios.get(
-    `${API_BASE}/accommodation/list?page=${page}&limit=${limit}`,
-  );
-  return res.data;
-};
+}
 
 export const getAccommodationListWithinRadius = async (
   page: number,
@@ -50,12 +28,13 @@ export const getAccommodationListWithinRadius = async (
   lat: number,
   lng: number,
   radius: number,
+  query: string,
 ): Promise<{
   data: Accommodation[];
   total_pages: number;
 }> => {
   const res = await axios.get(
-    `${API_BASE}/accommodation/list?page=${page}&limit=${limit}&lat=${lat}&lng=${lng}&radius=${radius}`,
+    `${API_BASE}/accommodation/list?page=${page}&limit=${limit}&lat=${lat}&lng=${lng}&radius=${radius}&query=${query}`,
   );
   return res.data;
 };

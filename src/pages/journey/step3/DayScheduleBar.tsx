@@ -69,7 +69,6 @@ const DayScheduleBar = ({
     dragItemRef.current = { colIndex: day, itemIndex: itemIndex, place: place };
     dropIndexRef.current = itemIndex;
     e.dataTransfer.effectAllowed = 'move';
-    console.log('drag start', place);
     setIsDragging(true);
   };
 
@@ -94,7 +93,6 @@ const DayScheduleBar = ({
         dragItemRef.current.itemIndex,
         1,
       );
-      console.log('drop index', dropIndexRef.current);
       if (dropIndexRef.current !== null) {
         const targetIndex =
           dragItemRef.current.colIndex === index &&
@@ -353,7 +351,7 @@ const DayScheduleBar = ({
                 {/* 마지막 날 숙박시설 비활성화 안내 */}
                 {schedule.index === scheduleList.length - 1 && (
                   <div className="text-center border-2 border-gray-100 rounded-md p-2 border-dashed h-[80px] flex flex-col items-center justify-center text-gray-400 select-none bg-gray-50">
-                    <div className="text-3xl opacity-50">🏨</div>
+                    <div className="text-3xl opacity-50">❌️</div>
                     <div className="text-sm opacity-75">
                       마지막 날은 숙박 불가
                     </div>

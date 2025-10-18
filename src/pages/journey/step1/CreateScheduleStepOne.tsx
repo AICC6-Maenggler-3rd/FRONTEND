@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Link } from 'react-router-dom';
 import { getAllRegion, type RegionItem } from '../../../api/region';
+import Spinner from '@/components/ui/Spinner';
 
 // 여행 계획 타입 정의
 export interface TravelPlan {
@@ -127,7 +128,7 @@ const CreateScheduleStepOne = () => {
     '액티비티',
     '자연',
     '바다',
-    '등산',
+    '산',
     '쇼핑',
     '문화·예술',
     '관광',
@@ -201,11 +202,6 @@ const CreateScheduleStepOne = () => {
       alert('위치를 선택해주세요.');
       return;
     }
-
-    // 선택된 위치를 콘솔에 출력 (디버깅용)
-    console.log('선택된 위치:', selectedLocation);
-    console.log('위경도:', travelPlan.default_la, travelPlan.default_lo);
-
     // 날짜 선택 화면으로 전환
     setCurrentView('date');
   };
@@ -530,7 +526,7 @@ const CreateScheduleStepOne = () => {
           <div className="relative max-w-xl mx-auto mb-8">
             {isLoadingRegions && (
               <div className="text-center text-gray-500 py-6">
-                지역 정보를 불러오는 중...
+                <Spinner />
               </div>
             )}
             {regionsError && !isLoadingRegions && (
