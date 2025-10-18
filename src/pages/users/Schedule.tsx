@@ -27,7 +27,7 @@ interface ItineraryItem {
 
 interface ItineraryResponse {
   itinerary_id: number;
-  start_location: string;
+  location: string;
   theme?: string;
   start_at: string;
   end_at: string;
@@ -130,7 +130,7 @@ export default function ScheduleDetailPage() {
                   {itinerary.name || '여행명'}
                 </CardTitle>
                 <CardDescription className="text-lg mb-4">
-                  출발지: {itinerary.start_location}
+                  출발지: {itinerary.location}
                 </CardDescription>
                 <div className="flex flex-col text-sm gap-1">
                   <div>

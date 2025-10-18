@@ -49,7 +49,7 @@ const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
     { number: 1, title: '정보 입력', isActive: currentStep === 1 },
     { number: 2, title: '여행지 선택', isActive: currentStep === 2 },
     { number: 3, title: '숙소 선택', isActive: currentStep === 3 },
-    { number: 4, title: '일정 수정', isActive: currentStep === 4 },
+    { number: 4, title: '일정 확인', isActive: currentStep === 4 },
   ];
 
   /**

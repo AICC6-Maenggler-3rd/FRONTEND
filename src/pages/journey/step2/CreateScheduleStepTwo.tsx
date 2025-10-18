@@ -57,7 +57,7 @@ const ConvertScheduleToItineraryRequest = (
   travelPlan: any,
 ) => {
   const itinerary: ItineraryCreateRequest = {
-    start_location: travelPlan.location,
+    location: travelPlan.location,
     theme: travelPlan.theme,
     start_at: travelPlan.startDate,
     end_at: travelPlan.endDate,

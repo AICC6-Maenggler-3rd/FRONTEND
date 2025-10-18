@@ -56,7 +56,7 @@ export default function ItineraryListPage() {
                 const duration = Math.ceil(
                   (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
                 );
-                const locationName = it.start_location || '';
+                const locationName = it.location || '';
                 const title =
                   it.name ||
                   it.theme ||
