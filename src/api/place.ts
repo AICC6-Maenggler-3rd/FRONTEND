@@ -28,7 +28,8 @@ export interface Place {
 
 export interface PlaceListResponse {
   places: Place[];
-  total_pages:number;
+  total_pages: number;
+  total_count: number;
 }
 
 export const getPlaceListByAddress = async (address: string, page: number, limit: number): Promise<PlaceListResponse> => {
@@ -54,6 +55,11 @@ export const getPlaceListWithinRadius = async (page: number, limit: number, lat:
 
 export const getPlace = async (place_id: number) => {
   const res = await axios.get(`${API_BASE}/place/${place_id}`);
+  return res.data;
+};
+
+export const getPlacesByCategory = async (categoryId: number, page: number = 1, limit: number = 10): Promise<PlaceListResponse> => {
+  const res = await axios.get<PlaceListResponse>(`${API_BASE}/place/list/category?category_id=${categoryId}&page=${page}&limit=${limit}`);
   return res.data;
 };
 
