@@ -18,10 +18,13 @@ import CreateScheduleStepFour from './pages/journey/step4/CreateScheduleStepFour
 import DefaultLayout from './layouts/DefaultLayout';
 import { Header } from './layouts/header';
 import { Footer } from './layouts/footer';
-import Index from './pages/manage/Index';
+import Index from './pages/manage/Main';
 import JourneyMain from './pages/journey/main';
 import MemberDetail from './pages/manage/memberdetail';
 import ItineraryListPage from './pages/users/ItineraryList';
+import CategoryDetail from './pages/manage/Categorydetail';
+import AccommodationDetail from './pages/manage/AccommodationDetail';
+import Snsaccount from './pages/manage/Snsaccount';
 
 function AppContent() {
   const location = useLocation();
@@ -54,6 +57,11 @@ function AppContent() {
           </Route>
           <Route path="/manageIndex" element={<Index />} />
           <Route path="/manage/memberdetail" element={<MemberDetail />} />
+          <Route path="/manage/categorydetail" element={<CategoryDetail />} />
+          <Route path="/manage/accommodationdetail" element={<AccommodationDetail />} />
+          <Route path="/manage/snsaccount" element={<Snsaccount />} />
+          
+         
         </Route>
 
         {/* 헤더와 푸터 불필요 */}

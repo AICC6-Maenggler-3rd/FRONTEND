@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { AlertTriangle, Check, X, Shield } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { deleteUser, logout } from '@/api/auth';
@@ -19,7 +20,7 @@ const withdrawalReasons = [
   '개인정보 보호 우려',
   '서비스 품질 불만족',
   '사용법이 어려움',
-  '기타 ( )',
+  '기타',
 ];
 
 export default function WithdrawalPage() {
@@ -32,8 +33,8 @@ export default function WithdrawalPage() {
     false,
   ]);
   const [selectedReason, setSelectedReason] = useState<string>('');
+  const [otherReason, setOtherReason] = useState<string>('');
   const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleCheckboxChange = (index: number, checked: boolean) => {
     const newCheckedItems = [...checkedItems];
@@ -49,10 +50,16 @@ export default function WithdrawalPage() {
       return;
     }
 
+    // 기타를 선택했는데 내용이 없으면 경고
+    if (selectedReason === '기타' && !otherReason.trim()) {
+      console.error('기타 사유를 입력해 주세요.');
+      return;
+    }
+
     await handleDelete();
   };
 
-  const reasonToSend = selectedReason.includes('( )') ? '' : selectedReason;
+  const reasonToSend = selectedReason === '기타' ? otherReason : selectedReason;
 
   const handleDelete = async () => {
     try {
@@ -62,7 +69,7 @@ export default function WithdrawalPage() {
       setShowCompleteModal(true);
     } catch (error) {
       console.error('회원 탈퇴 중 오류 발생:', error);
-      setErrorMessage('회원 탈퇴에 실패했습니다.');
+      alert('회원 탈퇴에 실패했습니다.');
     }
   };
 
@@ -270,6 +277,18 @@ export default function WithdrawalPage() {
                     </div>
                   ))}
                 </RadioGroup>
+
+                {/* 기타 선택 시 입력 칸 */}
+                {selectedReason === '기타' && (
+                  <Input
+                    id="other-reason"
+                    type="text"
+                    placeholder="탈퇴 사유를 자유롭게 입력해 주세요."
+                    value={otherReason}
+                    onChange={(e) => setOtherReason(e.target.value)}
+                    className="w-full mt-4"
+                  />
+                )}
               </Card>
 
               {/* Action Buttons */}
@@ -283,7 +302,10 @@ export default function WithdrawalPage() {
                 </Button>
                 <Button
                   onClick={handleWithdrawalComplete}
-                  disabled={!selectedReason}
+                  disabled={
+                    !selectedReason ||
+                    (selectedReason === '기타' && !otherReason.trim())
+                  }
                   className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                 >
                   탈퇴 진행
