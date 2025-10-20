@@ -10,7 +10,7 @@ const loginRedirect = async (provider: string) => {
     });
     window.location.href = res.data.auth_url;
   } catch (error) {
-    console.log(`${provider} 로그인 요청 실패`);
+    console.log(`${provider} 로그인 요청 실패`, error);
   }
 };
 
