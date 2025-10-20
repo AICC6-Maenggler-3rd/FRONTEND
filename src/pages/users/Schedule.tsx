@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getUserInfo } from '@/api/auth';
+import { getItineraryDetail } from '@/api/itinerary';
 
 interface ItineraryItem {
   item_id: number;
@@ -41,35 +43,21 @@ export default function ScheduleDetailPage() {
     if (!id) return;
     const fetchItinerary = async () => {
       try {
-        // // ✅ 로그인한 사용자 정보 가져오기
-        // const userData = await getUserInfo();
-        // console.log('ScheduleDetailPage - userData:', userData);
-        // // ✅ 로그인한 사용자 정보 가져오기
-        // const userData = await getUserInfo();
-        // console.log('ScheduleDetailPage - userData:', userData);
+        // ✅ 로그인한 사용자 정보 가져오기
+        const userData = await getUserInfo();
+        console.log('ScheduleDetailPage - userData:', userData);
 
-        // // user_id가 존재할 때만 API 요청
-        // if (userData?.user?.id) {
-        //   const data = await getItineraryDetail(Number(id));
-        //   setItinerary(data);
-        // } else {
-        //   console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
-        // }
+        // user_id가 존재할 때만 API 요청
+        if (userData?.user?.id) {
+          const data = await getItineraryDetail(Number(id));
+          setItinerary(data);
+        } else {
+          console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
+        }
 
         // 실제 API 호출 대신 하드코딩된 데이터 사용
-        console.log('하드코딩된 일정 데이터를 사용합니다.');
-        setItinerary(mockItinerary);
-        // // user_id가 존재할 때만 API 요청
-        // if (userData?.user?.id) {
-        //   const data = await getItineraryDetail(Number(id));
-        //   setItinerary(data);
-        // } else {
-        //   console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
-        // }
-
-        // 실제 API 호출 대신 하드코딩된 데이터 사용
-        console.log('하드코딩된 일정 데이터를 사용합니다.');
-        setItinerary(mockItinerary);
+        // console.log('하드코딩된 일정 데이터를 사용합니다.');
+        // setItinerary(mockItinerary);
       } catch (error) {
         console.error('❌ 일정 데이터를 불러오지 못했습니다:', error);
       } finally {
@@ -80,149 +68,149 @@ export default function ScheduleDetailPage() {
     fetchItinerary();
   }, [id]);
 
-  // 하드코딩된 일정 데이터 (테스트용)
-  const mockItinerary: ItineraryResponse = {
-    itinerary_id: 1,
-    location: '제주도',
-    theme: '힐링',
-    start_at: '2024-01-15T00:00:00Z',
-    end_at: '2024-01-18T00:00:00Z',
-    relation: '가족',
-    user_id: 1,
-    name: '제주도 3박 4일 가족여행',
-    items: [
-      {
-        item_id: 1,
-        start_time: '2024-01-15T09:00:00Z',
-        end_time: '2024-01-15T10:00:00Z',
-        item_type: 'place',
-        data: {
-          info: {
-            name: '제주공항',
-            address: '제주특별자치도 제주시 공항로 2',
-            type: '교통',
-          },
-        },
-      },
-      {
-        item_id: 2,
-        start_time: '2024-01-15T11:00:00Z',
-        end_time: '2024-01-15T12:00:00Z',
-        item_type: 'place',
-        data: {
-          info: {
-            name: '성산일출봉',
-            address: '제주특별자치도 서귀포시 성산읍 성산리',
-            type: '관광',
-          },
-        },
-      },
-      {
-        item_id: 3,
-        start_time: '2024-01-15T13:00:00Z',
-        end_time: '2024-01-15T14:00:00Z',
-        item_type: 'place',
-        data: {
-          info: {
-            name: '성산일출봉 맛집',
-            address: '제주특별자치도 서귀포시 성산읍',
-            type: '식사',
-          },
-        },
-      },
-      {
-        item_id: 4,
-        start_time: '2024-01-15T15:00:00Z',
-        end_time: '2024-01-15T16:00:00Z',
-        item_type: 'place',
-        data: {
-          info: {
-            name: '성산일출봉 카페',
-            address: '제주특별자치도 서귀포시 성산읍',
-            type: '카페',
-          },
-        },
-      },
-      {
-        item_id: 5,
-        start_time: '2024-01-15T18:00:00Z',
-        end_time: '2024-01-16T09:00:00Z',
-        item_type: 'accommodation',
-        data: {
-          info: {
-            name: '성산일출봉 펜션',
-            address: '제주특별자치도 서귀포시 성산읍',
-            type: '숙박',
-          },
-        },
-      },
-      {
-        item_id: 6,
-        start_time: '2024-01-16T10:00:00Z',
-        end_time: '2024-01-16T11:00:00Z',
-        item_type: 'place',
-        data: {
-          info: {
-            name: '성산일출봉 아침식사',
-            address: '제주특별자치도 서귀포시 성산읍',
-            type: '식사',
-          },
-        },
-      },
-      {
-        item_id: 7,
-        start_time: '2024-01-16T12:00:00Z',
-        end_time: '2024-01-16T13:00:00Z',
-        item_type: 'place',
-        data: {
-          info: {
-            name: '성산일출봉 해변',
-            address: '제주특별자치도 서귀포시 성산읍',
-            type: '관광',
-          },
-        },
-      },
-      {
-        item_id: 8,
-        start_time: '2024-01-16T14:00:00Z',
-        end_time: '2024-01-16T15:00:00Z',
-        item_type: 'place',
-        data: {
-          info: {
-            name: '성산일출봉 점심식사',
-            address: '제주특별자치도 서귀포시 성산읍',
-            type: '식사',
-          },
-        },
-      },
-      {
-        item_id: 9,
-        start_time: '2024-01-16T16:00:00Z',
-        end_time: '2024-01-16T17:00:00Z',
-        item_type: 'place',
-        data: {
-          info: {
-            name: '성산일출봉 쇼핑',
-            address: '제주특별자치도 서귀포시 성산읍',
-            type: '쇼핑',
-          },
-        },
-      },
-      {
-        item_id: 10,
-        start_time: '2024-01-16T18:00:00Z',
-        end_time: '2024-01-17T09:00:00Z',
-        item_type: 'accommodation',
-        data: {
-          info: {
-            name: '성산일출봉 리조트',
-            address: '제주특별자치도 서귀포시 성산읍',
-            type: '숙박',
-          },
-        },
-      },
-    ],
-  };
+  // // 하드코딩된 일정 데이터 (테스트용)
+  // const mockItinerary: ItineraryResponse = {
+  //   itinerary_id: 1,
+  //   location: '제주도',
+  //   theme: '힐링',
+  //   start_at: '2024-01-15T00:00:00Z',
+  //   end_at: '2024-01-18T00:00:00Z',
+  //   relation: '가족',
+  //   user_id: 1,
+  //   name: '제주도 3박 4일 가족여행',
+  //   items: [
+  //     {
+  //       item_id: 1,
+  //       start_time: '2024-01-15T09:00:00Z',
+  //       end_time: '2024-01-15T10:00:00Z',
+  //       item_type: 'place',
+  //       data: {
+  //         info: {
+  //           name: '제주공항',
+  //           address: '제주특별자치도 제주시 공항로 2',
+  //           type: '교통',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 2,
+  //       start_time: '2024-01-15T11:00:00Z',
+  //       end_time: '2024-01-15T12:00:00Z',
+  //       item_type: 'place',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉',
+  //           address: '제주특별자치도 서귀포시 성산읍 성산리',
+  //           type: '관광',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 3,
+  //       start_time: '2024-01-15T13:00:00Z',
+  //       end_time: '2024-01-15T14:00:00Z',
+  //       item_type: 'place',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉 맛집',
+  //           address: '제주특별자치도 서귀포시 성산읍',
+  //           type: '식사',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 4,
+  //       start_time: '2024-01-15T15:00:00Z',
+  //       end_time: '2024-01-15T16:00:00Z',
+  //       item_type: 'place',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉 카페',
+  //           address: '제주특별자치도 서귀포시 성산읍',
+  //           type: '카페',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 5,
+  //       start_time: '2024-01-15T18:00:00Z',
+  //       end_time: '2024-01-16T09:00:00Z',
+  //       item_type: 'accommodation',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉 펜션',
+  //           address: '제주특별자치도 서귀포시 성산읍',
+  //           type: '숙박',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 6,
+  //       start_time: '2024-01-16T10:00:00Z',
+  //       end_time: '2024-01-16T11:00:00Z',
+  //       item_type: 'place',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉 아침식사',
+  //           address: '제주특별자치도 서귀포시 성산읍',
+  //           type: '식사',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 7,
+  //       start_time: '2024-01-16T12:00:00Z',
+  //       end_time: '2024-01-16T13:00:00Z',
+  //       item_type: 'place',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉 해변',
+  //           address: '제주특별자치도 서귀포시 성산읍',
+  //           type: '관광',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 8,
+  //       start_time: '2024-01-16T14:00:00Z',
+  //       end_time: '2024-01-16T15:00:00Z',
+  //       item_type: 'place',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉 점심식사',
+  //           address: '제주특별자치도 서귀포시 성산읍',
+  //           type: '식사',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 9,
+  //       start_time: '2024-01-16T16:00:00Z',
+  //       end_time: '2024-01-16T17:00:00Z',
+  //       item_type: 'place',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉 쇼핑',
+  //           address: '제주특별자치도 서귀포시 성산읍',
+  //           type: '쇼핑',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       item_id: 10,
+  //       start_time: '2024-01-16T18:00:00Z',
+  //       end_time: '2024-01-17T09:00:00Z',
+  //       item_type: 'accommodation',
+  //       data: {
+  //         info: {
+  //           name: '성산일출봉 리조트',
+  //           address: '제주특별자치도 서귀포시 성산읍',
+  //           type: '숙박',
+  //         },
+  //       },
+  //     },
+  //   ],
+  // };
 
   // 날짜별로 일정 묶기
   const groupedByDay: Record<string, ItineraryItem[]> = {};
