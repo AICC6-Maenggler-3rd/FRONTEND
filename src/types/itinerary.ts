@@ -21,23 +21,23 @@ export interface ItineraryItem {
 }
 
 export interface ItineraryCreateRequest {
-  location: string;
-  theme: string;
+  user_id: number;
+  relation: string;
   start_at: string;
   end_at: string;
-  relation: string;
-  user_id: number;
+  location: string;
+  theme: string;
   items: ItineraryItem[];
   name: string;
 }
 
 export interface ItineraryResponse {
-  location: string;
-  theme: string | null;
+  user_id: number | null;
+  relation: string | null;
   start_at: string;
   end_at: string;
-  relation: string | null;
-  user_id: number | null;
+  location: string;
+  theme: string | null;
   items: ItineraryItemResponse[];
   name: string | null;
 }

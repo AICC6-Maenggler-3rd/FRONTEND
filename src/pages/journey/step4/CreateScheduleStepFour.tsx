@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import type { TravelPlan } from '../step1/CreateScheduleStepOne';
 import type { DaySchedule } from '../step2/CreateScheduleStepTwo';
 import type { ItineraryCreateRequest, ItineraryItem } from '@/types/itinerary';
-import { generateItinerary } from '@/api/itinerary';
+import { createItinerary } from '@/api/itinerary';
 import { getUserInfo } from '@/api/auth';
 
 const CreateScheduleStepFour = () => {
@@ -100,19 +100,23 @@ const CreateScheduleStepFour = () => {
 
     setIsSaving(true);
     setSaveError(null);
+    console.log('itineraryName', itineraryName);
+    console.log('travelPlan', travelPlan);
+    console.log('userId', userId);
 
     try {
       const itineraryData: ItineraryCreateRequest = {
-        location: travelPlan.location,
-        theme: travelPlan.themes.join(', '),
+        user_id: userId,
+        relation: travelPlan.companion || '',
         start_at: travelPlan.startDate?.toISOString() || '',
         end_at: travelPlan.endDate?.toISOString() || '',
-        relation: travelPlan.companion || '',
-        user_id: userId,
+        location: travelPlan.location,
+        theme: travelPlan.themes.join(', '),
         items: convertToItineraryItems(),
+        name: itineraryName,
       };
 
-      const response = await generateItinerary(itineraryData, 'gpt-3.5-turbo');
+      const response = await createItinerary(itineraryData);
       console.log('일정 저장 완료:', response);
 
       // 성공 시 마이페이지로 이동
