@@ -6,6 +6,8 @@
   ],
   "compilerOptions": {
     "types": ["kakao.maps.d.ts"],
-    "noEmitOnError": false
+    "noUnusedLocals": false,      // ✅ 선언만 하고 안 써도 에러 안 남
+    "noUnusedParameters": false,  // ✅ 사용하지 않는 함수 인자도 허용
+    "noImplicitAny": false        // (선택) any 허용
   },
 }
