@@ -103,6 +103,7 @@ const CreateScheduleStepFour = () => {
 
     try {
       const itineraryData: ItineraryCreateRequest = {
+        name: itineraryName.trim(),
         location: travelPlan.location,
         theme: travelPlan.themes.join(', '),
         start_at: travelPlan.startDate?.toISOString() || '',
