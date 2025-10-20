@@ -8,18 +8,20 @@ import Intro from './components/common/Intro';
 import LoginPage from './pages/Login';
 import MyPage from './pages/MyPage';
 import './index.css';
-import SchedulePage from './pages/Schedule';
+import SchedulePage from './pages/users/Schedule';
 import Test from './pages/test/Test';
 import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
 import CreateScheduleStepTwo from './pages/journey/step2/CreateScheduleStepTwo';
 import CreateScheduleStepThree from './pages/journey/step3/CreateScheduleStepThree';
+import CreateScheduleStepFour from './pages/journey/step4/CreateScheduleStepFour';
 import DefaultLayout from './layouts/DefaultLayout';
 import { Header } from './layouts/header';
 import { Footer } from './layouts/footer';
 import Index from './pages/manage/Main';
 import JourneyMain from './pages/journey/main';
 import MemberDetail from './pages/manage/memberdetail';
+import ItineraryListPage from './pages/users/ItineraryList';
 import CategoryDetail from './pages/manage/Categorydetail';
 import AccommodationDetail from './pages/manage/AccommodationDetail';
 import Snsaccount from './pages/manage/Snsaccount';
@@ -43,6 +45,7 @@ function AppContent() {
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<Intro />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/itineraries" element={<ItineraryListPage />} />
           <Route path="/schedule/:id" element={<SchedulePage />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/userinfo" element={<MyPage />} />
@@ -50,6 +53,7 @@ function AppContent() {
             <Route path="step1" element={<CreateScheduleStepOne />} />
             <Route path="step2" element={<CreateScheduleStepTwo />} />
             <Route path="step3" element={<CreateScheduleStepThree />} />
+            <Route path="step4" element={<CreateScheduleStepFour />} />
           </Route>
           <Route path="/manageIndex" element={<Index />} />
           <Route path="/manage/memberdetail" element={<MemberDetail />} />

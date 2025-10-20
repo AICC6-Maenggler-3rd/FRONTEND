@@ -1,42 +1,45 @@
-import type { Place } from "./place";
-import type { Accommodation } from "./accommodation";
+import type { Place } from './place';
+import type { Accommodation } from './accommodation';
 
 export interface Itinerary {
   user_id: number;
   relation: string;
-  start_at: string|null;
-  end_at: string|null;
-  start_location: string;
+  start_at: string | null;
+  end_at: string | null;
+  location: string;
   theme: string;
   items: ItineraryItem[];
+  name: string | null;
 }
 
 export interface ItineraryItem {
   place_id: number;
   accommodation_id: number;
-  start_time: string|null;
-  end_time: string|null;
+  start_time: string | null;
+  end_time: string | null;
   is_required: boolean;
 }
 
 export interface ItineraryCreateRequest {
-  start_location: string;
+  location: string;
   theme: string;
   start_at: string;
   end_at: string;
   relation: string;
   user_id: number;
   items: ItineraryItem[];
+  name: string;
 }
 
 export interface ItineraryResponse {
-  start_location: string;
+  location: string;
   theme: string | null;
   start_at: string;
   end_at: string;
   relation: string | null;
   user_id: number | null;
   items: ItineraryItemResponse[];
+  name: string | null;
 }
 
 export interface ItineraryItemResponse {
@@ -49,13 +52,14 @@ export interface ItineraryItemDataResponse extends ItineraryItem {
 }
 
 export interface ItineraryCreateResponse {
-  start_location: string;
+  location: string;
   theme: string;
   start_at: string;
   end_at: string;
   relation: string;
   user_id: number;
   items: ItineraryItemResponse[];
+  name: string;
 }
 
 export interface ItineraryGenerateResponse {
@@ -63,3 +67,24 @@ export interface ItineraryGenerateResponse {
   model_name: string;
 }
 
+export interface ItineraryListResponse {
+  itineraries: ItinerarySchema[];
+  total_count: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export interface ItinerarySchema {
+  itinerary_id: number;
+  user_id: number | null;
+  relation: string | null;
+  name?: string | null;
+  start_at: string;
+  end_at: string;
+  location: string | null;
+  theme: string | null;
+  created_at: string;
+  deleted_at: string | null;
+  updated_at: string;
+}

@@ -1,69 +1,52 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import AccommodationList from './AccommodationList';
-import KakaoMap from '@/components/KakaoMapAccomodation';
+import KakaoMap from '@/components/KakaoMap';
 import type { Accommodation } from '@/api/accommodation';
 import DayScheduleBar from './DayScheduleBar';
 import AccommodationDetail from '@/pages/journey/step3/AccommodationDetail';
 import type { Route } from '@/components/KakaoMap';
-import { useLocation } from 'react-router-dom';
-
-export interface DaySchedule {
-  day: number;
-  accommodationList: Accommodation[];
-}
+import type { TravelPlan } from '../step1/CreateScheduleStepOne';
+import type { DaySchedule } from '../step2/CreateScheduleStepTwo';
 
 const CreateScheduleStepThree = () => {
-  const [focusAccommodation, setFocusAccommodation] =
-    useState<Accommodation | null>(null);
+  const [focusAccommodation, setFocusAccommodation] = useState<any | null>(
+    null,
+  );
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
+  const [travelPlan, setTravelPlan] = useState<TravelPlan | null>(null);
   const [detailAccommodation, setDetailAccommodation] =
     useState<Accommodation | null>(null);
-  const [route, setRoute] = useState<Route | null>(null);
+  const [route, setRoute] = useState<Route | undefined>(undefined);
   const [accommodationList, setAccommodationList] = useState<Accommodation[]>(
     [],
   );
+  const [placeList, setPlaceList] = useState<any[]>([]);
+
+  const hasAccommodation = useMemo(() => {
+    if (!scheduleList?.length) return false;
+    return scheduleList.slice(0, -1).every((d) => !!d.accommodation);
+  }, [scheduleList]);
 
   const location = useLocation();
-  const hasInitialized = useRef(false);
+  useEffect(() => {
+    const state = location.state;
 
-  const TestTravelPlan = {
-    location: '경상도',
-    startDate: '2025-10-15T15:00:00.000Z',
-    endDate: '2025-10-24T15:00:00.000Z',
-    startTime: '09:00',
-    endTime: '18:00',
-    companion: '부모님과',
-    themes: ['쇼핑', '자연', '먹방'],
-  };
-
-  const travelPlan = location.state?.travelPlan || TestTravelPlan;
-
-  // 위치기반 검색용 나중에 수정 필요 - 부산광역시청
-  const baseLat = 35.198362;
-  const baseLng = 129.053922;
-  const baseRadius = 3000;
+    // location.state에 값이 있다면 상태로 세팅
+    if (state?.travelPlan) {
+      setTravelPlan(state.travelPlan);
+    }
+    if (state?.scheduleList) {
+      setScheduleList(state.scheduleList);
+    }
+  }, [location.state]);
 
   useEffect(() => {
-    if (travelPlan && !hasInitialized.current) {
-      console.log('이전 단계에서 받은 데이터:', travelPlan);
-      hasInitialized.current = true;
-
-      const startDate = new Date(travelPlan.startDate);
-      const endDate = new Date(travelPlan.endDate);
-      const timeDifference = endDate.getTime() - startDate.getTime();
-
-      const ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
-      const duration = timeDifference / ONE_DAY_IN_MS;
-
-      const scheduleList = Array.from({ length: duration }, (_, i) => ({
-        day: i + 1,
-        accommodationList: [],
-      }));
-      setScheduleList(scheduleList);
+    if (travelPlan && scheduleList) {
+      console.log('travelPlan', travelPlan);
+      console.log('scheduleList', scheduleList);
     }
-  }, [travelPlan]);
-
-  useEffect(() => {}, []);
+  }, [travelPlan, scheduleList]);
 
   return (
     <div className="h-[calc(100vh)] bg-white flex">
@@ -77,9 +60,9 @@ const CreateScheduleStepThree = () => {
         <AccommodationList
           setFocusAccommodation={setFocusAccommodation}
           setDetailAccommodation={setDetailAccommodation}
-          lat={baseLat}
-          lng={baseLng}
-          radius={baseRadius}
+          lat={travelPlan?.default_la}
+          lng={travelPlan?.default_lo}
+          radius={3000}
         />
         <div className="h-full flex flex-col justify-between items-baseline">
           <DayScheduleBar
@@ -89,30 +72,47 @@ const CreateScheduleStepThree = () => {
             setDetailAccommodation={setDetailAccommodation}
             setRoute={setRoute}
             setAccommodationList={setAccommodationList}
+            setFocusPlace={setFocusAccommodation}
+            setPlaceList={setPlaceList}
           />
-          <div className="px-5 w-full flex justify-center">
-            <button className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm w-full">
-              다음
-            </button>
-          </div>
         </div>
       </div>
 
-      <div className="w-full h-full">
+      <div className="relative w-full h-full">
         <KakaoMap
-          focusAccommodation={focusAccommodation || undefined}
+          focusPlace={focusAccommodation || undefined}
           route={route || undefined}
-          accommodationList={accommodationList || undefined}
+          placeList={
+            placeList.length > 0 ? placeList : accommodationList || undefined
+          }
         />
-      </div>
-      <div>
-        <div>위치 : {TestTravelPlan.location}</div>
-        <div>시작일 : {TestTravelPlan.startDate}</div>
-        <div>시작날짜 : {TestTravelPlan.startTime}</div>
-        <div>종료일 : {TestTravelPlan.endDate}</div>
-        <div>종료날짜 : {TestTravelPlan.endTime}</div>
-        <div>누구와 : {TestTravelPlan.companion}</div>
-        <div>테마 : {TestTravelPlan.themes}</div>
+
+        <div className="navigation-bar absolute top-5 right-2 z-50 flex h-[3rem] w-[15rem] items-center justify-center gap-2">
+          <Link
+            to="/journey/step2"
+            state={{ travelPlan, scheduleList }}
+            className="h-[3rem] shadow-md flex items-center justify-center text-lg font-bold bg-white border-2 border-blue-300 m-2 p-4 rounded-sm w-full"
+          >
+            이전
+          </Link>
+          <Link
+            to="/journey/step4"
+            state={{ travelPlan, scheduleList }}
+            onClick={(e) => {
+              if (!hasAccommodation) e.preventDefault();
+            }}
+            aria-disabled={!hasAccommodation}
+            className={`h-[3rem] shadow-md flex items-center justify-center text-lg font-bold m-2 p-4 rounded-sm w-full
+      ${
+        hasAccommodation
+          ? 'bg-white border-2 border-blue-300'
+          : 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed pointer-events-auto'
+      }`}
+            title={hasAccommodation ? '' : '숙소를 먼저 선택하세요'}
+          >
+            다음
+          </Link>
+        </div>
       </div>
     </div>
   );
