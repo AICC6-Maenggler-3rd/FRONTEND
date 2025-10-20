@@ -1,4 +1,7 @@
-// React import는 JSX를 사용하기 위해 필요하지만 명시적으로 import하지 않아도 됨
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import type { TravelPlan } from '@/pages/journey/step1/CreateScheduleStepOne';
+import type { DaySchedule } from '@/pages/journey/step2/CreateScheduleStepTwo';
 
 /**
  * 여행 계획 단계를 나타내는 인터페이스
@@ -25,28 +28,66 @@ interface JourneySidebarProps {
  * @param onStepChange - 단계 변경 시 호출되는 콜백 함수
  */
 const JourneySidebar = ({ currentStep, onStepChange }: JourneySidebarProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [travelPlan, setTravelPlan] = useState<TravelPlan | null>(null);
+  const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
+  useEffect(() => {
+    const state = location.state;
+
+    // location.state에 값이 있다면 상태로 세팅
+    if (state?.travelPlan) {
+      setTravelPlan(state.travelPlan);
+    }
+    if (state?.scheduleList) {
+      setScheduleList(state.scheduleList);
+    }
+  }, [location.state]);
+
   // 여행 계획의 4단계 정의
   const steps: Step[] = [
     { number: 1, title: '정보 입력', isActive: currentStep === 1 },
     { number: 2, title: '여행지 선택', isActive: currentStep === 2 },
     { number: 3, title: '숙소 선택', isActive: currentStep === 3 },
-    { number: 4, title: '일정 수정', isActive: currentStep === 4 },
+    { number: 4, title: '일정 확인', isActive: currentStep === 4 },
   ];
 
   /**
    * 단계 클릭 시 호출되는 핸들러 함수
-   * 부모 컴포넌트에 단계 변경을 알림
+   * 해당 단계 페이지로 이동하고 부모 컴포넌트에 단계 변경을 알림
    *
    * @param stepNumber - 클릭된 단계 번호
    */
   const handleStepClick = (stepNumber: number) => {
+    // 현재 단계와 같으면 이동하지 않음
+    if (stepNumber === currentStep) return;
+
+    // 해당 단계 페이지로 이동
+    switch (stepNumber) {
+      case 1:
+        navigate('/journey/step1', { state: { travelPlan, scheduleList } });
+        break;
+      case 2:
+        navigate('/journey/step2', { state: { travelPlan, scheduleList } });
+        break;
+      case 3:
+        navigate('/journey/step3', { state: { travelPlan, scheduleList } });
+        break;
+      case 4:
+        navigate('/journey/step4', { state: { travelPlan, scheduleList } });
+        break;
+      default:
+        console.log('알 수 없는 단계입니다.');
+    }
+
+    // 부모 컴포넌트에 단계 변경 알림
     if (onStepChange) {
       onStepChange(stepNumber);
     }
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-center min-h-screen">
+    <div className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col min-h-screen">
       {/* 단계별 네비게이션 목록 */}
       <div className="space-y-8">
         {steps.map((step) => (

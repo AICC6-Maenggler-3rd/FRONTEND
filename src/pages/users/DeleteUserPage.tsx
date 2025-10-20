@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { AlertTriangle, Check, X, Shield } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { deleteUser, logout } from '@/api/auth';
@@ -19,7 +20,7 @@ const withdrawalReasons = [
   '개인정보 보호 우려',
   '서비스 품질 불만족',
   '사용법이 어려움',
-  '기타 ( )',
+  '기타',
 ];
 
 export default function WithdrawalPage() {
@@ -32,8 +33,8 @@ export default function WithdrawalPage() {
     false,
   ]);
   const [selectedReason, setSelectedReason] = useState<string>('');
+  const [otherReason, setOtherReason] = useState<string>('');
   const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleCheckboxChange = (index: number, checked: boolean) => {
     const newCheckedItems = [...checkedItems];
@@ -49,10 +50,16 @@ export default function WithdrawalPage() {
       return;
     }
 
+    // 기타를 선택했는데 내용이 없으면 경고
+    if (selectedReason === '기타' && !otherReason.trim()) {
+      console.error('기타 사유를 입력해 주세요.');
+      return;
+    }
+
     await handleDelete();
   };
 
-  const reasonToSend = selectedReason.includes('( )') ? '' : selectedReason;
+  const reasonToSend = selectedReason === '기타' ? otherReason : selectedReason;
 
   const handleDelete = async () => {
     try {
@@ -62,11 +69,15 @@ export default function WithdrawalPage() {
       setShowCompleteModal(true);
     } catch (error) {
       console.error('회원 탈퇴 중 오류 발생:', error);
-      setErrorMessage('회원 탈퇴에 실패했습니다.');
+      alert('회원 탈퇴에 실패했습니다.');
     }
   };
 
   const handleModalClose = async () => {
+    // 먼저 페이지 이동을 수행하여 회원 탈퇴 페이지가 보이지 않도록 함
+    navigate('/');
+
+    // 모달 닫기
     setShowCompleteModal(false);
 
     try {
@@ -88,8 +99,6 @@ export default function WithdrawalPage() {
 
     // 로그아웃 이벤트 발생시켜 header 상태 업데이트
     window.dispatchEvent(new CustomEvent('logout'));
-
-    navigate('/');
   };
 
   const handleBackToProfile = () => {
@@ -151,7 +160,8 @@ export default function WithdrawalPage() {
                       }
                     />
                     <Label htmlFor="check1" className="text-sm leading-relaxed">
-                      모든 개인정보와 여행 데이터가 영구적으로 삭제됩니다.
+                      탈퇴 신청 후에는 서비스 이용이 제한되며, 보관 기간 종료 후
+                      계정 정보가 완전히 삭제됩니다.
                     </Label>
                   </div>
 
@@ -164,7 +174,8 @@ export default function WithdrawalPage() {
                       }
                     />
                     <Label htmlFor="check2" className="text-sm leading-relaxed">
-                      삭제된 정보는 복구할 수 없습니다.
+                      탈퇴 후 180일간은 법적 의무에 따라 일부 정보가 보관될 수
+                      있습니다.
                     </Label>
                   </div>
 
@@ -177,7 +188,7 @@ export default function WithdrawalPage() {
                       }
                     />
                     <Label htmlFor="check3" className="text-sm leading-relaxed">
-                      30일 동안 재가입 제한 정책이 적용됩니다.
+                      탈퇴 후 일주일 내 로그인 시 재가입이 가능합니다.
                     </Label>
                   </div>
                 </div>
@@ -266,6 +277,18 @@ export default function WithdrawalPage() {
                     </div>
                   ))}
                 </RadioGroup>
+
+                {/* 기타 선택 시 입력 칸 */}
+                {selectedReason === '기타' && (
+                  <Input
+                    id="other-reason"
+                    type="text"
+                    placeholder="탈퇴 사유를 자유롭게 입력해 주세요."
+                    value={otherReason}
+                    onChange={(e) => setOtherReason(e.target.value)}
+                    className="w-full mt-4"
+                  />
+                )}
               </Card>
 
               {/* Action Buttons */}
@@ -279,7 +302,10 @@ export default function WithdrawalPage() {
                 </Button>
                 <Button
                   onClick={handleWithdrawalComplete}
-                  disabled={!selectedReason}
+                  disabled={
+                    !selectedReason ||
+                    (selectedReason === '기타' && !otherReason.trim())
+                  }
                   className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                 >
                   탈퇴 진행

@@ -5,6 +5,7 @@ import PlaceListItem from './PlaceListItem';
 import PlaceDetail from './PlaceDetail';
 
 interface PlaceListProps {
+  focusPlace?: Place;
   setFocusPlace: (place: Place) => void;
   setDetailPlace: (place: Place) => void;
   baseAddress?: string;
@@ -13,7 +14,7 @@ interface PlaceListProps {
   radius?: number;
 }
 
-const PlaceList = ({setFocusPlace, setDetailPlace, baseAddress, lat, lng, radius}: PlaceListProps) => {
+const PlaceList = ({focusPlace, setFocusPlace, setDetailPlace, baseAddress, lat, lng, radius}: PlaceListProps) => {
   const [placeList, setPlaceList] = useState<Place[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -95,7 +96,7 @@ const PlaceList = ({setFocusPlace, setDetailPlace, baseAddress, lat, lng, radius
         <div className='flex flex-col gap-2 w-[300px] h-[calc(100%-100px)] px-2 overflow-y-auto '>
           {placeList?.map((place) => (
             <div key={place.place_id} draggable={true} onDragStart={(e) => handleDragStart(e, place)}>
-              <PlaceListItem  place={place} handleFocusPlace={handleFocusPlace} handlePlaceClick={handlePlaceClick}/>
+              <PlaceListItem  place={place} focus={focusPlace?.place_id === place.place_id} handleFocusPlace={handleFocusPlace} handlePlaceClick={handlePlaceClick}/>
             </div>
           ))}
           {currentPage < totalPages ? (
