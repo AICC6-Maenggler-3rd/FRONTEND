@@ -219,7 +219,9 @@ const CreateScheduleStepTwo = () => {
     }
     return travelPlan?.location;
   }
-  
+  const handleChangeModel = (e:React.ChangeEvent<HTMLSelectElement>)=>{
+    setSelectModel(e.target.value)
+  }
   return (
     <div className="h-[calc(100vh)] bg-white flex">
       {detailPlace && (
@@ -264,7 +266,15 @@ const CreateScheduleStepTwo = () => {
                 setPlaceList={setPlaceList}
               />
             </div>
-            <div className="px-5 h-[5rem] w-full flex justify-center">
+            <div className="px-5 h-[7rem] w-full flex flex-col items-center justify-center">
+              <div className='w-full flex justify-end items-center gap-2'>
+                <label htmlFor="model">모델 선택</label>
+                <select className='h-[2rem] w-[8rem]' onChange={handleChangeModel}>
+                  {modelNames.map((model) => (
+                    <option value={model}>{model}</option>
+                  ))}
+                </select>
+              </div>
               <button className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm w-full" onClick={handleAutoSchedule}>
                 스케쥴 자동 생성
               </button>
