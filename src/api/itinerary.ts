@@ -87,3 +87,8 @@ export const createItinerary = async (
   );
   return res.data;
 };
+
+export const getModelNames = async () => {
+  const res = await axios.get(`${API_BASE}/itinerary/models`);
+  return res.data;
+};
