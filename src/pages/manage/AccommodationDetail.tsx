@@ -16,8 +16,6 @@ import {
 import { Link } from "react-router-dom"
 import Sidebar from "./Sidebar"
 import { 
-  getAccommodationList,
-  searchAccommodation,
   updateAccommodation,
   deleteAccommodation,
   createAccommodation,
@@ -25,6 +23,8 @@ import {
   type AccommodationCreateData
 } from "@/api/accommodation"
 import type { Accommodation } from "@/api/accommodation"
+import { searchAccommodation, getAccommodationList } from "@/api/manage"
+
 
 const AccommodationDetail = () => {
   const [accommodations, setAccommodations] = useState<Accommodation[]>([])

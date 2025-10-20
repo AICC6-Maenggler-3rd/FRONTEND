@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { Accommodation } from './accommodation';
 
 const API_BASE = import.meta.env.VITE_API_HOST || 'http://localhost:8000'; // FastAPI 주소
 
@@ -216,4 +217,33 @@ export const deleteCategory = async (categoryId: number) => {
     console.error('카테고리 삭제 실패:', error);
     throw error;
   }
+};
+
+
+
+export const searchAccommodation = async (
+  query: string,
+  page: number,
+  limit: number,
+): Promise<{
+  data: Accommodation[];
+  total_pages: number;
+}> => {
+  const res = await axios.get(
+    `${API_BASE}/accommodation/search?query=${query}&page=${page}&limit=${limit}`,
+  );
+  return res.data;
+};
+
+export const getAccommodationList = async (
+  page: number,
+  limit: number,
+): Promise<{
+  data: Accommodation[];
+  total_pages: number;
+}> => {
+  const res = await axios.get(
+    `${API_BASE}/accommodation/list?page=${page}&limit=${limit}`,
+  );
+  return res.data;
 };
