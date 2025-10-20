@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { FileText, Users, FolderTree, BarChart3} from "lucide-react"
-import { getDashboardData } from '@/api/manage'
+import { FileText, Users, FolderTree, Building2} from "lucide-react"
+import { getDashboardData, getAccommodationsStats } from '@/api/manage'
 
-
-
-const Main = () => {
+const Dashboard = () => {
   const [userCount, setUserCount] = useState<number>(0)
   const [placesCount, setPlacesCount] = useState<number>(0)
   const [categoriesCount, setCategoriesCount] = useState<number>(0)
   const [snsAccountsCount, setSnsAccountsCount] = useState<number>(0)
+  const [accommodationsCount, setAccommodationsCount] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
@@ -22,12 +21,18 @@ const Main = () => {
         setPlacesCount(data.places_count)
         setCategoriesCount(data.categories_count)
         setSnsAccountsCount(data.sns_accounts_count)
+        
+        // 숙소 데이터 별도 조회
+        const accommodationsData = await getAccommodationsStats()
+        console.log('숙소 데이터:', accommodationsData)
+        setAccommodationsCount(accommodationsData.total_count)
       } catch (error) {
         console.error('대시보드 데이터 조회 실패:', error)
         setUserCount(0)
         setPlacesCount(0)
         setCategoriesCount(0)
         setSnsAccountsCount(0)
+        setAccommodationsCount(0)
       } finally {
         setLoading(false)
       }
@@ -39,7 +44,7 @@ const Main = () => {
   return (
     <div className="flex-1 space-y-6 p-6">
       {/* 대시보드 카드들을 그리드로 배치 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -89,7 +94,21 @@ const Main = () => {
               </p>
             </div>
             <div className="rounded-full bg-green-500/10 p-3">
-              <BarChart3 className="h-6 w-6 text-green-500" />
+              <Users className="h-6 w-6 text-green-500" />
+            </div>
+          </div>
+        </Card>
+
+        <Card className="border-border bg-card p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">숙소</p>
+              <p className="text-3xl font-semibold text-foreground mt-2">
+                {loading ? '로딩 중...' : accommodationsCount.toLocaleString()}
+              </p>
+            </div>
+            <div className="rounded-full bg-orange-500/10 p-3">
+              <Building2 className="h-6 w-6 text-orange-500" />
             </div>
           </div>
         </Card>
@@ -121,15 +140,15 @@ const Main = () => {
                   variant="outline"
                   className="h-24 flex-col gap-2 border-border hover:bg-secondary bg-transparent"
                 >
-                  <FileText className="h-6 w-6" />
-                  <span className="text-sm">게시물 작성</span>
+                  <Building2 className="h-6 w-6" />
+                  <span className="text-sm">숙소 추가</span>
                 </Button>
                 <Button
                   variant="outline"
                   className="h-24 flex-col gap-2 border-border hover:bg-secondary bg-transparent"
                 >
-                  <BarChart3 className="h-6 w-6" />
-                  <span className="text-sm">통계 보기</span>
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm">게시물 작성</span>
                 </Button>
               </div>
             </Card>
@@ -139,4 +158,4 @@ const Main = () => {
   )
 }
 
-export default Main
+export default Dashboard

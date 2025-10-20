@@ -14,10 +14,45 @@ export const getDashboardData = async () => {
         users_count: 0, 
         places_count: 0, 
         categories_count: 0,
-        sns_accounts_count: 0 
+        sns_accounts_count: 0,
+        accommodations_count: 0
       };
     }
   };
+
+export const getAccommodationsStats = async () => {
+  try {
+    console.log('숙소 API 호출 시작:', `${API_BASE}/accommodation/list?page=1&limit=12`);
+    
+    // 첫 페이지에서 총 페이지 수를 이용해 계산
+    const res = await axios.get(`${API_BASE}/accommodation/list?page=1&limit=12`);
+    
+    console.log('숙소 API 응답 상태:', res.status);
+    console.log('숙소 API 응답 데이터:', res.data);
+    
+    // total_pages와 limit을 이용해 총 개수 추정
+    const totalPages = res.data.total_pages || 1;
+    const limit = 12;
+    const estimatedTotal = totalPages * limit;
+    
+    // 실제 데이터가 있는 경우 더 정확한 계산
+    const actualDataCount = res.data.data ? res.data.data.length : 0;
+    const finalCount = totalPages === 1 ? actualDataCount : estimatedTotal;
+    
+    console.log('총 페이지 수:', totalPages);
+    console.log('실제 데이터 개수:', actualDataCount);
+    console.log('계산된 숙소 개수:', finalCount);
+    
+    return {
+      total_count: finalCount,
+      accommodations: res.data.data || []
+    };
+  } catch (error: any) {
+    console.error('숙소 통계 조회 실패:', error);
+    console.error('에러 상세:', error.response?.data || error.message);
+    return { total_count: 0, accommodations: [] };
+  }
+};
 
 export const getSnsAccounts = async () => {
   try {
@@ -42,6 +77,7 @@ export const getSnsAccountsStats = async () => {
     return { total_accounts: 0, account_stats: [] };
   }
 };
+
 
 export const getUsersList = async () => {
   try {
@@ -169,17 +205,6 @@ export const updateCategory = async (categoryId: number, categoryData: CategoryC
   }
 };
 
-export const toggleCategoryStatus = async (categoryId: number) => {
-  try {
-    const res = await axios.patch(`${API_BASE}/manage/categories/${categoryId}/status`, {}, {
-      withCredentials: true,
-    });
-    return res.data;
-  } catch (error) {
-    console.error('카테고리 상태 변경 실패:', error);
-    throw error;
-  }
-};
 
 export const deleteCategory = async (categoryId: number) => {
   try {

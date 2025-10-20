@@ -21,6 +21,8 @@ import Index from './pages/manage/Main';
 import JourneyMain from './pages/journey/main';
 import MemberDetail from './pages/manage/memberdetail';
 import CategoryDetail from './pages/manage/Categorydetail';
+import AccommodationDetail from './pages/manage/AccommodationDetail';
+import Snsaccount from './pages/manage/Snsaccount';
 
 function AppContent() {
   const location = useLocation();
@@ -52,6 +54,8 @@ function AppContent() {
           <Route path="/manageIndex" element={<Index />} />
           <Route path="/manage/memberdetail" element={<MemberDetail />} />
           <Route path="/manage/categorydetail" element={<CategoryDetail />} />
+          <Route path="/manage/accommodationdetail" element={<AccommodationDetail />} />
+          <Route path="/manage/snsaccount" element={<Snsaccount />} />
           
          
         </Route>
