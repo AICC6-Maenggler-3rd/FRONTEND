@@ -13,8 +13,8 @@ export interface Itinerary {
 }
 
 export interface ItineraryItem {
-  place_id: number;
-  accommodation_id: number;
+  place_id: number | null;
+  accommodation_id: number | null;
   start_time: string | null;
   end_time: string | null;
   is_required: boolean;

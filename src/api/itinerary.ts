@@ -74,10 +74,8 @@ export const getItinerary = async (
   return res.data;
 };
 
-export const createItinerary = async (
-  itinerary: ItineraryCreateRequest,
-): Promise<ItineraryCreateRequest> => {
-  console.log('[DEBUG] CREATE ITINERARY REQUEST IN API: ', itinerary);
+export const createItinerary = async (itinerary: ItineraryCreateRequest) => {
+  console.log('[DEBUG] CREATE ITINERARY REQUEST IN API: ');
   const res = await axios.post<ItineraryCreateRequest>(
     `${API_BASE}/itinerary/createItinerary`,
     itinerary,
