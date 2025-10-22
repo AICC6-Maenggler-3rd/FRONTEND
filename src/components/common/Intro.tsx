@@ -3,118 +3,237 @@ import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// HeroSection 컴포넌트
-export function HeroSection() {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [previousImageIndex, setPreviousImageIndex] = useState(0);
-  const [isFading, setIsFading] = useState(false);
-
-  // 존재하지 않는 경로 제거하여 흰 화면(로딩 실패) 방지
-  const backgroundImages = [
-    '/image/봄.jpg',
-    '/image/여름.jpg',
-    '/image/가을.jpg',
-    '/image/겨울.jpg',
+export function FloatingInstagramPosts() {
+  const posts = [
+    {
+      image: '/image/인트로1.jpg',
+      username: 'pick_insta',
+      likes: '2,341',
+      position: 'top-20 right-230',
+      rotation: 'rotate-3',
+      delay: '0s',
+    },
+    {
+      image: '/image/인트로2.jpg',
+      username: 'mukbang_yummy!',
+      likes: '1,892',
+      position: 'top-20 right-100',
+      rotation: '-rotate-4',
+      delay: '0.3s',
+    },
+    {
+      image: '/image/인트로3.png',
+      username: 'desert_trip',
+      likes: '3,156',
+      position: 'top-90 right-165',
+      rotation: 'rotate-0',
+      delay: '0.6s',
+    },
+    {
+      image: '/image/인트로4.jpg',
+      username: 'accommodation_good',
+      likes: '4,203',
+      position: 'top-120 right-100',
+      rotation: 'rotate-10',
+      delay: '0.9s',
+    },
+    {
+      image: '/image/인트로5.jpg',
+      username: 'hotplace',
+      likes: '5,421',
+      position: 'top-130 right-230',
+      rotation: '-rotate-8',
+      delay: '1.2s',
+    },
   ];
 
-  // 이미지 프리로딩으로 전환시 깜빡임 제거
-  useEffect(() => {
-    backgroundImages.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-    });
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPreviousImageIndex(currentImageIndex);
-      setIsFading(true);
-
-      // 페이드아웃이 시작된 후 이미지 변경
-      setTimeout(() => {
-        setCurrentImageIndex(
-          (prevIndex) => (prevIndex + 1) % backgroundImages.length,
-        );
-        // 페이드인 시작
-        setTimeout(() => {
-          setIsFading(false);
-        }, 100);
-      }, 800);
-    }, 5000); // 5초로 늘려서 더 여유롭게
-
-    return () => clearInterval(interval);
-  }, [currentImageIndex, backgroundImages.length]);
-
   return (
-    <section
-      className="relative overflow-hidden"
-      style={{ minHeight: '100vh' }}
-    >
-      {/* Background with travel images - 두 레이어 크로스페이드 */}
-      <div className="absolute inset-0 z-0">
-        {/* 현재 이미지 */}
+    <div className="absolute inset-0 pointer-events-none overflow-hidden ">
+      {posts.map((post, index) => (
         <div
-          className={`absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed transition-opacity duration-1000 ease-in-out ${
-            isFading ? 'opacity-30' : 'opacity-70'
-          }`}
-          style={{
-            backgroundImage: `url(${backgroundImages[currentImageIndex]})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-          }}
-        />
-        {/* 이전 이미지가 위에서 서서히 사라지는 레이어 */}
-        <div
-          className={`absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed transition-opacity duration-1000 ease-in-out ${
-            isFading ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{
-            backgroundImage: `url(${backgroundImages[previousImageIndex]})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/5 to-background/30" />
-      </div>
+          key={index}
+          className={`absolute ${post.position} ${post.rotation} animate-float-in opacity-0`}
+          style={{ animationDelay: post.delay, animationFillMode: 'forwards' }}
+        >
+          <div className="bg-white rounded-xl shadow-xl overflow-hidden w-48 transform hover:scale-105 transition-transform duration-300">
+            {/* Instagram post header */}
+            <div className="flex items-center gap-2 p-2 border-b border-slate-100">
+              {/* Instagram Story Ring with Profile Picture */}
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-0.5">
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                    {post.username.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1">
+                <span className="text-xs font-semibold text-slate-900">
+                  {post.username}
+                </span>
+                <div className="text-xs text-slate-500">2시간 전</div>
+              </div>
+              <div className="text-slate-500">
+                <svg
+                  className="w-3 h-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+              </div>
+            </div>
 
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 pt-96 pb-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl font-bold text-balance leading-tight">
-              <span className="text-black">AI가 추천하는</span>
-              <br />
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                완벽한 여행 일정
-              </span>
-            </h1>
+            {/* Post image */}
+            <div className="aspect-square relative">
+              <img
+                src={post.image}
+                alt={`Travel post by ${post.username}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Post actions */}
+            <div className="p-2 space-y-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {/* Heart icon */}
+                  <svg
+                    className="w-4 h-4 text-slate-900 hover:text-red-500 transition-colors cursor-pointer"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                  {/* Comment icon */}
+                  <svg
+                    className="w-4 h-4 text-slate-900 hover:text-blue-500 transition-colors cursor-pointer"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
+                  </svg>
+                  {/* Share/Send icon */}
+                  <svg
+                    className="w-4 h-4 text-slate-900 hover:text-green-500 transition-colors cursor-pointer"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                    />
+                  </svg>
+                </div>
+                {/* Bookmark icon */}
+                <svg
+                  className="w-4 h-4 text-slate-900 hover:text-yellow-500 transition-colors cursor-pointer"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  />
+                </svg>
+              </div>
+              <div className="text-xs font-semibold text-slate-900">
+                {post.likes} likes
+              </div>
+              <div className="text-xs text-slate-900">
+                <span className="font-semibold">{post.username}</span> 여행의
+                추억을 담았어요 ✈️ #여행 #힐링
+              </div>
+              <div className="text-xs text-slate-500">
+                댓글 {Math.floor(Math.random() * 50) + 10}개 모두 보기
+              </div>
+            </div>
           </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-          <div
-            className="animate-fade-in-up"
-            style={{ animationDelay: '0.2s' }}
-          >
-            <p className="text-xl md:text-xl text-black text-balance max-w-3xl mx-auto leading-relaxed">
-              수많은 여행자들의 발자취를 따라,
-              <br />
-            </p>
-            <p className="text-xl md:text-xl text-black text-balance max-w-3xl mx-auto leading-relaxed">
-              당신만을 위한 완벽한 여행을 만나보세요.
-            </p>
-          </div>
+export function HeroSection() {
+  return (
+    <section className="bg-gradient-to-b from-sky-200 to-slate-200 min-h-screen relative">
+      {/* Floating Instagram Posts */}
+      <FloatingInstagramPosts />
 
-          <div
-            className="animate-fade-in-up flex flex-col sm:flex-row gap-4 justify-center items-center pt-6"
-            style={{ animationDelay: '0.4s' }}
-          >
-            <Link
-              to="/journey/step1"
-              className="bg-gray-200 opacity-70 hover:bg-white text-primary-foreground px-8 py-6 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-100"
-            >
-              여행 계획 시작하기
-            </Link>
+      <div className="container mx-auto px-6 py-20">
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className="relative">
+            <div className="space-y-4 ml-15 mb-10 mt-50">
+              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                AI가 추천하는
+                <br />
+                <span className="bg-gradient-to-r from-purple-500 to-orange-500 bg-clip-text text-transparent">
+                  완벽한 여행 일정
+                </span>
+              </h1>
+
+              <p className="text-xl text-gray-600 leading-relaxed mt-10">
+                수많은 여행자들의 발자취를 따라,
+                <br />
+                당신만을 위한 완벽한 여행을 만나보세요.
+              </p>
+            </div>
+
+            {/* 버튼들 */}
+            <div className="flex flex-col sm:flex-row">
+              <Link
+                to="/journey/step1"
+                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
+              >
+                여행 계획 시작하기
+              </Link>
+              <Link
+                to="/journey/step1"
+                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
+              >
+                (AI 추천)별점, 장소 추천 받기
+              </Link>
+            </div>
+
+            {/* 기능 하이라이트 */}
+            <div className="flex items-center space-x-5 pt-3 mt-3 ml-15">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 text-xl mb-1">★</span>
+                </div>
+                <span className="text-gray-600 font-medium text-md">
+                  10만+ 여행 데이터
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-pink-500 flex items-center justify-center text-xs">
+                  {/* 작은 점 대신 하트 아이콘을 사용해 명확하게 합니다. */}
+                  <span className="text-pink-600 text-xl mb-1">❤</span>
+                </div>
+                <span className="text-gray-600 font-medium text-md">
+                  AI 맞춤 추천
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -122,7 +241,6 @@ export function HeroSection() {
   );
 }
 
-// TravelProcessSection 컴포넌트
 export function TravelProcessSection() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -146,7 +264,7 @@ export function TravelProcessSection() {
           (prevIndex) => (prevIndex + 1) % travelImages.length,
         );
         setIsAnimating(false);
-      }, 700); // 애니메이션 시간과 동일
+      }, 700);
     }, 3000);
 
     return () => clearInterval(interval);
@@ -225,141 +343,17 @@ export function TravelProcessSection() {
                 </Card>
               </div>
             </div>
-
-            {/* Right side - Phone UI */}
+            {/* Right side - 이미지 */}
             <div
               className="animate-fade-in-up"
               style={{ animationDelay: '0.6s' }}
             >
-              {/* 휴대폰 UI를 중앙에 배치하고 크기를 설정하는 컨테이너 */}
-              <div
-                className="w-full max-w-4xl flex items-center justify-center p-12 rounded-2xl relative overflow-hidden"
-                style={{
-                  backgroundImage: 'url(/114934.jpg)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  minHeight: '600px',
-                }}
-              >
-                {/* 배경 이미지에만 투명도 적용 */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                  style={{
-                    backgroundImage: 'url(/image/114934.jpg)',
-                    opacity: 0.5,
-                  }}
-                ></div>
-
-                <div className="relative z-10">
-                  {/* 1. 휴대폰 프레임 (검은색 외곽) */}
-                  <div className="w-64 h-[500px] bg-black rounded-[2.5rem] p-2 shadow-2xl">
-                    {/* 2. 화면 영역 (흰색 디스플레이) */}
-                    <div className="w-full h-full bg-white rounded-[2rem] overflow-hidden relative">
-                      {/* 화면 콘텐츠를 Flex Colum으로 배열 */}
-                      <div className="h-full flex flex-col">
-                        {/* 2-1. 상태 표시줄 (Status bar) */}
-                        <div className="flex justify-between items-center px-4 py-2 text-xs">
-                          <span className="font-medium">9:41</span>
-                          <div className="flex items-center space-x-1">
-                            {/* 배터리 아이콘 대용 */}
-                            <div className="w-4 h-2 border border-black rounded-sm">
-                              <div className="w-3 h-1 bg-black rounded-sm m-0.5"></div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 2-2. 앱 헤더 (App header) */}
-                        <div className="px-4 py-3 border-b border-gray-100">
-                          <h3 className="font-semibold text-sm text-gray-900">
-                            여행 일정 확인
-                          </h3>
-                        </div>
-
-                        {/* 2-3. 미니 지도 영역 (Mini map) */}
-                        <div className="flex-1 relative overflow-hidden">
-                          <img
-                            src="/image/114808.jpg"
-                            alt="경복궁 지도"
-                            className="w-full h-full object-cover"
-                          />
-
-                          {/* 미니 지도 핀 (Mini map pins) */}
-                          <div className="absolute top-[30%] left-[25%]">
-                            <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border border-white">
-                              <span className="text-white text-xs font-bold">
-                                1
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 2-4. 여행지 목록 (Destination list) */}
-                        <div className="px-4 py-3 space-y-2 bg-white">
-                          {/* 경복궁 항목 */}
-                          <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                              <span className="text-blue-600 font-bold text-xs">
-                                1
-                              </span>
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">
-                                한강 공원
-                              </p>
-                              <p className="text-xs text-gray-500">자연 명소</p>
-                            </div>
-                          </div>
-
-                          {/* 명동 맛집 항목 */}
-                          <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                              <span className="text-green-600 font-bold text-xs">
-                                2
-                              </span>
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">
-                                명동 맛집
-                              </p>
-                              <p className="text-xs text-gray-500">현지 음식</p>
-                            </div>
-                          </div>
-
-                          {/* 한강 공원 항목 */}
-                          <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                            <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                              <span className="text-orange-600 font-bold text-xs">
-                                3
-                              </span>
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">
-                                경복궁
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                역사적 명소
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 2-5. 하단 버튼 (Bottom buttons) */}
-                        <div className="px-4 py-3 flex space-x-2">
-                          <button className="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-medium">
-                            일정 확인
-                          </button>
-                          <button className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium">
-                            경로 시작
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3. 휴대폰 반사 효과 (Phone reflection effect) */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-[2.5rem] pointer-events-none"></div>
-                </div>
+              <div className="w-full max-w-5xl flex items-center justify-center p-10 rounded-2xl">
+                <img
+                  src="/image/인트로 이미지.png"
+                  alt="인트로 이미지"
+                  className="w-full h-auto max-w-2xl rounded-2xl shadow-2xl"
+                />
               </div>
             </div>
           </div>
@@ -713,11 +707,8 @@ export function TravelProcessSection() {
                 </Badge>
               </div>
 
-              <Link
-                to="/journey/step1"
-                className="bg-blue-400 hover:bg-blue-600"
-              >
-                AI일정 만들어보기
+              <Link to="/journey/step1" className="hover:text-blue">
+                AI일정 만들어 보기
               </Link>
             </div>
           </div>

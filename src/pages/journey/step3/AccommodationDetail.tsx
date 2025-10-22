@@ -9,6 +9,7 @@ type ExtAccommodation = Accommodation & {
 interface Props {
   accommodation: ExtAccommodation | null;
   setCurrentAccommodation: (v: ExtAccommodation | null) => void;
+  onApplyToAllDays?: (accommodation: ExtAccommodation) => void;
 }
 
 const MAX_IMAGES = 5;
@@ -17,6 +18,7 @@ const yanoljaURL = 'https://place-site.yanolja.com/places/';
 const AccommodationDetail = ({
   accommodation,
   setCurrentAccommodation,
+  onApplyToAllDays,
 }: Props) => {
   const [idx, setIdx] = useState(0);
   const [fade, setFade] = useState(false);
@@ -97,14 +99,27 @@ const AccommodationDetail = ({
                 </span>
               ))}
             </div>
-            <div className="rounded-full p-1  text-gray-500 hover:text-blue-500 decoration-red-50 underline-offset-8">
-              <a
-                href={`${yanoljaURL}${accommodation.accommodation_id}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                예약하러가기
-              </a>
+            <div className="flex gap-2">
+              {onApplyToAllDays && (
+                <button
+                  onClick={() => {
+                    onApplyToAllDays(accommodation);
+                    setCurrentAccommodation(null);
+                  }}
+                  className="px-3 py-1 rounded-full text-sm bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                >
+                  전체 적용
+                </button>
+              )}
+              <div className="rounded-full p-1  text-gray-500 hover:text-blue-500 decoration-red-50 underline-offset-8">
+                <a
+                  href={`${yanoljaURL}${accommodation.accommodation_id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  예약하러가기
+                </a>
+              </div>
             </div>
           </div>
         </div>

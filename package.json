@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint . --fix",
     "preview": "vite preview",
-    "format": "prettier --write \"src/**/*.tsx\""
+    "format": "prettier --write \"src/**/*.tsx\"",
+    "kill-port": "npx kill-port 5180"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -29,6 +30,8 @@
     "react-hook-form": "^7.63.0",
     "react-kakao-maps-sdk": "^1.2.0",
     "react-router-dom": "^7.8.2",
+    "react-toastify": "^11.0.5",
+    "react-toasty": "^0.0.4",
     "recharts": "^3.2.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",

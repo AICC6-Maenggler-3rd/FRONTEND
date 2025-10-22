@@ -28,6 +28,20 @@ const CreateScheduleStepThree = () => {
     return scheduleList.slice(0, -1).every((d) => !!d.accommodation);
   }, [scheduleList]);
 
+  const handleApplyToAllDays = (accommodation: Accommodation) => {
+    const newScheduleList = scheduleList.map((schedule, index) => {
+      // 마지막 날에는 숙소를 추가하지 않음
+      if (index === scheduleList.length - 1) {
+        return schedule;
+      }
+      return {
+        ...schedule,
+        accommodation: accommodation as any,
+      };
+    });
+    setScheduleList(newScheduleList);
+  };
+
   const location = useLocation();
   useEffect(() => {
     const state = location.state;
@@ -54,6 +68,7 @@ const CreateScheduleStepThree = () => {
         <AccommodationDetail
           accommodation={detailAccommodation}
           setCurrentAccommodation={setDetailAccommodation}
+          onApplyToAllDays={handleApplyToAllDays}
         />
       )}
       <div className="h-full flex">
