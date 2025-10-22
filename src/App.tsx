@@ -25,6 +25,7 @@ import ItineraryListPage from './pages/users/ItineraryList';
 import CategoryDetail from './pages/manage/Categorydetail';
 import AccommodationDetail from './pages/manage/AccommodationDetail';
 import Snsaccount from './pages/manage/Snsaccount';
+import EditSchedule from './pages/users/EditSchedule';
 
 function AppContent() {
   const location = useLocation();
@@ -47,6 +48,7 @@ function AppContent() {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/itineraries" element={<ItineraryListPage />} />
           <Route path="/schedule/:id" element={<SchedulePage />} />
+          <Route path="/schedule/edit/:id" element={<EditSchedule />} />
           <Route path="/users/delete" element={<DeletePage />} />
           <Route path="/userinfo" element={<MyPage />} />
           <Route path="/journey" element={<JourneyMain />}>
@@ -58,10 +60,11 @@ function AppContent() {
           <Route path="/manageIndex" element={<Index />} />
           <Route path="/manage/memberdetail" element={<MemberDetail />} />
           <Route path="/manage/categorydetail" element={<CategoryDetail />} />
-          <Route path="/manage/accommodationdetail" element={<AccommodationDetail />} />
+          <Route
+            path="/manage/accommodationdetail"
+            element={<AccommodationDetail />}
+          />
           <Route path="/manage/snsaccount" element={<Snsaccount />} />
-          
-         
         </Route>
 
         {/* 헤더와 푸터 불필요 */}
