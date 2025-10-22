@@ -37,7 +37,7 @@ export const getMyItineraries = async (
 
 export const getItineraryDetail = async (id: number) => {
   try {
-    const res = await axios.get(`${API_BASE}/itinerary/${id}`, {
+    const res = await axios.get(`${API_BASE}/itinerary/detail/${id}`, {
       withCredentials: true,
     });
     return res.data;
@@ -74,10 +74,37 @@ export const getItinerary = async (
   return res.data;
 };
 
+export const deleteItinerary = async (itinerary_id: number) => {
+  try {
+    const res = await axios.delete(`${API_BASE}/itinerary/${itinerary_id}`, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error('❌ 일정 삭제에 실패했습니다:', error);
+    throw error;
+  }
+};
+
 export const createItinerary = async (itinerary: ItineraryCreateRequest) => {
   console.log('[DEBUG] CREATE ITINERARY REQUEST IN API: ');
   const res = await axios.post<ItineraryCreateRequest>(
     `${API_BASE}/itinerary/createItinerary`,
+    itinerary,
+    {
+      withCredentials: true,
+    },
+  );
+  return res.data;
+};
+
+export const updateItinerary = async (
+  id: number,
+  itinerary: ItineraryCreateRequest,
+) => {
+  console.log('[DEBUG] UPDATE ITINERARY REQUEST IN API: ');
+  const res = await axios.put<ItineraryCreateRequest>(
+    `${API_BASE}/itinerary/${id}`,
     itinerary,
     {
       withCredentials: true,
