@@ -38,8 +38,6 @@ export default function ScheduleDetailPage() {
   const navigate = useNavigate();
   const [itinerary, setItinerary] = useState<ItineraryResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [shareUrl, setShareUrl] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -49,7 +47,6 @@ export default function ScheduleDetailPage() {
       try {
         // ✅ 로그인한 사용자 정보 가져오기
         const userData = await getUserInfo();
-        console.log('ScheduleDetailPage - userData:', userData);
 
         // user_id가 존재할 때만 API 요청
         if (userData?.user?.id) {
@@ -62,17 +59,12 @@ export default function ScheduleDetailPage() {
         } else {
           console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
         }
-
-        // 실제 API 호출 대신 하드코딩된 데이터 사용
-        // console.log('하드코딩된 일정 데이터를 사용합니다.');
-        // setItinerary(mockItinerary);
       } catch (error) {
         console.error('❌ 일정 데이터를 불러오지 못했습니다:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchItinerary();
   }, [id]);
 
@@ -94,37 +86,12 @@ export default function ScheduleDetailPage() {
     }
   };
 
-  // 공유 URL 생성 (토글 방식)
-  const generateShareUrl = () => {
-    if (showShareModal) {
-      // 이미 모달이 열려있으면 닫기
-      setShowShareModal(false);
-    } else {
-      // 모달이 닫혀있으면 열기
-      const currentUrl = window.location.href;
-      setShareUrl(currentUrl);
-      setShowShareModal(true);
-    }
-  };
-
-  // URL 복사 기능
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      alert('URL이 클립보드에 복사되었습니다!');
-    } catch (err) {
-      console.error('복사 실패:', err);
-      alert('복사에 실패했습니다.');
-    }
-  };
-
   // 일정 수정 페이지로 이동
   const handleEditSchedule = () => {
     if (id) {
-      navigate(`/journey/step4/${id}`);
+      navigate(`/schedule/edit/${id}`);
     } else {
-      // ID가 없는 경우 기본 경로로 이동
-      navigate('/journey/step4');
+      // 추후 토스트 알림 추가 예정
     }
   };
 
@@ -275,14 +242,32 @@ export default function ScheduleDetailPage() {
                       {item.data.info?.name || '장소 정보 없음'}
                     </span>
                     <span className="text-xs text-gray-400">
-                      {item.data?.start_time || item.start_time
-                        ? new Date(
-                            item.data?.start_time || item.start_time,
+                      {(() => {
+                        const startTime =
+                          item.data?.start_time || item.start_time;
+                        const endTime = item.data?.end_time || item.end_time;
+
+                        if (!startTime) return '시간 미정';
+
+                        const startTimeStr = new Date(
+                          startTime,
+                        ).toLocaleTimeString('ko-KR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        });
+
+                        if (endTime) {
+                          const endTimeStr = new Date(
+                            endTime,
                           ).toLocaleTimeString('ko-KR', {
                             hour: '2-digit',
                             minute: '2-digit',
-                          })
-                        : '시간 미정'}
+                          });
+                          return `${startTimeStr} ~ ${endTimeStr}`;
+                        }
+
+                        return startTimeStr;
+                      })()}
                     </span>
                   </div>
                 ))}
@@ -324,32 +309,13 @@ export default function ScheduleDetailPage() {
               ✏️ 일정 수정
             </button>
             <button
-              onClick={generateShareUrl}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-blue-200 border border-none rounded-lg hover:bg-blue-300 hover:border-none transition-colors"
+              onClick={handleDeleteClick}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-white border border-red-500 rounded-lg hover:bg-red-500 hover:border-red-200 transition-colors"
             >
-              🔗 공유하기
+              🗑️ 일정 삭제
             </button>
           </div>
         </div>
-
-        {/* 공유 URL 영역 */}
-        {showShareModal && (
-          <div className="flex max-w-sm ml-auto border border-gray-300 rounded-lg bg-white mb-6">
-            <input
-              type="text"
-              value={shareUrl}
-              readOnly
-              className="flex-1 px-3 py-2 bg-transparent text-sm text-gray-700 focus:outline-none"
-            />
-            <div className="border-l border-gray-300 h-8"></div>
-            <button
-              onClick={copyToClipboard}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              URL 복사
-            </button>
-          </div>
-        )}
 
         {/* 여행 정보 요약 */}
         <TravelSummary />
@@ -377,14 +343,38 @@ export default function ScheduleDetailPage() {
                     >
                       <div className="flex items-start gap-4 flex-1">
                         <div className="text-sm font-mono text-gray-500 min-w-[60px]">
-                          {item.data?.start_time || item.start_time
-                            ? new Date(
-                                item.data?.start_time || item.start_time,
+                          {(() => {
+                            const startTime =
+                              item.data?.start_time || item.start_time;
+                            const endTime =
+                              item.data?.end_time || item.end_time;
+
+                            if (!startTime) return <span>시간 미정</span>;
+
+                            const startTimeStr = new Date(
+                              startTime,
+                            ).toLocaleTimeString('ko-KR', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            });
+
+                            if (endTime) {
+                              const endTimeStr = new Date(
+                                endTime,
                               ).toLocaleTimeString('ko-KR', {
                                 hour: '2-digit',
                                 minute: '2-digit',
-                              })
-                            : '시간 미정'}
+                              });
+                              return (
+                                <div className="flex flex-col">
+                                  <span>{startTimeStr}</span>
+                                  <span>{endTimeStr}</span>
+                                </div>
+                              );
+                            }
+
+                            return <span>{startTimeStr}</span>;
+                          })()}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -407,11 +397,6 @@ export default function ScheduleDetailPage() {
                           )}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <button className="text-xs text-gray-500 hover:text-blue-600 transition-colors">
-                          → 상세보기
-                        </button>
-                      </div>
                     </div>
                   ))}
                 </div>
@@ -419,16 +404,6 @@ export default function ScheduleDetailPage() {
             ))}
           </div>
         </Card>
-
-        {/* 일정 삭제 버튼 */}
-        <div className="mt-8 flex justify-center">
-          <button
-            onClick={handleDeleteClick}
-            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-black bg-white border border-red-500 rounded-lg hover:bg-red-500 hover:border-none"
-          >
-            🗑️ 일정 삭제
-          </button>
-        </div>
       </div>
 
       {/* 삭제 확인 모달 */}

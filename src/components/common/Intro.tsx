@@ -198,12 +198,18 @@ export function HeroSection() {
             </div>
 
             {/* 버튼들 */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row">
               <Link
                 to="/journey/step1"
-                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-8 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
+                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
               >
                 여행 계획 시작하기
+              </Link>
+              <Link
+                to="/journey/step1"
+                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
+              >
+                (AI 추천)별점, 장소 추천 받기
               </Link>
             </div>
 

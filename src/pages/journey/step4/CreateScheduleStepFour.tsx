@@ -11,8 +11,9 @@ import { getUserInfo } from '@/api/auth';
 import { format, parseISO } from 'date-fns';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import InputTime from '@/components/ui/TimeNumberInput';
 
-const CreateScheduleStepFour = () => {
+const CreateScheduleStepFour = ({}) => {
   const [travelPlan, setTravelPlan] = useState<TravelPlan | null>(null);
   const [scheduleList, setScheduleList] = useState<DaySchedule[]>([]);
   const [itineraryName, setItineraryName] = useState('');
@@ -92,7 +93,7 @@ const CreateScheduleStepFour = () => {
     }
   }, [location.state]);
 
-  // 디버깅용
+  // 디버깅용;
   useEffect(() => {
     if (travelPlan && scheduleList) {
       console.log('travelPlan', travelPlan);
@@ -333,42 +334,33 @@ const CreateScheduleStepFour = () => {
                           <label className="text-xs text-gray-500 mb-1">
                             시작
                           </label>
-                          <input
-                            type="time"
-                            value={handleTimeValue(
+                          <InputTime
+                            initialTime={handleTimeValue(
                               scheduleList[index].placeList[placeIndex]
                                 .start_time ?? '2025-10-14T00:00:00Z',
                             )}
-                            onChange={(e) => {
+                            onChange={(time) => {
                               handleTimeChange(
                                 index,
                                 placeIndex,
-                                e.target.value,
+                                time,
                                 'start',
                               );
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                           />
                         </div>
                         <div className="flex flex-col items-center">
                           <label className="text-xs text-gray-500 mb-1">
                             종료
                           </label>
-                          <input
-                            type="time"
-                            value={handleTimeValue(
+                          <InputTime
+                            initialTime={handleTimeValue(
                               scheduleList[index].placeList[placeIndex]
                                 .end_time ?? '2025-10-14T00:00:00Z',
                             )}
-                            onChange={(e) => {
-                              handleTimeChange(
-                                index,
-                                placeIndex,
-                                e.target.value,
-                                'end',
-                              );
+                            onChange={(time) => {
+                              handleTimeChange(index, placeIndex, time, 'end');
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                           />
                         </div>
                       </div>
