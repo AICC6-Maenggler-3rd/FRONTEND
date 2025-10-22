@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getUserInfo } from '@/api/auth';
-import { getItineraryDetail } from '@/api/itinerary';
+import { getItineraryDetail, deleteItinerary } from '@/api/itinerary';
 
 interface ItineraryItem {
   item_id: number;
@@ -11,6 +11,8 @@ interface ItineraryItem {
   end_time?: string;
   item_type: 'place' | 'accommodation';
   data: {
+    start_time: string;
+    end_time?: string;
     info: {
       name: string;
       address?: string;
@@ -38,6 +40,8 @@ export default function ScheduleDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -50,7 +54,11 @@ export default function ScheduleDetailPage() {
         // user_id가 존재할 때만 API 요청
         if (userData?.user?.id) {
           const data = await getItineraryDetail(Number(id));
-          setItinerary(data);
+          console.log('🔍 API 응답 데이터:', data);
+          console.log('🔍 itinerary 데이터:', data.itinerary);
+          console.log('🔍 items 데이터:', data.itinerary?.items);
+          // API 응답 구조에 맞게 데이터 설정
+          setItinerary(data.itinerary);
         } else {
           console.error('❌ 로그인된 사용자 정보를 가져오지 못했습니다.');
         }
@@ -67,150 +75,6 @@ export default function ScheduleDetailPage() {
 
     fetchItinerary();
   }, [id]);
-
-  // // 하드코딩된 일정 데이터 (테스트용)
-  // const mockItinerary: ItineraryResponse = {
-  //   itinerary_id: 1,
-  //   location: '제주도',
-  //   theme: '힐링',
-  //   start_at: '2024-01-15T00:00:00Z',
-  //   end_at: '2024-01-18T00:00:00Z',
-  //   relation: '가족',
-  //   user_id: 1,
-  //   name: '제주도 3박 4일 가족여행',
-  //   items: [
-  //     {
-  //       item_id: 1,
-  //       start_time: '2024-01-15T09:00:00Z',
-  //       end_time: '2024-01-15T10:00:00Z',
-  //       item_type: 'place',
-  //       data: {
-  //         info: {
-  //           name: '제주공항',
-  //           address: '제주특별자치도 제주시 공항로 2',
-  //           type: '교통',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 2,
-  //       start_time: '2024-01-15T11:00:00Z',
-  //       end_time: '2024-01-15T12:00:00Z',
-  //       item_type: 'place',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉',
-  //           address: '제주특별자치도 서귀포시 성산읍 성산리',
-  //           type: '관광',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 3,
-  //       start_time: '2024-01-15T13:00:00Z',
-  //       end_time: '2024-01-15T14:00:00Z',
-  //       item_type: 'place',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉 맛집',
-  //           address: '제주특별자치도 서귀포시 성산읍',
-  //           type: '식사',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 4,
-  //       start_time: '2024-01-15T15:00:00Z',
-  //       end_time: '2024-01-15T16:00:00Z',
-  //       item_type: 'place',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉 카페',
-  //           address: '제주특별자치도 서귀포시 성산읍',
-  //           type: '카페',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 5,
-  //       start_time: '2024-01-15T18:00:00Z',
-  //       end_time: '2024-01-16T09:00:00Z',
-  //       item_type: 'accommodation',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉 펜션',
-  //           address: '제주특별자치도 서귀포시 성산읍',
-  //           type: '숙박',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 6,
-  //       start_time: '2024-01-16T10:00:00Z',
-  //       end_time: '2024-01-16T11:00:00Z',
-  //       item_type: 'place',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉 아침식사',
-  //           address: '제주특별자치도 서귀포시 성산읍',
-  //           type: '식사',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 7,
-  //       start_time: '2024-01-16T12:00:00Z',
-  //       end_time: '2024-01-16T13:00:00Z',
-  //       item_type: 'place',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉 해변',
-  //           address: '제주특별자치도 서귀포시 성산읍',
-  //           type: '관광',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 8,
-  //       start_time: '2024-01-16T14:00:00Z',
-  //       end_time: '2024-01-16T15:00:00Z',
-  //       item_type: 'place',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉 점심식사',
-  //           address: '제주특별자치도 서귀포시 성산읍',
-  //           type: '식사',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 9,
-  //       start_time: '2024-01-16T16:00:00Z',
-  //       end_time: '2024-01-16T17:00:00Z',
-  //       item_type: 'place',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉 쇼핑',
-  //           address: '제주특별자치도 서귀포시 성산읍',
-  //           type: '쇼핑',
-  //         },
-  //       },
-  //     },
-  //     {
-  //       item_id: 10,
-  //       start_time: '2024-01-16T18:00:00Z',
-  //       end_time: '2024-01-17T09:00:00Z',
-  //       item_type: 'accommodation',
-  //       data: {
-  //         info: {
-  //           name: '성산일출봉 리조트',
-  //           address: '제주특별자치도 서귀포시 성산읍',
-  //           type: '숙박',
-  //         },
-  //       },
-  //     },
-  //   ],
-  // };
 
   // 날짜별로 일정 묶기
   const groupedByDay: Record<string, ItineraryItem[]> = {};
@@ -264,6 +128,34 @@ export default function ScheduleDetailPage() {
     }
   };
 
+  // 일정 삭제 확인 모달 표시
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  // 일정 삭제 실행
+  const handleDeleteConfirm = async () => {
+    if (!id) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteItinerary(Number(id));
+      alert('일정이 삭제되었습니다.');
+      navigate('/mypage'); // 마이페이지로 이동
+    } catch (error) {
+      console.error('일정 삭제 실패:', error);
+      alert('일정 삭제에 실패했습니다.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
+  // 삭제 취소
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+  };
+
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen text-muted-foreground">
@@ -284,11 +176,40 @@ export default function ScheduleDetailPage() {
       </div>
     );
 
-  itinerary.items.forEach((item) => {
-    const dateKey = item.start_time.split('T')[0];
-    if (!groupedByDay[dateKey]) groupedByDay[dateKey] = [];
-    groupedByDay[dateKey].push(item);
-  });
+  console.log('🔍 itinerary 객체:', itinerary);
+  console.log('🔍 itinerary.items:', itinerary.items);
+
+  if (itinerary.items && Array.isArray(itinerary.items)) {
+    itinerary.items.forEach((item, index) => {
+      console.log(`🔍 아이템 ${index}:`, item);
+      console.log(
+        `🔍 item.start_time:`,
+        item.start_time,
+        typeof item.start_time,
+      );
+      console.log(
+        `🔍 item.data.start_time:`,
+        item.data?.start_time,
+        typeof item.data?.start_time,
+      );
+
+      // start_time이 존재하는 경우에만 처리 (item.data.start_time에서 가져오기)
+      const startTime = item.data?.start_time || item.start_time;
+      if (startTime) {
+        const dateKey = startTime.split('T')[0];
+        if (!groupedByDay[dateKey]) groupedByDay[dateKey] = [];
+        groupedByDay[dateKey].push(item);
+        console.log(
+          `🔍 아이템 추가: ${dateKey}에 ${item.data?.info?.name || '장소 정보 없음'} 추가`,
+        );
+      } else {
+        console.log(`⚠️ 아이템 ${index}의 start_time이 없습니다:`, startTime);
+      }
+    });
+    console.log('🔍 최종 groupedByDay:', groupedByDay);
+  } else {
+    console.warn('⚠️ itinerary.items가 배열이 아닙니다:', itinerary.items);
+  }
 
   // 여행 정보 요약 컴포넌트
   const TravelSummary = () => {
@@ -350,12 +271,18 @@ export default function ScheduleDetailPage() {
                     <span className="text-sm text-gray-500">
                       {item.item_type === 'accommodation' ? '🏨' : '📍'}
                     </span>
-                    <span className="text-sm">{item.data.info.name}</span>
+                    <span className="text-sm">
+                      {item.data.info?.name || '장소 정보 없음'}
+                    </span>
                     <span className="text-xs text-gray-400">
-                      {new Date(item.start_time).toLocaleTimeString('ko-KR', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {item.data?.start_time || item.start_time
+                        ? new Date(
+                            item.data?.start_time || item.start_time,
+                          ).toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '시간 미정'}
                     </span>
                   </div>
                 ))}
@@ -450,29 +377,30 @@ export default function ScheduleDetailPage() {
                     >
                       <div className="flex items-start gap-4 flex-1">
                         <div className="text-sm font-mono text-gray-500 min-w-[60px]">
-                          {new Date(item.start_time).toLocaleTimeString(
-                            'ko-KR',
-                            {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            },
-                          )}
+                          {item.data?.start_time || item.start_time
+                            ? new Date(
+                                item.data?.start_time || item.start_time,
+                              ).toLocaleTimeString('ko-KR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })
+                            : '시간 미정'}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-semibold text-gray-800">
-                              {item.data.info.name}
+                              {item.data.info?.name || '장소 정보 없음'}
                             </h4>
                             <Badge
                               variant="outline"
                               className={`text-xs ${getActivityTypeColor(
-                                item.data.info.type,
+                                item.data.info?.type,
                               )}`}
                             >
-                              {item.data.info.type || '기타'}
+                              {item.data.info?.type || '기타'}
                             </Badge>
                           </div>
-                          {item.data.info.address && (
+                          {item.data.info?.address && (
                             <p className="text-sm text-gray-600">
                               📍 {item.data.info.address}
                             </p>
@@ -491,7 +419,49 @@ export default function ScheduleDetailPage() {
             ))}
           </div>
         </Card>
+
+        {/* 일정 삭제 버튼 */}
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={handleDeleteClick}
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-black bg-white border border-red-500 rounded-lg hover:bg-red-500 hover:border-none"
+          >
+            🗑️ 일정 삭제
+          </button>
+        </div>
       </div>
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 border border-gray-400">
+            <h3 className="text-lg font-semibold mb-4 text-red-600">
+              ⚠️ 일정 삭제 확인
+            </h3>
+            <p className="text-gray-600 mb-6">
+              정말로 이 일정을 삭제하시겠습니까?
+              <br />
+              삭제된 일정은 복구할 수 없습니다.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleDeleteCancel}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? '삭제 중...' : '삭제'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
