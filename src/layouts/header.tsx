@@ -21,7 +21,7 @@ export function Header() {
           setIsLoggedIn(false);
           setUserRole(null); // user role 제거
         }
-      } catch (error) {
+      } catch {
         // API 호출 실패 시 localStorage에서 사용자 정보 확인
         try {
           const savedUserInfo = localStorage.getItem('userInfo');
@@ -31,7 +31,7 @@ export function Header() {
             setIsLoggedIn(false);
             setUserRole(null);
           }
-        } catch (localError) {
+        } catch {
           setIsLoggedIn(false);
         }
       }
@@ -55,7 +55,7 @@ export function Header() {
         if (userData && userData.user) {
           setIsLoggedIn(false);
         }
-      } catch (error) {
+      } catch {
         setIsLoggedIn(false);
       }
     };
@@ -76,6 +76,7 @@ export function Header() {
   }, []);
 
   const handleAuthClick = async () => {
+    (document.activeElement as HTMLElement)?.blur();
     if (!isLoggedIn) {
       navigate('/login');
     } else {
@@ -84,7 +85,9 @@ export function Header() {
         // 백엔드 로그아웃 API 호출
         const { logout } = await import('@/api/auth');
         await logout();
-      } catch (error) {}
+      } catch {
+        // 로그아웃 API 호출 실패 무시
+      }
       setIsLoggedIn(false);
       // localStorage에서 사용자 정보 제거
       setUserRole(null);
@@ -95,14 +98,17 @@ export function Header() {
   };
 
   const handleMyPageClick = () => {
+    (document.activeElement as HTMLElement)?.blur();
     navigate('/mypage');
   };
 
   const handleLogoClick = () => {
+    (document.activeElement as HTMLElement)?.blur();
     navigate('/');
   };
 
   const handleManageClick = () => {
+    (document.activeElement as HTMLElement)?.blur();
     navigate('/manageIndex');
   };
 
@@ -110,8 +116,9 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-[100] h-16 bg-background/95 backdrop-blur-sm shadow-sm">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <div
-          className="flex items-center space-x-2 cursor-pointer"
+          className="flex items-center space-x-2 cursor-pointer focus:outline-none"
           onClick={handleLogoClick}
+          tabIndex={0}
         >
           <div className="w-20 h-8 relative">
             <img
@@ -136,20 +143,20 @@ export function Header() {
               {userRole !== 'user' && (
                 <button
                   onClick={handleManageClick}
-                  className="text-black hover:text-blue-800 transition-all duration-300"
+                  className="text-black hover:text-blue-800 transition-all duration-300 focus:outline-none"
                 >
                   ManagePage
                 </button>
               )}
               <button
                 onClick={handleMyPageClick}
-                className="text-black hover:text-blue-800 transition-all duration-300"
+                className="text-black hover:text-blue-800 transition-all duration-300 focus:outline-none"
               >
                 MyPage
               </button>
               <button
                 onClick={handleAuthClick}
-                className="text-black hover:text-blue-800 transition-all duration-300"
+                className="text-black hover:text-blue-800 transition-all duration-300 focus:outline-none"
               >
                 Logout
               </button>
@@ -157,7 +164,7 @@ export function Header() {
           ) : (
             <button
               onClick={handleAuthClick}
-              className="text-black hover:text-blue-800 transition-all duration-300"
+              className="text-black hover:text-blue-800 transition-all duration-300 focus:outline-none"
             >
               Login
             </button>

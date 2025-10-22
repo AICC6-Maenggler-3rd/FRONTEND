@@ -3,6 +3,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { FileText, Users, FolderTree, Building2} from "lucide-react"
 import { getDashboardData, getAccommodationsStats } from '@/api/manage'
+import { CreateCategoryModal } from '@/components/manage/CreateCategoryModal'
+import { UserManagementModal } from '@/components/manage/UserManagementModal'
+import { SnsAccountsModal } from '@/components/manage/SnsAccountsModal'
+import { AccommodationsModal } from '@/components/manage/AccommodationsModal'
 
 const Dashboard = () => {
   const [userCount, setUserCount] = useState<number>(0)
@@ -11,6 +15,10 @@ const Dashboard = () => {
   const [snsAccountsCount, setSnsAccountsCount] = useState<number>(0)
   const [accommodationsCount, setAccommodationsCount] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(true)
+  const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState<boolean>(false)
+  const [isUserManagementModalOpen, setIsUserManagementModalOpen] = useState<boolean>(false)
+  const [isSnsAccountsModalOpen, setIsSnsAccountsModalOpen] = useState<boolean>(false)
+  const [isAccommodationsModalOpen, setIsAccommodationsModalOpen] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -40,6 +48,44 @@ const Dashboard = () => {
 
     fetchDashboardData()
   }, [])
+
+  const refreshUsers = async () => {
+    try {
+      const data = await getDashboardData()
+      setUserCount(data.users_count)
+    } catch (error) {
+      console.error('사용자 수 새로고침 실패:', error)
+    }
+  }
+
+  const refreshSnsAccounts = async () => {
+    try {
+      const data = await getDashboardData()
+      setSnsAccountsCount(data.sns_accounts_count)
+    } catch (error) {
+      console.error('SNS 계정 수 새로고침 실패:', error)
+    }
+  }
+
+  const handleCategoryCreateSuccess = () => {
+    const refreshDashboardData = async () => {
+      try {
+        const data = await getDashboardData()
+        setCategoriesCount(data.categories_count)
+      } catch (error) {
+        console.error('대시보드 데이터 새로고침 실패:', error)
+      }
+    }
+    refreshDashboardData()
+  }
+
+  const handleUserManagementSuccess = () => {
+    refreshUsers()
+  }
+
+  const handleSnsAccountsSuccess = () => {
+    refreshSnsAccounts()
+  }
 
   return (
     <div className="flex-1 space-y-6 p-6">
@@ -88,20 +134,6 @@ const Dashboard = () => {
         <Card className="border-border bg-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">SNS 계정 관리</p>
-              <p className="text-3xl font-semibold text-foreground mt-2">
-                {loading ? '로딩 중...' : snsAccountsCount.toLocaleString()}
-              </p>
-            </div>
-            <div className="rounded-full bg-green-500/10 p-3">
-              <Users className="h-6 w-6 text-green-500" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="border-border bg-card p-6">
-          <div className="flex items-center justify-between">
-            <div>
               <p className="text-sm text-muted-foreground">숙소</p>
               <p className="text-3xl font-semibold text-foreground mt-2">
                 {loading ? '로딩 중...' : accommodationsCount.toLocaleString()}
@@ -109,6 +141,20 @@ const Dashboard = () => {
             </div>
             <div className="rounded-full bg-orange-500/10 p-3">
               <Building2 className="h-6 w-6 text-orange-500" />
+            </div>
+          </div>
+        </Card>
+
+        <Card className="border-border bg-card p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">SNS 계정 관리</p>
+              <p className="text-3xl font-semibold text-foreground mt-2">
+                {loading ? '로딩 중...' : snsAccountsCount.toLocaleString()}
+              </p>
+            </div>
+            <div className="rounded-full bg-green-500/10 p-3">
+              <Users className="h-6 w-6 text-green-500" />
             </div>
           </div>
         </Card>
@@ -125,13 +171,15 @@ const Dashboard = () => {
                 <Button
                   variant="outline"
                   className="h-24 flex-col gap-2 border-border hover:bg-secondary bg-transparent"
+                  onClick={() => { (document.activeElement as HTMLElement)?.blur(); setIsUserManagementModalOpen(true) }}
                 >
                   <Users className="h-6 w-6" />
-                  <span className="text-sm">회원 추가</span>
+                  <span className="text-sm">회원 관리</span>
                 </Button>
                 <Button
                   variant="outline"
                   className="h-24 flex-col gap-2 border-border hover:bg-secondary bg-transparent"
+                  onClick={() => { (document.activeElement as HTMLElement)?.blur(); setIsCreateCategoryModalOpen(true) }}
                 >
                   <FolderTree className="h-6 w-6" />
                   <span className="text-sm">카테고리 생성</span>
@@ -139,21 +187,49 @@ const Dashboard = () => {
                 <Button
                   variant="outline"
                   className="h-24 flex-col gap-2 border-border hover:bg-secondary bg-transparent"
+                  onClick={() => { (document.activeElement as HTMLElement)?.blur(); setIsAccommodationsModalOpen(true) }}
                 >
                   <Building2 className="h-6 w-6" />
-                  <span className="text-sm">숙소 추가</span>
+                  <span className="text-sm">숙소 설정</span>
                 </Button>
                 <Button
                   variant="outline"
                   className="h-24 flex-col gap-2 border-border hover:bg-secondary bg-transparent"
+                  onClick={() => { (document.activeElement as HTMLElement)?.blur(); setIsSnsAccountsModalOpen(true) }}
                 >
                   <FileText className="h-6 w-6" />
-                  <span className="text-sm">게시물 작성</span>
+                  <span className="text-sm">SNS 계정</span>
                 </Button>
               </div>
             </Card>
         </div>
 
+        {/* 카테고리 생성 모달 */}
+        <CreateCategoryModal
+          isOpen={isCreateCategoryModalOpen}
+          onClose={() => setIsCreateCategoryModalOpen(false)}
+          onSuccess={handleCategoryCreateSuccess}
+        />
+
+        {/* 회원 관리 모달 */}
+        <UserManagementModal
+          isOpen={isUserManagementModalOpen}
+          onClose={() => setIsUserManagementModalOpen(false)}
+          onSuccess={handleUserManagementSuccess}
+        />
+
+        {/* SNS 계정 모달 */}
+        <SnsAccountsModal
+          isOpen={isSnsAccountsModalOpen}
+          onClose={() => setIsSnsAccountsModalOpen(false)}
+          onSuccess={handleSnsAccountsSuccess}
+        />
+
+        {/* 숙소 목록 모달 */}
+        <AccommodationsModal
+          isOpen={isAccommodationsModalOpen}
+          onClose={() => setIsAccommodationsModalOpen(false)}
+        />
     </div>
   )
 }

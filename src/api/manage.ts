@@ -67,6 +67,57 @@ export const getSnsAccounts = async () => {
   }
 };
 
+export const createSnsAccount = async (nickname: string) => {
+  try {
+    const res = await axios.post(`${API_BASE}/manage/sns-accounts`, 
+      { nickname }, 
+      { withCredentials: true }
+    );
+    return res.data;
+  } catch (error: any) {
+    console.error('SNS 계정 등록 실패:', error);
+    throw error;
+  }
+};
+
+export const updateSnsAccount = async (oldNickname: string, newNickname: string, forceMerge: boolean = false) => {
+  try {
+    console.log('[프론트엔드] SNS 계정 수정 요청:', { oldNickname, newNickname, forceMerge });
+    
+    // URL 인코딩
+    const encodedOldNickname = encodeURIComponent(oldNickname);
+    console.log('[프론트엔드] 인코딩된 닉네임:', encodedOldNickname);
+    console.log('[프론트엔드] API URL:', `${API_BASE}/manage/sns-accounts/${encodedOldNickname}`);
+    
+    const res = await axios.patch(`${API_BASE}/manage/sns-accounts/${encodedOldNickname}`, 
+      { nickname: newNickname, force_merge: forceMerge }, 
+      { withCredentials: true }
+    );
+    
+    console.log('[프론트엔드] SNS 계정 수정 성공:', res.data);
+    return res.data;
+  } catch (error: any) {
+    console.error('[프론트엔드] SNS 계정 수정 실패:', error);
+    console.error('[프론트엔드] 에러 응답:', error.response?.data);
+    throw error;
+  }
+};
+
+export const deleteSnsAccount = async (nickname: string) => {
+  try {
+    // URL 인코딩
+    const encodedNickname = encodeURIComponent(nickname);
+    const res = await axios.delete(`${API_BASE}/manage/sns-accounts/${encodedNickname}`, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error: any) {
+    console.error('SNS 계정 삭제 실패:', error);
+    throw error;
+  }
+};
+
+
 export const getSnsAccountsStats = async () => {
   try {
     const res = await axios.get(`${API_BASE}/manage/sns-accounts/stats`, {
@@ -230,7 +281,7 @@ export const searchAccommodation = async (
   total_pages: number;
 }> => {
   const res = await axios.get(
-    `${API_BASE}/accommodation/search?query=${query}&page=${page}&limit=${limit}`,
+    `${API_BASE}/accommodation/list?query=${query}&page=${page}&limit=${limit}`,
   );
   return res.data;
 };

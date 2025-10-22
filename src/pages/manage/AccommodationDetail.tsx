@@ -59,7 +59,9 @@ const AccommodationDetail = () => {
         console.log('첫 번째 숙소 데이터:', response.data[0])
         setAccommodations(response.data)
         setTotalPages(response.total_pages)
-        setTotalCount(response.data.length)
+        // 총 숙소 개수 계산 (total_pages * limit)
+        const totalAccommodations = response.total_pages * 12
+        setTotalCount(totalAccommodations)
       } else {
         console.log('응답에 data가 없습니다:', response)
         setAccommodations([])
