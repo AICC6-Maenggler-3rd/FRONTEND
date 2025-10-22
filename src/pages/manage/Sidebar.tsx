@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { Card } from "@/components/ui/card"
 import {
   Users,
   FolderTree,
@@ -19,7 +18,7 @@ const Sidebar = () => {
         <nav className="space-y-2">
           <Link to="/manage/memberdetail">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               className="w-full justify-start gap-3 text-foreground hover:bg-accent hover:text-accent-foreground h-11 px-4"
             >
               <Users className="h-5 w-5" />
@@ -29,7 +28,7 @@ const Sidebar = () => {
           
           <Link to="/manage/categorydetail">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               className="w-full justify-start gap-3 text-foreground hover:bg-accent hover:text-accent-foreground h-11 px-4"
             >
               <FolderTree className="h-5 w-5" />
@@ -39,7 +38,7 @@ const Sidebar = () => {
           
           <Link to="/manage/accommodationdetail">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               className="w-full justify-start gap-3 text-foreground hover:bg-accent hover:text-accent-foreground h-11 px-4"
             >
               <Building2 className="h-5 w-5" />
@@ -49,7 +48,7 @@ const Sidebar = () => {
           
           <Link to="/manage/snsaccount">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               className="w-full justify-start gap-3 text-foreground hover:bg-accent hover:text-accent-foreground h-11 px-4"
             >
               <Share2 className="h-5 w-5" />
@@ -59,13 +58,16 @@ const Sidebar = () => {
           
           <div className="border-t border-border my-4"></div>
           
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start gap-3 text-foreground hover:bg-accent hover:text-accent-foreground h-11 px-4"
-          >
-            <FileText className="h-5 w-5" />
-            <span className="font-medium">프론트 페이지</span>
-          </Button>
+          <Link to="/">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-3 text-foreground hover:bg-accent hover:text-accent-foreground h-11 px-4"
+              onClick={() => { (document.activeElement as HTMLElement)?.blur() }}
+            >
+              <FileText className="h-5 w-5" />
+              <span className="font-medium">프론트 페이지</span>
+            </Button>
+          </Link>
         </nav>
       </div>
     </div>
