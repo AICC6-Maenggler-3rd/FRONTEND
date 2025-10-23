@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { RecommendationModal } from './RecommendationModal';
 
 export function FloatingInstagramPosts() {
   const posts = [
@@ -173,6 +174,17 @@ export function FloatingInstagramPosts() {
 }
 
 export function HeroSection() {
+  const [isRecommendationModalOpen, setIsRecommendationModalOpen] =
+    useState(false);
+
+  const handleRecommendationClick = () => {
+    setIsRecommendationModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsRecommendationModalOpen(false);
+  };
+
   return (
     <section className="bg-gradient-to-b from-sky-200 to-slate-200 min-h-screen relative">
       {/* Floating Instagram Posts */}
@@ -205,12 +217,12 @@ export function HeroSection() {
               >
                 여행 계획 시작하기
               </Link>
-              <Link
-                to="/journey/step1"
+              <button
+                onClick={handleRecommendationClick}
                 className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
               >
-                (AI 추천)별점, 장소 추천 받기
-              </Link>
+                회원님을 위한 추천
+              </button>
             </div>
 
             {/* 기능 하이라이트 */}
@@ -237,6 +249,12 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+
+      {/* 추천 모달 */}
+      <RecommendationModal
+        isOpen={isRecommendationModalOpen}
+        onClose={handleCloseModal}
+      />
     </section>
   );
 }
