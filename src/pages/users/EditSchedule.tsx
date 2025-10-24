@@ -3,9 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { getUserInfo } from '@/api/auth';
 import { getItineraryDetail } from '@/api/itinerary';
+import InputTime from '@/components/ui/TimeNumberInput';
 
 interface ItineraryItem {
   item_id: number;
@@ -13,6 +13,7 @@ interface ItineraryItem {
   end_time?: string;
   item_type: 'place' | 'accommodation';
   data: {
+    item_id: number;
     start_time: string;
     end_time?: string;
     info: {
@@ -75,48 +76,80 @@ export default function EditSchedule() {
   }, [id]);
 
   // 아이템 편집 모드 토글
-  const toggleEditItem = (itemId: number) => {
+  const toggleEditItem = (itemId: number | null) => {
     setEditableItems((prev) =>
       prev.map((item) =>
-        item.item_id === itemId
+        item.data.item_id === itemId
           ? { ...item, isEditing: !item.isEditing }
           : item,
       ),
     );
   };
 
-  // 시간 업데이트 (9시간을 빼서 UTC로 변환)
+  // 시간 값을 HH:MM 형식으로 변환
+  const handleTimeValue = (StringTime: string) => {
+    if (!StringTime) return '00:00';
+    try {
+      const date = new Date(StringTime);
+      if (isNaN(date.getTime())) return '00:00';
+      return date.toLocaleTimeString('ko-KR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+    } catch (error) {
+      console.error('시간 변환 오류:', error);
+      return '00:00';
+    }
+  };
+
+  // 시간 업데이트 (TimeNumberInput에서 받은 HH:MM 형식을 ISO로 변환)
   const updateItemTime = (
     itemId: number,
     field: 'start_time' | 'end_time',
-    value: string,
+    time: string,
   ) => {
-    if (!value) return;
-
-    // datetime-local input에서 받은 값을 Date 객체로 변환
-    const localDate = new Date(value);
-    // 9시간을 빼서 UTC로 변환
-    const utcDate = new Date(localDate.getTime() - 9 * 60 * 60 * 1000);
-    const utcString = utcDate.toISOString();
+    if (!time) return;
 
     setEditableItems((prev) =>
-      prev.map((item) =>
-        item.item_id === itemId
-          ? {
-              ...item,
-              data: {
-                ...item.data,
-                [field]: utcString,
-              },
-            }
-          : item,
-      ),
+      prev.map((item) => {
+        if (item.data.item_id === itemId) {
+          // 기존 시간에서 날짜 부분을 유지하고 시간만 변경
+          const existingTime = item.data[field] || item[field] || '';
+          let existingDate;
+
+          if (existingTime) {
+            existingDate = new Date(existingTime);
+          } else {
+            // 기본값으로 현재 날짜 사용
+            existingDate = new Date();
+          }
+
+          // 시간 설정
+          const [hour, minute] = time.split(':').map(Number);
+          existingDate.setHours(hour, minute, 0, 0);
+
+          // ISO 문자열로 변환 (한국 시간대 오프셋 제거)
+          const isoString = existingDate.toISOString();
+
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              [field]: isoString,
+            },
+          };
+        }
+        return item;
+      }),
     );
   };
 
   // 아이템 삭제
-  const removeItem = (itemId: number) => {
-    setEditableItems((prev) => prev.filter((item) => item.item_id !== itemId));
+  const removeItem = (itemId: number | null) => {
+    setEditableItems((prev) =>
+      prev.filter((item) => item.data.item_id !== itemId),
+    );
   };
 
   // 변경사항 저장
@@ -125,21 +158,21 @@ export default function EditSchedule() {
 
     setSaving(true);
     try {
-      const updatedItinerary = {
-        ...itinerary,
-        user_id: itinerary.user_id || 0,
-        relation: itinerary.relation || '',
-        theme: itinerary.theme || '',
-        items: editableItems.map((item) => ({
-          start_time: item.data.start_time,
-          end_time: item.data.end_time || null,
-          place_id: null,
-          accommodation_id: null,
-          is_required: true,
-        })),
-      };
+      // const updatedItinerary = {
+      //   ...itinerary,
+      //   user_id: itinerary.user_id || 0,
+      //   relation: itinerary.relation || '',
+      //   theme: itinerary.theme || '',
+      //   items: editableItems.map((item) => ({
+      //     start_time: item.data.start_time,
+      //     end_time: item.data.end_time || null,
+      //     place_id: null,
+      //     accommodation_id: null,
+      //     is_required: true,
+      //   })),
+      // };
 
-      /// await updateItinerary(Number(id), updatedItinerary);
+      // await updateItinerary(Number(id), updatedItinerary);
       alert('일정이 성공적으로 수정되었습니다.');
       navigate(`/schedule/${id}`);
     } catch (error) {
@@ -263,7 +296,7 @@ export default function EditSchedule() {
                 <div className="space-y-3">
                   {items.map((item) => (
                     <div
-                      key={item.item_id}
+                      key={item.data.item_id}
                       className="flex items-start justify-between p-4 bg-white border rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-start gap-4 flex-1">
@@ -275,56 +308,36 @@ export default function EditSchedule() {
                                 <label className="text-xs text-gray-400">
                                   시작시간
                                 </label>
-                                <Input
-                                  type="datetime-local"
-                                  value={
-                                    item.data.start_time
-                                      ? new Date(
-                                          new Date(
-                                            item.data.start_time,
-                                          ).getTime() +
-                                            9 * 60 * 60 * 1000,
-                                        )
-                                          .toISOString()
-                                          .slice(0, 16)
-                                      : ''
-                                  }
-                                  onChange={(e) =>
+                                <InputTime
+                                  initialTime={handleTimeValue(
+                                    item.data.start_time ||
+                                      item.start_time ||
+                                      '',
+                                  )}
+                                  onChange={(time) =>
                                     updateItemTime(
-                                      item.item_id,
+                                      item.data.item_id,
                                       'start_time',
-                                      e.target.value,
+                                      time,
                                     )
                                   }
-                                  className="text-xs h-8"
                                 />
                               </div>
                               <div>
                                 <label className="text-xs text-gray-400">
                                   종료시간
                                 </label>
-                                <Input
-                                  type="datetime-local"
-                                  value={
-                                    item.data.end_time
-                                      ? new Date(
-                                          new Date(
-                                            item.data.end_time,
-                                          ).getTime() +
-                                            9 * 60 * 60 * 1000,
-                                        )
-                                          .toISOString()
-                                          .slice(0, 16)
-                                      : ''
-                                  }
-                                  onChange={(e) =>
+                                <InputTime
+                                  initialTime={handleTimeValue(
+                                    item.data.end_time || item.end_time || '',
+                                  )}
+                                  onChange={(time) =>
                                     updateItemTime(
-                                      item.item_id,
+                                      item.data.item_id,
                                       'end_time',
-                                      e.target.value,
+                                      time,
                                     )
                                   }
-                                  className="text-xs h-8"
                                 />
                               </div>
                             </div>
@@ -378,7 +391,7 @@ export default function EditSchedule() {
                       {/* 액션 버튼들 */}
                       <div className="flex gap-2">
                         <Button
-                          onClick={() => toggleEditItem(item.item_id)}
+                          onClick={() => toggleEditItem(item.data.item_id)}
                           variant="outline"
                           size="sm"
                           className="text-xs"
@@ -386,7 +399,7 @@ export default function EditSchedule() {
                           {item.isEditing ? '✅ 완료' : '✏️ 수정'}
                         </Button>
                         <Button
-                          onClick={() => removeItem(item.item_id)}
+                          onClick={() => removeItem(item.data.item_id)}
                           variant="outline"
                           size="sm"
                           className="text-xs text-red-600 hover:text-red-700"
