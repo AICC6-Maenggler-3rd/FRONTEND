@@ -408,31 +408,57 @@ export default function ScheduleDetailPage() {
 
       {/* 삭제 확인 모달 */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 border border-gray-400">
-            <h3 className="text-lg font-semibold mb-4 text-red-600">
-              ⚠️ 일정 삭제 확인
-            </h3>
-            <p className="text-gray-600 mb-6">
-              정말로 이 일정을 삭제하시겠습니까?
-              <br />
-              삭제된 일정은 복구할 수 없습니다.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={handleDeleteCancel}
-                disabled={isDeleting}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                disabled={isDeleting}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-              >
-                {isDeleting ? '삭제 중...' : '삭제'}
-              </button>
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40"
+          onClick={handleDeleteCancel}
+        >
+          <div
+            className="relative w-[400px] max-w-[90vw] bg-white rounded-xl shadow-xl border border-gray-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 헤더 */}
+            <div className="px-6 pt-5 pb-3">
+              <div className="flex items-start justify-between">
+                <h3 className="text-xl font-semibold text-red-600">
+                  ⚠️ 일정 삭제 확인
+                </h3>
+                <button
+                  aria-label="close"
+                  onClick={handleDeleteCancel}
+                  className="rounded-full p-1 text-gray-500 hover:bg-gray-100"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* 본문 */}
+            <div className="px-6 pb-6">
+              <p className="text-gray-600 mb-6">
+                정말로 이 일정을 삭제하시겠습니까?
+                <br />
+                삭제된 일정은 복구할 수 없습니다.
+              </p>
+            </div>
+
+            {/* 하단 버튼 */}
+            <div className="absolute right-4 bottom-2">
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDeleteCancel}
+                  disabled={isDeleting}
+                  className="px-5 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={isDeleting}
+                  className="px-5 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+                >
+                  {isDeleting ? '삭제 중...' : '삭제'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
