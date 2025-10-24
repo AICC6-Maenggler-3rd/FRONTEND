@@ -19,6 +19,8 @@ import { generateItinerary , getModelNames} from '@/api/itinerary';
 import type { Accommodation } from '@/api/accommodation';
 import { Link } from 'react-router-dom';
 import type { TravelPlan } from '../step1/CreateScheduleStepOne';
+import generate_schedule_image from '@/images/schedule_generate.png';
+
 
 export interface DaySchedule {
   index: number;
@@ -233,7 +235,7 @@ const CreateScheduleStepTwo = () => {
             <div className="flex flex-col items-center justify-center h-full">
               <div>
                 <img
-                  src="public/image/schedule_generate.png"
+                  src={generate_schedule_image}
                   alt="schedule_generate"
                   className="w-[10rem] h-[10rem]"
                 />
