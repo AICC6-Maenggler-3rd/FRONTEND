@@ -149,6 +149,7 @@ const CreateScheduleStepTwo = () => {
 
   const location = useLocation();
   const travelPlan: TravelPlan | null = location.state?.travelPlan;
+  const recommendedPlaces: Place[] = location.state?.recommendedPlaces || [];
 
   const [generateAction, setGenerateAction] = useState(false);
   const [fixSchedule, setFixSchedule] = useState(false);
@@ -250,6 +251,7 @@ const CreateScheduleStepTwo = () => {
             setFocusPlace={handleFocusPlace}
             setDetailPlace={setDetailPlace}
             baseAddress={baseLocation()}
+            recommendedPlaces={recommendedPlaces}
           />
           <div className="h-full flex flex-col justify-between items-baseline">
             <div className="h-[5rem] w-full flex items-center justify-center">
