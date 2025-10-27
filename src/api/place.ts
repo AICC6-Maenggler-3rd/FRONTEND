@@ -63,4 +63,24 @@ export const getPlacesByCategory = async (categoryId: number, page: number = 1, 
   return res.data;
 };
 
+export const getRecommendedPlaces = async (
+  theme: string,
+  relation: string,
+  location: string,
+  numRecommendations: number = 10
+): Promise<Place[]> => {
+  const res = await axios.get<Place[]>(
+    `${API_BASE}/recommendation/places`,
+    {
+      params: { 
+        theme, 
+        relation, 
+        location, 
+        num_recommendations: numRecommendations 
+      }
+    }
+  );
+  return res.data;
+};
+
 
