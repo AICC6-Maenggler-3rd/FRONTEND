@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button } from '../../../components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { getAllRegion, type RegionItem } from '../../../api/region';
+import { Button } from '@/components/ui/button';
 import Spinner from '@/components/ui/Spinner';
-import { getRecommendedPlaces } from '../../../api/place';
+import { getAllRegion, type RegionItem } from '@/api/region';
+import { getRecommendedPlaces } from '@/api/place';
 
 // 여행 계획 타입 정의
 export interface TravelPlan {
@@ -24,7 +24,7 @@ export interface TravelPlan {
  */
 const CreateScheduleStepOne = () => {
   const navigate = useNavigate();
-  
+
   // 선택된 여행지 상태 (초기값은 빈 문자열로 설정)
   const [selectedLocation, setSelectedLocation] = useState('');
 
@@ -57,7 +57,8 @@ const CreateScheduleStepOne = () => {
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
 
   // 추천 장소 로딩 상태
-  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] =
+    useState(false);
 
   // 통합 여행 계획 상태
   const [travelPlan, setTravelPlan] = useState<TravelPlan>({
@@ -342,21 +343,29 @@ const CreateScheduleStepOne = () => {
   const handleComplete = async () => {
     try {
       setIsLoadingRecommendations(true);
-      
+
+      // // content_based 추천 실행
+      // const places = await getRecommendedPlaces(
+      //   selectedThemes.join(','),
+      //   selectedCompanion || '혼자서',
+      //   selectedLocation,
+      //   10,
+      // );
       // content_based 추천 실행
       const places = await getRecommendedPlaces(
-        selectedThemes.join(','),
-        selectedCompanion || '혼자서',
-        selectedLocation,
-        10
+        travelPlan.location,
+        [travelPlan.companion || '혼자서'],
+        travelPlan.themes,
+        [travelPlan.default_la, travelPlan.default_lo],
       );
-      
+      console.log('places', places);
+
       // Step2로 이동 (추천 장소 포함)
       navigate('/journey/step2', {
         state: {
           travelPlan,
-          recommendedPlaces: places
-        }
+          recommendedPlaces: places,
+        },
       });
     } catch (error) {
       console.error('추천 장소를 가져오는데 실패했습니다:', error);
@@ -364,8 +373,8 @@ const CreateScheduleStepOne = () => {
       navigate('/journey/step2', {
         state: {
           travelPlan,
-          recommendedPlaces: []
-        }
+          recommendedPlaces: [],
+        },
       });
     } finally {
       setIsLoadingRecommendations(false);
