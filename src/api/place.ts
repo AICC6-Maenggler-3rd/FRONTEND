@@ -32,6 +32,16 @@ export interface PlaceListResponse {
   total_count: number;
 }
 
+export const searchPlaceRAG = async (
+  query: string,
+  count: number,
+): Promise<PlaceListResponse> => {
+  const res = await axios.get<PlaceListResponse>(
+    `${API_BASE}/place/search_rag?query=${query}&count=${count}`,
+  );
+  return res.data;
+};
+
 export const getPlaceListByAddress = async (
   address: string,
   page: number,
