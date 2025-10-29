@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { RecommendationModal } from './RecommendationModal';
+import SearchRAG from './SearchRAG';
 
 export function FloatingInstagramPosts() {
   const posts = [
@@ -176,6 +177,11 @@ export function FloatingInstagramPosts() {
 export function HeroSection() {
   const [isRecommendationModalOpen, setIsRecommendationModalOpen] =
     useState(false);
+  const [showSearchRAG, setShowSearchRAG] = useState(false);
+
+  const handleSearchRAG = (open: boolean) =>() => {
+    setShowSearchRAG(open);
+  };
 
   const handleRecommendationClick = () => {
     setIsRecommendationModalOpen(true);
@@ -213,15 +219,18 @@ export function HeroSection() {
             <div className="flex flex-col sm:flex-row">
               <Link
                 to="/journey/step1"
-                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
+                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-5"
               >
                 여행 계획 시작하기
               </Link>
               <button
                 onClick={handleRecommendationClick}
-                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
+                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-5"
               >
                 회원님을 위한 추천
+              </button>
+              <button onClick={handleSearchRAG(true)} className='bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-5'>
+                장소 검색
               </button>
             </div>
 
@@ -255,6 +264,7 @@ export function HeroSection() {
         isOpen={isRecommendationModalOpen}
         onClose={handleCloseModal}
       />
+      {showSearchRAG && <SearchRAG onClose={handleSearchRAG(false)} />}
     </section>
   );
 }

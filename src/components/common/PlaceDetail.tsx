@@ -1,5 +1,5 @@
 import type { Place } from '@/api/place';
-import InstaViewer from '@/components/common/InataViewer'
+import InstaViewer, { getPlaceURL } from '@/components/common/InataViewer'
 import React from 'react'
 
 interface PlaceDetailProps {
@@ -9,18 +9,7 @@ interface PlaceDetailProps {
 
 const PlaceDetail = ({place, setCurrentPlace}: PlaceDetailProps) => {
 
-  const getPlaceURL = (place: Place) => {
-    const base_url = 'https://www.instagram.com/';
-    const strings = place.website?.split('/');
-    if (!strings) {
-      return '';
-    }
-    if (strings.length < 5) {
-      return '';
-    }
-    console.log(base_url + strings[4] + '/' + strings[5]);
-    return base_url + strings[4] + '/' + strings[5];
-  }
+  
 
   return (
     place ? (
@@ -28,7 +17,7 @@ const PlaceDetail = ({place, setCurrentPlace}: PlaceDetailProps) => {
             <div className='w-[650px] h-fit bg-white flex flex-col gap-2 justify-between p-2 border-2 border-blue-300 rounded-md' onClick={(e) => e.stopPropagation()}>
               <div className='w-full h-full flex gap-2'>
                 <div className='w-[350px] h-[650px] overflow-hidden'>
-                  <InstaViewer url={getPlaceURL(place)} width={300}/>
+                  <InstaViewer url={getPlaceURL(place.website ?? '')} width={300}/>
                 </div>
                 <div className='w-[300px] flex flex-col gap-2'>
                   <div className=''>
