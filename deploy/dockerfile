@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # 의존성 설치 (devDependencies 포함)
-RUN npm ci --prefer-offline --no-audit --no-fund --progress=false
+# RUN npm ci --prefer-offline --no-audit --no-fund --progress=false
 
 # 소스 코드 전체 복사
 COPY . .
