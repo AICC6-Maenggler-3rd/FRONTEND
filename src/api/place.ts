@@ -32,35 +32,100 @@ export interface PlaceListResponse {
   total_count: number;
 }
 
-export const getPlaceListByAddress = async (address: string, page: number, limit: number): Promise<PlaceListResponse> => {
-  const res = await axios.get<PlaceListResponse>(`${API_BASE}/place/list/address?address=${address}&page=${page}&limit=${limit}`);
+export const searchPlaceRAG = async (
+  query: string,
+  count: number,
+): Promise<PlaceListResponse> => {
+  const res = await axios.get<PlaceListResponse>(
+    `${API_BASE}/place/search_rag?query=${query}&count=${count}`,
+  );
   return res.data;
 };
 
-export const searchPlace = async (query: string, page: number, limit: number): Promise<PlaceListResponse> => {
-  const res = await axios.get<PlaceListResponse>(`${API_BASE}/place/search?query=${query}&page=${page}&limit=${limit}`);
+export const getPlaceListByAddress = async (
+  address: string,
+  page: number,
+  limit: number,
+): Promise<PlaceListResponse> => {
+  const res = await axios.get<PlaceListResponse>(
+    `${API_BASE}/place/list/address?address=${address}&page=${page}&limit=${limit}`,
+  );
   return res.data;
 };
 
-export const getPlaceList = async (page: number, limit: number): Promise<PlaceListResponse> => {
-  const res = await axios.get<PlaceListResponse>(`${API_BASE}/place/list?page=${page}&limit=${limit}`);
+export const searchPlace = async (
+  query: string,
+  page: number,
+  limit: number,
+): Promise<PlaceListResponse> => {
+  const res = await axios.get<PlaceListResponse>(
+    `${API_BASE}/place/search?query=${query}&page=${page}&limit=${limit}`,
+  );
   return res.data;
 };
 
-export const getPlaceListWithinRadius = async (page: number, limit: number, lat: number, lng: number, radius: number): Promise<PlaceListResponse> => {
-  const res = await axios.get<PlaceListResponse>(`${API_BASE}/place/list/radius?page=${page}&limit=${limit}&lat=${lat}&lng=${lng}&radius=${radius}`);
+export const getPlaceList = async (
+  page: number,
+  limit: number,
+): Promise<PlaceListResponse> => {
+  const res = await axios.get<PlaceListResponse>(
+    `${API_BASE}/place/list?page=${page}&limit=${limit}`,
+  );
   return res.data;
 };
 
+export const getPlaceListWithinRadius = async (
+  page: number,
+  limit: number,
+  lat: number,
+  lng: number,
+  radius: number,
+): Promise<PlaceListResponse> => {
+  const res = await axios.get<PlaceListResponse>(
+    `${API_BASE}/place/list/radius?page=${page}&limit=${limit}&lat=${lat}&lng=${lng}&radius=${radius}`,
+  );
+  return res.data;
+};
 
 export const getPlace = async (place_id: number) => {
   const res = await axios.get(`${API_BASE}/place/${place_id}`);
   return res.data;
 };
 
-export const getPlacesByCategory = async (categoryId: number, page: number = 1, limit: number = 10): Promise<PlaceListResponse> => {
-  const res = await axios.get<PlaceListResponse>(`${API_BASE}/place/list/category?category_id=${categoryId}&page=${page}&limit=${limit}`);
+export const getPlacesByCategory = async (
+  categoryId: number,
+  page: number = 1,
+  limit: number = 10,
+): Promise<PlaceListResponse> => {
+  const res = await axios.get<PlaceListResponse>(
+    `${API_BASE}/place/list/category?category_id=${categoryId}&page=${page}&limit=${limit}`,
+  );
   return res.data;
 };
 
-
+export const getRecommendedPlaces = async (
+  address: string,
+  suitables: string[],
+  categorys: string[],
+  center_location: [number, number],
+): Promise<Place[]> => {
+  try {
+    console.log('추천 장소를 가져오는 중...');
+    console.log('address:', address);
+    console.log('suitables:', suitables);
+    console.log('categorys:', categorys);
+    console.log('center_location:', center_location);
+    const res = await axios.get<Place[]>(`${API_BASE}/recommendation/places`, {
+      params: {
+        address,
+        suitables,
+        categorys,
+        center_location,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error('추천 장소를 가져오는데 실패했습니다:', error);
+    return [];
+  }
+};

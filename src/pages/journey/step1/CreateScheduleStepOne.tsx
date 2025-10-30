@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button } from '../../../components/ui/button';
-import { Link } from 'react-router-dom';
-import { getAllRegion, type RegionItem } from '../../../api/region';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import Spinner from '@/components/ui/Spinner';
+import { getAllRegion, type RegionItem } from '@/api/region';
+import { getRecommendedPlaces } from '@/api/place';
 
 // 여행 계획 타입 정의
 export interface TravelPlan {
@@ -22,6 +23,8 @@ export interface TravelPlan {
  * 여행지 선택을 위한 UI를 제공하며, 사이드바를 통해 단계별 네비게이션을 지원
  */
 const CreateScheduleStepOne = () => {
+  const navigate = useNavigate();
+
   // 선택된 여행지 상태 (초기값은 빈 문자열로 설정)
   const [selectedLocation, setSelectedLocation] = useState('');
 
@@ -52,6 +55,10 @@ const CreateScheduleStepOne = () => {
 
   // 여행 테마 선택을 위한 상태 (다중 선택)
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
+
+  // 추천 장소 로딩 상태
+  const [isLoadingRecommendations, setIsLoadingRecommendations] =
+    useState(false);
 
   // 통합 여행 계획 상태
   const [travelPlan, setTravelPlan] = useState<TravelPlan>({
@@ -89,7 +96,7 @@ const CreateScheduleStepOne = () => {
         setRegions(data);
 
         // 초기 선택된 위치가 리스트에 있으면 기본 좌표 설정
-        if (selectedLocation) {
+        if (selectedLocation && data.length > 0) {
           const matched = data.find((r) => r.name === selectedLocation);
           if (matched) {
             setTravelPlan((prev) => ({
@@ -99,7 +106,7 @@ const CreateScheduleStepOne = () => {
             }));
           }
         }
-      } catch (e) {
+      } catch {
         setRegionsError('지역 정보를 불러오지 못했습니다.');
       } finally {
         setIsLoadingRegions(false);
@@ -328,6 +335,41 @@ const CreateScheduleStepOne = () => {
       setTravelPlan((plan) => ({ ...plan, themes: newThemes }));
       return newThemes;
     });
+  };
+
+  /**
+   * 완료 클릭 시 추천 장소를 가져온 후 Step2로 이동
+   */
+  const handleComplete = async () => {
+    try {
+      setIsLoadingRecommendations(true);
+      const places = await getRecommendedPlaces(
+        travelPlan.location,
+        [travelPlan.companion || '혼자서'],
+        travelPlan.themes,
+        [travelPlan.default_la, travelPlan.default_lo],
+      );
+      console.log('places', places);
+
+      // Step2로 이동 (추천 장소 포함)
+      navigate('/journey/step2', {
+        state: {
+          travelPlan,
+          recommendedPlaces: places,
+        },
+      });
+    } catch (error) {
+      console.error('추천 장소를 가져오는데 실패했습니다:', error);
+      // 에러가 발생해도 이동은 진행
+      navigate('/journey/step2', {
+        state: {
+          travelPlan,
+          recommendedPlaces: [],
+        },
+      });
+    } finally {
+      setIsLoadingRecommendations(false);
+    }
   };
 
   /**
@@ -1031,13 +1073,13 @@ const CreateScheduleStepOne = () => {
                 이전
               </Button>
               {selectedThemes.length > 0 && (
-                <Link
-                  to="/journey/step2"
-                  state={{ travelPlan }}
-                  className="px-8 py-3 text-lg font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                <Button
+                  onClick={handleComplete}
+                  disabled={isLoadingRecommendations}
+                  className="px-8 py-3 text-lg font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
                 >
-                  완료
-                </Link>
+                  {isLoadingRecommendations ? 'AI 추천 중...' : '완료'}
+                </Button>
               )}
             </div>
           </div>

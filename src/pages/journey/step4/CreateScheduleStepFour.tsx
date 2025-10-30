@@ -8,7 +8,7 @@ import type { DaySchedule } from '../step2/CreateScheduleStepTwo';
 import type { ItineraryCreateRequest, ItineraryItem } from '@/types/itinerary';
 import { createItinerary } from '@/api/itinerary';
 import { getUserInfo } from '@/api/auth';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import InputTime from '@/components/ui/TimeNumberInput';
@@ -108,10 +108,7 @@ const CreateScheduleStepFour = ({}) => {
     scheduleList.forEach((daySchedule) => {
       // 장소들 추가
       daySchedule.placeList.forEach((placeItem) => {
-        const startIso = buildIsoFromDateAndTime(
-          daySchedule.date,
-          format(placeItem.start_time ?? new Date(), 'HH:mm'),
-        );
+        const startIso = placeItem.start_time ?? null;
         const endIso = placeItem.end_time ?? null;
 
         items.push({
@@ -125,10 +122,7 @@ const CreateScheduleStepFour = ({}) => {
 
       // 숙소 추가
       if (daySchedule.accommodation) {
-        const accStartIso = buildIsoFromDateAndTime(
-          daySchedule.date,
-          format(daySchedule.date ?? new Date(), 'HH:mm'),
-        );
+        const accStartIso = toKoreanISOString(daySchedule.date) ?? null;
 
         items.push({
           place_id: null,
@@ -139,16 +133,10 @@ const CreateScheduleStepFour = ({}) => {
         });
       }
     });
+    console.log('----------------------------------------------');
+    console.log('items : ', items);
 
     return items;
-  };
-
-  // date(일자) + HH:mm(로컬 시간) => ISO 문자열 생성 (로컬 시간대 유지)
-  const buildIsoFromDateAndTime = (date: Date, hhmm: string): string => {
-    const [h, m] = hhmm.split(':').map((v) => parseInt(v, 10));
-    const d = new Date(date);
-    d.setHours(h || 0, m || 0, 0, 0);
-    return d.toISOString();
   };
 
   // 한국 시간을 그대로 유지하면서 ISO 형식으로 변환
@@ -177,19 +165,29 @@ const CreateScheduleStepFour = ({}) => {
         StringTime =
           newScheduleList[index].placeList[placeIndex].end_time ?? '';
       }
-      const date = parseISO(StringTime);
+      const date = new Date(StringTime);
+      console.log('date : ', date);
       date.setHours(
         Number(time.split(':')[0]),
         Number(time.split(':')[1]),
         0,
         0,
       );
+      console.log('date2 : ', date);
       const KoreanISOString = toKoreanISOString(date);
       if (field === 'start') {
         newScheduleList[index].placeList[placeIndex].start_time =
           KoreanISOString;
       } else {
         newScheduleList[index].placeList[placeIndex].end_time = KoreanISOString;
+        // 종료 시간이 입력되면 다음 장소의 시작 시간을 자동으로 맞춰줍니다 (편의 기능)
+        const isNotLastPlace =
+          placeIndex + 1 < newScheduleList[index].placeList.length;
+        if (isNotLastPlace) {
+          const nextPlace = newScheduleList[index].placeList[placeIndex + 1];
+
+          nextPlace.start_time = KoreanISOString;
+        }
       }
       return newScheduleList;
     });
@@ -375,21 +373,16 @@ const CreateScheduleStepFour = ({}) => {
                         <span className="text-sm flex-1">
                           {daySchedule.accommodation.name}
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-6">
                           <div className="flex flex-col items-center">
                             <label className="text-xs text-gray-500 mb-1">
                               체크인
                             </label>
-                            <input
-                              type="time"
-                              value={handleAccommodationTimeValue(index)}
-                              onChange={(e) => {
-                                handleAccommodationTimeChange(
-                                  index,
-                                  e.target.value,
-                                );
+                            <InputTime
+                              initialTime={handleAccommodationTimeValue(index)}
+                              onChange={(time) => {
+                                handleAccommodationTimeChange(index, time);
                               }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             />
                           </div>
                         </div>

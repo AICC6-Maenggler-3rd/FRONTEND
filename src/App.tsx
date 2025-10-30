@@ -9,7 +9,6 @@ import LoginPage from './pages/Login';
 import MyPage from './pages/MyPage';
 import './index.css';
 import SchedulePage from './pages/users/Schedule';
-import Test from './pages/test/Test';
 import DeletePage from './pages/users/DeleteUserPage';
 import CreateScheduleStepOne from './pages/journey/step1/CreateScheduleStepOne';
 import CreateScheduleStepTwo from './pages/journey/step2/CreateScheduleStepTwo';
@@ -29,7 +28,7 @@ import EditSchedule from './pages/users/EditSchedule';
 
 function AppContent() {
   const location = useLocation();
-  const hideHeaderAndFooter = ['/login', '/test'].includes(location.pathname);
+  const hideHeaderAndFooter = ['/login'].includes(location.pathname);
   const hideFooterOnJourneySteps = [
     '/journey/step1',
     '/journey/step2',
@@ -69,7 +68,6 @@ function AppContent() {
 
         {/* 헤더와 푸터 불필요 */}
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/test" element={<Test />} />
       </Routes>
 
       {/* Footer */}

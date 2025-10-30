@@ -6,6 +6,19 @@ interface InstaViewerProps {
   width?: number;
 }
 
+export const getPlaceURL = (url: string) => {
+  const base_url = 'https://www.instagram.com/';
+  const strings = url.split('/');
+  if (!strings) {
+    return '';
+  }
+  if (strings.length < 5) {
+    return '';
+  }
+  console.log(base_url + strings[4] + '/' + strings[5]);
+  return base_url + strings[4] + '/' + strings[5];
+}
+
 const InstaViewer = ({ url, width = 300 }: InstaViewerProps) => {
   const ref = useRef(null);
   const [loading, setLoading] = useState(true);

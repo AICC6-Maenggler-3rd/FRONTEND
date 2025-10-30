@@ -218,14 +218,29 @@ const DayScheduleBar = ({
   const handleViewPath = async (index: number) => {
     const schedule = scheduleList[index];
 
-    // 장소가 2개 이상인 경우에만 경로 계산
-    if (schedule.placeList.length >= 2) {
-      const waypoints = schedule.placeList.map((p) => ({
+    // 모든 장소와 숙박시설을 포함한 경유지 생성
+    const allWaypoints: { lng: number; lat: number }[] = [];
+    
+    // 장소들 추가
+    schedule.placeList.forEach((p) => {
+      allWaypoints.push({
         lng: parseFloat(p.info.address_lo),
         lat: parseFloat(p.info.address_la),
-      }));
+      });
+    });
+    
+    // 숙박시설 추가
+    if (schedule.accommodation) {
+      allWaypoints.push({
+        lng: parseFloat(schedule.accommodation.address_lo),
+        lat: parseFloat(schedule.accommodation.address_la),
+      });
+    }
+
+    // 경유지가 2개 이상인 경우에만 경로 계산
+    if (allWaypoints.length >= 2) {
       const path = await requestPath({
-        waypoints: waypoints,
+        waypoints: allWaypoints,
         transport: 'CAR',
       });
       const route: Route = {
@@ -238,7 +253,7 @@ const DayScheduleBar = ({
       };
       setRoute?.(route);
     } else {
-      // 장소가 1개 이하인 경우 경로 초기화
+      // 경유지가 1개 이하인 경우 경로 초기화
       setRoute?.(undefined);
     }
 

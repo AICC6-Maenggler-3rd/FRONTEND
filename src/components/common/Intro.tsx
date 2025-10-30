@@ -2,6 +2,8 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { RecommendationModal } from './RecommendationModal';
+import SearchRAG from './SearchRAG';
 
 export function FloatingInstagramPosts() {
   const posts = [
@@ -173,6 +175,22 @@ export function FloatingInstagramPosts() {
 }
 
 export function HeroSection() {
+  const [isRecommendationModalOpen, setIsRecommendationModalOpen] =
+    useState(false);
+  const [showSearchRAG, setShowSearchRAG] = useState(false);
+
+  const handleSearchRAG = (open: boolean) => () => {
+    setShowSearchRAG(open);
+  };
+
+  const handleRecommendationClick = () => {
+    setIsRecommendationModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsRecommendationModalOpen(false);
+  };
+
   return (
     <section className="bg-gradient-to-b from-sky-200 to-slate-200 min-h-screen relative">
       {/* Floating Instagram Posts */}
@@ -198,19 +216,19 @@ export function HeroSection() {
             </div>
 
             {/* 버튼들 */}
-            <div className="flex flex-col sm:flex-row">
+            <div className="flex flex-col sm:flex-row ml-10">
               <Link
                 to="/journey/step1"
-                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
+                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-5"
               >
                 여행 계획 시작하기
               </Link>
-              <Link
-                to="/journey/step1"
-                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-15"
+              <button
+                onClick={handleSearchRAG(true)}
+                className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-5"
               >
-                (AI 추천)별점, 장소 추천 받기
-              </Link>
+                장소 검색
+              </button>
             </div>
 
             {/* 기능 하이라이트 */}
@@ -237,6 +255,13 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+
+      {/* 추천 모달 */}
+      <RecommendationModal
+        isOpen={isRecommendationModalOpen}
+        onClose={handleCloseModal}
+      />
+      {showSearchRAG && <SearchRAG onClose={handleSearchRAG(false)} />}
     </section>
   );
 }
