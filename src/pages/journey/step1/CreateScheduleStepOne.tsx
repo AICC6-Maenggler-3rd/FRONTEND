@@ -343,15 +343,6 @@ const CreateScheduleStepOne = () => {
   const handleComplete = async () => {
     try {
       setIsLoadingRecommendations(true);
-
-      // // content_based 추천 실행
-      // const places = await getRecommendedPlaces(
-      //   selectedThemes.join(','),
-      //   selectedCompanion || '혼자서',
-      //   selectedLocation,
-      //   10,
-      // );
-      // content_based 추천 실행
       const places = await getRecommendedPlaces(
         travelPlan.location,
         [travelPlan.companion || '혼자서'],
