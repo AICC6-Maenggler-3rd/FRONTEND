@@ -343,15 +343,6 @@ const CreateScheduleStepOne = () => {
   const handleComplete = async () => {
     try {
       setIsLoadingRecommendations(true);
-
-      // // content_based 추천 실행
-      // const places = await getRecommendedPlaces(
-      //   selectedThemes.join(','),
-      //   selectedCompanion || '혼자서',
-      //   selectedLocation,
-      //   10,
-      // );
-      // content_based 추천 실행
       const places = await getRecommendedPlaces(
         travelPlan.location,
         [travelPlan.companion || '혼자서'],
@@ -361,12 +352,12 @@ const CreateScheduleStepOne = () => {
       console.log('places', places);
 
       // Step2로 이동 (추천 장소 포함)
-      // navigate('/journey/step2', {
-      //   state: {
-      //     travelPlan,
-      //     recommendedPlaces: places,
-      //   },
-      // });
+      navigate('/journey/step2', {
+        state: {
+          travelPlan,
+          recommendedPlaces: places,
+        },
+      });
     } catch (error) {
       console.error('추천 장소를 가져오는데 실패했습니다:', error);
       // 에러가 발생해도 이동은 진행
