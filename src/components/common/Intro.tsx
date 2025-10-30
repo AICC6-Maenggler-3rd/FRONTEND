@@ -179,7 +179,7 @@ export function HeroSection() {
     useState(false);
   const [showSearchRAG, setShowSearchRAG] = useState(false);
 
-  const handleSearchRAG = (open: boolean) =>() => {
+  const handleSearchRAG = (open: boolean) => () => {
     setShowSearchRAG(open);
   };
 
@@ -216,7 +216,7 @@ export function HeroSection() {
             </div>
 
             {/* 버튼들 */}
-            <div className="flex flex-col sm:flex-row">
+            <div className="flex flex-col sm:flex-row ml-10">
               <Link
                 to="/journey/step1"
                 className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-5"
@@ -224,12 +224,9 @@ export function HeroSection() {
                 여행 계획 시작하기
               </Link>
               <button
-                onClick={handleRecommendationClick}
+                onClick={handleSearchRAG(true)}
                 className="bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-5"
               >
-                회원님을 위한 추천
-              </button>
-              <button onClick={handleSearchRAG(true)} className='bg-gradient-to-r from-blue-300 to-sky-200 text-gray-800 px-4 py-4 rounded-xl text-center hover:shadow-lg transform shadow-md ml-5'>
                 장소 검색
               </button>
             </div>

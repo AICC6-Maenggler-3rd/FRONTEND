@@ -180,6 +180,14 @@ const CreateScheduleStepFour = ({}) => {
           KoreanISOString;
       } else {
         newScheduleList[index].placeList[placeIndex].end_time = KoreanISOString;
+        // 종료 시간이 입력되면 다음 장소의 시작 시간을 자동으로 맞춰줍니다 (편의 기능)
+        const isNotLastPlace =
+          placeIndex + 1 < newScheduleList[index].placeList.length;
+        if (isNotLastPlace) {
+          const nextPlace = newScheduleList[index].placeList[placeIndex + 1];
+
+          nextPlace.start_time = KoreanISOString;
+        }
       }
       return newScheduleList;
     });

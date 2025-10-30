@@ -4,6 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getUserInfo } from '@/api/auth';
 import { getItineraryDetail, deleteItinerary } from '@/api/itinerary';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface ItineraryItem {
   item_id: number;
@@ -107,11 +109,23 @@ export default function ScheduleDetailPage() {
     setIsDeleting(true);
     try {
       await deleteItinerary(Number(id));
-      alert('일정이 삭제되었습니다.');
-      navigate('/mypage'); // 마이페이지로 이동
+      toast.success('일정이 삭제되었습니다.', {
+        position: 'top-center',
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        onClose: () => {
+          navigate('/mypage');
+        },
+      });
     } catch (error) {
       console.error('일정 삭제 실패:', error);
-      alert('일정 삭제에 실패했습니다.');
+      toast.error('일정 삭제에 실패했습니다.', {
+        position: 'top-center',
+        autoClose: 2000,
+      });
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -281,6 +295,7 @@ export default function ScheduleDetailPage() {
 
   return (
     <div className="min-h-screen py-8">
+      <ToastContainer />
       <div className="max-w-4xl mx-auto px-4">
         {/* 헤더 */}
         <div className="text-center mt-10 mb-20">

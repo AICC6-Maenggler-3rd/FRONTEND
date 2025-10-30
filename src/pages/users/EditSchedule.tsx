@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getUserInfo } from '@/api/auth';
 import { getItineraryDetail } from '@/api/itinerary';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import InputTime from '@/components/ui/TimeNumberInput';
 
 interface ItineraryItem {
@@ -173,11 +175,23 @@ export default function EditSchedule() {
       // };
 
       // await updateItinerary(Number(id), updatedItinerary);
-      alert('일정이 성공적으로 수정되었습니다.');
-      navigate(`/schedule/${id}`);
+      toast.success('일정이 성공적으로 수정되었습니다.', {
+        position: 'top-center',
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        onClose: () => {
+          navigate(`/schedule/${id}`);
+        },
+      });
     } catch (error) {
       console.error('일정 수정 실패:', error);
-      alert('일정 수정에 실패했습니다.');
+      toast.error('일정 수정에 실패했습니다.', {
+        position: 'top-center',
+        autoClose: 2000,
+      });
     } finally {
       setSaving(false);
     }
@@ -216,6 +230,7 @@ export default function EditSchedule() {
 
   return (
     <div className="min-h-screen py-8">
+      <ToastContainer />
       <div className="max-w-4xl mx-auto px-4">
         {/* 헤더 */}
         <div className="text-center mt-10 mb-20">

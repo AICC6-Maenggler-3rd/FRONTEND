@@ -15,12 +15,11 @@ import type {
   ItineraryItemResponse,
   ItineraryResponse,
 } from '@/types/itinerary';
-import { generateItinerary , getModelNames} from '@/api/itinerary';
+import { generateItinerary, getModelNames } from '@/api/itinerary';
 import type { Accommodation } from '@/api/accommodation';
 import { Link } from 'react-router-dom';
 import type { TravelPlan } from '../step1/CreateScheduleStepOne';
 import generate_schedule_image from '@/images/schedule_generate.png';
-
 
 export interface DaySchedule {
   index: number;
@@ -154,21 +153,21 @@ const CreateScheduleStepTwo = () => {
   const [generateAction, setGenerateAction] = useState(false);
   const [fixSchedule, setFixSchedule] = useState(false);
 
-  const [modelNames, setModelNames] = useState([])
-  const [selectModel, setSelectModel] = useState('random')
+  const [modelNames, setModelNames] = useState([]);
+  const [selectModel, setSelectModel] = useState('맞춤형 일정 추천');
 
   // // 위치기반 검색용 나중에 수정 필요
   // const baseLat = 37.5665;
   // const baseLng = 126.978;
   // const baseRadius = 3000;
 
-  useEffect(()=>{
+  useEffect(() => {
     const loadModelNames = async () => {
-      const models = await getModelNames()
-      setModelNames(models)
-    }
-    loadModelNames()
-  },[])
+      const models = await getModelNames();
+      setModelNames(models);
+    };
+    loadModelNames();
+  }, []);
 
   useEffect(() => {
     if (travelPlan) {
@@ -221,10 +220,10 @@ const CreateScheduleStepTwo = () => {
       return splits[0] + ' ' + splits[1];
     }
     return travelPlan?.location;
-  }
-  const handleChangeModel = (e:React.ChangeEvent<HTMLSelectElement>)=>{
-    setSelectModel(e.target.value)
-  }
+  };
+  const handleChangeModel = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectModel(e.target.value);
+  };
   return (
     <div className="h-[calc(100vh)] bg-white flex">
       {detailPlace && (
@@ -270,16 +269,24 @@ const CreateScheduleStepTwo = () => {
                 setPlaceList={setPlaceList}
               />
             </div>
-            <div className="px-5 h-[7rem] w-full flex flex-col items-center justify-center">
-              <div className='w-full flex justify-end items-center gap-2'>
-                <label htmlFor="model">모델 선택</label>
-                <select className='h-[2rem] w-[8rem]' onChange={handleChangeModel}>
+            <div className="px-7 h-[7rem] w-full flex flex-col items-center justify-center">
+              <div className="w-full flex justify-end items-center gap-2">
+                <label className="w-full font-bold" htmlFor="model">
+                  추천 방식 선택
+                </label>
+                <select
+                  className="h-[2rem] w-full"
+                  onChange={handleChangeModel}
+                >
                   {modelNames.map((model) => (
                     <option value={model}>{model}</option>
                   ))}
                 </select>
               </div>
-              <button className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm w-full" onClick={handleAutoSchedule}>
+              <button
+                className="text-center text-lg font-bold border-2 border-blue-300 m-2 p-4 rounded-sm w-full"
+                onClick={handleAutoSchedule}
+              >
                 스케쥴 자동 생성
               </button>
             </div>
